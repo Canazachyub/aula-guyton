@@ -28,12 +28,25 @@ Stack previsto para las siguientes fases (todavía no implementado):
 ACADEMIA GUYTON/
 ├── README.md                     (este archivo)
 ├── BASE_DATOS_GUYTON.xlsx        Excel de referencia con las 12 hojas + datos DEMO
-└── docs/
-    ├── PLAN_MAESTRO.md            Fases del proyecto, criterios de cierre, decisiones tomadas
-    ├── MODELO_DATOS.md            Las 12 hojas columna por columna + diagrama de relaciones
-    ├── ROLES_Y_FLUJOS.md          Simulación de un día típico por rol + matriz de permisos
-    ├── IDENTIDAD_VISUAL.md        Paleta, tipografías, gradiente, y honestidad sobre lo pendiente
-    └── generar_excel.py           Script que regenera BASE_DATOS_GUYTON.xlsx desde cero
+├── docs/
+│   ├── PLAN_MAESTRO.md            Fases del proyecto, criterios de cierre, decisiones tomadas
+│   ├── MODELO_DATOS.md            Las 12 hojas columna por columna + diagrama de relaciones
+│   ├── ROLES_Y_FLUJOS.md          Simulación de un día típico por rol + matriz de permisos
+│   ├── IDENTIDAD_VISUAL.md        Paleta, tipografías, gradiente, y honestidad sobre lo pendiente
+│   ├── GUIA_FRONTEND.md           Especificación ejecutable del frontend del aula (Fase 3a)
+│   ├── BITACORA_FRONTEND.md       Qué se construyó, decisiones, pendientes y migración al backend
+│   └── generar_excel.py           Script que regenera BASE_DATOS_GUYTON.xlsx desde cero
+└── web/                           Aula virtual (Vite + React, Fase 3a ya construida)
+    ├── index.html
+    ├── public/favicon.svg         Placeholder del isotipo (el logo real está pendiente)
+    └── src/
+        ├── estilos/               tokens.css (variables de marca) + global.css
+        ├── datos/mock.js          Espejo exacto del Excel DEMO
+        ├── api/cliente.js         ÚNICA capa de datos (hoy mock; Fase 2: fetch a Apps Script)
+        ├── auth/                  Sesión (sessionStorage) y rutas protegidas por rol
+        ├── paginas/Entrar.jsx     Login con DNI + clave de acceso
+        ├── componentes/           Layout responsive y bloques compartidos
+        └── paneles/               estudiante/ docente/ auxiliar/ superadmin/
 ```
 
 ## Cómo regenerar el Excel
