@@ -102,3 +102,234 @@ a:hover {
     padding-inline: 2rem;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Isotipo provisional (el logo real esta pendiente — ver IDENTIDAD_VISUAL.md)
+   -------------------------------------------------------------------------- */
+
+.gy-isotipo {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: var(--gy-radio-m);
+  background: var(--gy-gradiente);
+  border: 2px dashed rgba(255, 255, 255, 0.65);
+  display: grid;
+  place-items: center;
+  color: var(--gy-blanco);
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  font-size: 1.35rem;
+  user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   Botones
+   -------------------------------------------------------------------------- */
+
+.gy-boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--gy-radio-m);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  transition: filter var(--gy-transicion), transform var(--gy-transicion);
+}
+
+.gy-boton:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.gy-boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.gy-boton--primario {
+  background: var(--gy-azul-electrico);
+  color: var(--gy-blanco);
+}
+
+.gy-boton--acento {
+  background: var(--gy-naranja);
+  color: var(--gy-blanco);
+}
+
+.gy-boton--secundario {
+  background: var(--gy-blanco);
+  color: var(--gy-azul-real);
+  border: 1px solid var(--gy-borde);
+}
+
+.gy-boton--peligro {
+  background: var(--gy-error);
+  color: var(--gy-blanco);
+}
+
+.gy-boton--bloque {
+  width: 100%;
+}
+
+.gy-boton--chico {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  border-radius: var(--gy-radio-s);
+}
+
+/* --------------------------------------------------------------------------
+   Formularios
+   -------------------------------------------------------------------------- */
+
+.gy-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.gy-etiqueta {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--gy-azul-noche);
+}
+
+.gy-input,
+.gy-select,
+.gy-textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--gy-borde);
+  border-radius: var(--gy-radio-m);
+  background: var(--gy-blanco);
+  transition: border-color var(--gy-transicion);
+}
+
+.gy-input:focus,
+.gy-select:focus,
+.gy-textarea:focus {
+  outline: none;
+  border-color: var(--gy-azul-electrico);
+  box-shadow: 0 0 0 3px var(--gy-azul-electrico-suave);
+}
+
+.gy-input:disabled,
+.gy-select:disabled,
+.gy-textarea:disabled {
+  background: var(--gy-superficie);
+  cursor: not-allowed;
+}
+
+.gy-ayuda-campo {
+  font-size: 0.8rem;
+  color: var(--gy-texto-suave);
+}
+
+/* --------------------------------------------------------------------------
+   Alertas
+   -------------------------------------------------------------------------- */
+
+.gy-alerta {
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--gy-radio-m);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.gy-alerta--error {
+  background: var(--gy-error-suave);
+  color: var(--gy-error);
+}
+
+.gy-alerta--exito {
+  background: var(--gy-exito-suave);
+  color: var(--gy-exito);
+}
+
+.gy-alerta--info {
+  background: var(--gy-info-suave);
+  color: var(--gy-azul-real);
+}
+
+/* --------------------------------------------------------------------------
+   Pantalla de acceso
+   -------------------------------------------------------------------------- */
+
+.gy-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--gy-gradiente);
+  padding: 1.5rem 1rem;
+}
+
+.gy-login-tarjeta {
+  width: 100%;
+  max-width: 420px;
+  background: var(--gy-blanco);
+  border-radius: var(--gy-radio-l);
+  box-shadow: var(--gy-sombra-2);
+  padding: 2rem 1.75rem;
+}
+
+.gy-login-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.gy-login-titulo {
+  font-size: 1.45rem;
+}
+
+.gy-login-subtitulo {
+  color: var(--gy-texto-suave);
+  font-size: 0.85rem;
+}
+
+.gy-login-ayuda {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--gy-texto-suave);
+  text-align: center;
+}
+
+.gy-demo-caja {
+  margin-top: 1.25rem;
+  border: 1px dashed var(--gy-gris-suave);
+  border-radius: var(--gy-radio-m);
+  background: var(--gy-superficie);
+  padding: 0.85rem 1rem;
+}
+
+.gy-demo-titulo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gy-azul-real);
+  margin-bottom: 0.5rem;
+}
+
+.gy-demo-lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.gy-demo-cuenta {
+  width: 100%;
+  text-align: left;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: var(--gy-radio-s);
+  color: var(--gy-texto);
+}
+
+.gy-demo-cuenta:hover {
+  background: var(--gy-azul-electrico-suave);
+}

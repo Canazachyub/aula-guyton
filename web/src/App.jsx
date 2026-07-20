@@ -1,18 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProveedorSesion, useSesion } from './auth/SesionContexto.jsx'
 import RutaProtegida from './auth/RutaProtegida.jsx'
+import Entrar from './paginas/Entrar.jsx'
 
-// --- Placeholders temporales del Paso 4 -------------------------------------
-// El login real llega en el Paso 5 (paginas/Entrar.jsx) y los paneles reales
-// en el Paso 7 (paneles/). Estos solo permiten verificar las guardas.
-
-function EntrarPlaceholder() {
-  return (
-    <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--gy-gradiente)', color: 'var(--gy-blanco)' }}>
-      <p>Pantalla de acceso — se construye en el Paso 5.</p>
-    </main>
-  )
-}
+// --- Placeholders temporales -------------------------------------------------
+// Los paneles reales llegan en el Paso 7 (paneles/). Estos solo permiten
+// verificar las guardas.
 
 function PanelPlaceholder({ titulo }) {
   const { sesion, salir } = useSesion()
@@ -51,7 +44,7 @@ function App() {
     <ProveedorSesion>
       <Routes>
         <Route path="/" element={<Navigate to="/panel" replace />} />
-        <Route path="/entrar" element={<EntrarPlaceholder />} />
+        <Route path="/entrar" element={<Entrar />} />
         <Route path="/panel" element={<RedireccionPanel />} />
         <Route
           path="/panel/estudiante/*"
