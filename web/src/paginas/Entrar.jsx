@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContexto.jsx'
+import Isotipo from '../componentes/Isotipo.jsx'
 
 // Credenciales del entorno DEMO, visibles a proposito: toda la app corre con
 // datos de ejemplo y la interfaz debe decirlo (regla de honestidad).
@@ -52,10 +53,7 @@ export default function Entrar() {
     <main className="gy-login">
       <section className="gy-login-tarjeta">
         <div className="gy-login-marca">
-          {/* Placeholder del isotipo: el componente reutilizable llega en el Paso 6 */}
-          <div className="gy-isotipo" title="Isotipo provisional - el logo real está pendiente" aria-hidden="true">
-            G
-          </div>
+          <Isotipo tamano={48} />
           <div>
             <h1 className="gy-login-titulo">Aula Virtual</h1>
             <p className="gy-login-subtitulo">Academia Preuniversitaria Guyton</p>

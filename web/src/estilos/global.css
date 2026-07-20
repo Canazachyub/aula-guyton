@@ -333,3 +333,493 @@ a:hover {
 .gy-demo-cuenta:hover {
   background: var(--gy-azul-electrico-suave);
 }
+
+/* --------------------------------------------------------------------------
+   Layout de paneles (mobile-first: el cajon lateral es la regla en celular)
+   -------------------------------------------------------------------------- */
+
+.gy-layout {
+  min-height: 100vh;
+}
+
+.gy-lateral {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 264px;
+  background: var(--gy-azul-noche);
+  color: var(--gy-blanco);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+  transform: translateX(-100%);
+  transition: transform 220ms ease;
+}
+
+.gy-lateral--abierto {
+  transform: translateX(0);
+  box-shadow: var(--gy-sombra-2);
+}
+
+.gy-cortina {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 11, 43, 0.55);
+  z-index: 30;
+  cursor: default;
+}
+
+.gy-lateral-marca {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gy-lateral-marca-texto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.gy-lateral-marca-texto strong {
+  font-family: var(--gy-fuente-titulos);
+  font-size: 0.95rem;
+}
+
+.gy-lateral-marca-texto span {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.gy-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.gy-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--gy-radio-m);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.92rem;
+  font-weight: 500;
+  border-left: 3px solid transparent;
+}
+
+.gy-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--gy-blanco);
+  text-decoration: none;
+}
+
+.gy-nav-item--activo {
+  background: rgba(20, 92, 255, 0.28);
+  color: var(--gy-blanco);
+  border-left-color: var(--gy-naranja);
+  font-weight: 600;
+}
+
+.gy-lateral-usuario {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gy-avatar {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--gy-naranja);
+  color: var(--gy-blanco);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.gy-lateral-usuario-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.gy-lateral-usuario-texto strong {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gy-lateral-usuario-texto span {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+.gy-lateral-salir {
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.35rem;
+  border-radius: var(--gy-radio-s);
+}
+
+.gy-lateral-salir:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--gy-blanco);
+}
+
+.gy-principal {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.gy-cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--gy-blanco);
+  box-shadow: var(--gy-sombra-1);
+  padding: 0.8rem 1rem;
+}
+
+.gy-cabecera-menu {
+  color: var(--gy-azul-noche);
+  padding: 0.35rem;
+  border-radius: var(--gy-radio-s);
+}
+
+.gy-cabecera-menu:hover {
+  background: var(--gy-superficie);
+}
+
+.gy-cabecera-titulo {
+  font-size: 1.15rem;
+}
+
+.gy-contenido {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 1rem;
+}
+
+.gy-aviso-demo {
+  background: var(--gy-alerta-suave);
+  color: var(--gy-alerta);
+  border: 1px solid rgba(180, 83, 9, 0.25);
+  border-radius: var(--gy-radio-m);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 900px) {
+  .gy-lateral {
+    transform: none;
+  }
+
+  .gy-cortina,
+  .gy-cabecera-menu {
+    display: none;
+  }
+
+  .gy-principal {
+    margin-left: 264px;
+  }
+
+  .gy-cabecera {
+    padding: 0.9rem 2rem;
+  }
+
+  .gy-cabecera-titulo {
+    font-size: 1.3rem;
+  }
+
+  .gy-contenido {
+    padding: 1.5rem 2rem 2.5rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tarjetas y grillas
+   -------------------------------------------------------------------------- */
+
+.gy-tarjeta {
+  background: var(--gy-blanco);
+  border-radius: var(--gy-radio-l);
+  box-shadow: var(--gy-sombra-1);
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.gy-tarjeta-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.gy-tarjeta-titulo {
+  font-size: 1.05rem;
+}
+
+.gy-tarjeta-acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.gy-grilla {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .gy-grilla--2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .gy-grilla--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .gy-grilla--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Tarjeta de metrica (KPI): numero grande + rotulo. Una sola familia de
+   colores de marca para que todo se lea como un solo sistema. */
+.gy-kpi {
+  background: var(--gy-blanco);
+  border-radius: var(--gy-radio-l);
+  box-shadow: var(--gy-sombra-1);
+  padding: 1rem 1.15rem;
+  border-top: 4px solid var(--gy-azul-electrico);
+}
+
+.gy-kpi--acento {
+  border-top-color: var(--gy-naranja);
+}
+
+.gy-kpi--exito {
+  border-top-color: var(--gy-exito);
+}
+
+.gy-kpi--alerta {
+  border-top-color: #D97706;
+}
+
+.gy-kpi-valor {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--gy-azul-noche);
+  line-height: 1.1;
+}
+
+.gy-kpi-rotulo {
+  font-size: 0.82rem;
+  color: var(--gy-texto-suave);
+  margin-top: 0.15rem;
+}
+
+/* Barra de progreso simple (resumen de asistencia, avance de pagos) */
+.gy-progreso {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--gy-superficie);
+  overflow: hidden;
+}
+
+.gy-progreso-relleno {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--gy-azul-electrico);
+}
+
+.gy-progreso-relleno--acento {
+  background: var(--gy-naranja);
+}
+
+.gy-progreso-relleno--exito {
+  background: var(--gy-exito);
+}
+
+/* --------------------------------------------------------------------------
+   Tablas
+   -------------------------------------------------------------------------- */
+
+.gy-tabla-envoltura {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gy-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 480px;
+}
+
+.gy-tabla th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gy-texto-suave);
+  font-weight: 700;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 2px solid var(--gy-borde);
+  white-space: nowrap;
+}
+
+.gy-tabla td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--gy-borde);
+  vertical-align: middle;
+}
+
+.gy-tabla tbody tr:hover {
+  background: var(--gy-superficie);
+}
+
+/* --------------------------------------------------------------------------
+   Insignias de estado
+   -------------------------------------------------------------------------- */
+
+.gy-insignia {
+  display: inline-block;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gy-insignia--exito {
+  background: var(--gy-exito-suave);
+  color: var(--gy-exito);
+}
+
+.gy-insignia--alerta {
+  background: var(--gy-alerta-suave);
+  color: var(--gy-alerta);
+}
+
+.gy-insignia--error {
+  background: var(--gy-error-suave);
+  color: var(--gy-error);
+}
+
+.gy-insignia--info {
+  background: var(--gy-info-suave);
+  color: var(--gy-azul-real);
+}
+
+.gy-insignia--neutro {
+  background: var(--gy-superficie);
+  color: var(--gy-gris);
+}
+
+/* --------------------------------------------------------------------------
+   Estado vacio
+   -------------------------------------------------------------------------- */
+
+.gy-estado-vacio {
+  border: 1px dashed var(--gy-gris-suave);
+  border-radius: var(--gy-radio-l);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: var(--gy-texto-suave);
+}
+
+.gy-estado-vacio-marca {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.gy-estado-vacio-marca span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gy-gris-suave);
+}
+
+.gy-estado-vacio-marca span:first-child {
+  background: var(--gy-naranja);
+}
+
+.gy-estado-vacio-titulo {
+  font-weight: 600;
+  color: var(--gy-texto);
+  margin-bottom: 0.25rem;
+}
+
+.gy-estado-vacio-detalle {
+  font-size: 0.88rem;
+}
+
+/* --------------------------------------------------------------------------
+   Bloques de lista simples dentro de tarjetas
+   -------------------------------------------------------------------------- */
+
+.gy-lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gy-lista-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--gy-borde);
+}
+
+.gy-lista-item:last-child {
+  border-bottom: none;
+}
+
+.gy-lista-item-principal {
+  min-width: 0;
+}
+
+.gy-lista-item-titulo {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.gy-lista-item-detalle {
+  font-size: 0.8rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-acciones-fila {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
