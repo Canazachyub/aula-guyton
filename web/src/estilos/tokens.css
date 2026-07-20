@@ -1,0 +1,52 @@
+/* ==========================================================================
+   Tokens de marca — Academia Preuniversitaria Guyton
+   Fuente: docs/IDENTIDAD_VISUAL.md (paleta y gradiente CONFIRMADOS por el usuario)
+   Regla de esta capa: SOLO variables, ninguna regla con selectores.
+   ========================================================================== */
+
+:root {
+  /* Paleta confirmada */
+  --gy-azul-noche: #050B2B;
+  --gy-azul-real: #0829B8;
+  --gy-azul-electrico: #145CFF;
+  --gy-naranja: #FF4A18;
+  --gy-blanco: #FFFFFF;
+  --gy-superficie: #EDF2F7;
+  --gy-gris: #64748B;
+
+  /* Gradiente de marca confirmado (135°) */
+  --gy-gradiente: linear-gradient(135deg, var(--gy-azul-noche), var(--gy-azul-real), var(--gy-azul-electrico));
+
+  /* Tipografías (PROVISIONAL: propuestas en IDENTIDAD_VISUAL.md, aún no confirmadas.
+     Decisión documentada en docs/BITACORA_FRONTEND.md: Montserrat para títulos, Inter para UI) */
+  --gy-fuente-titulos: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+  --gy-fuente-ui: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  /* Derivados de la paleta para estados y superficies (tonos de la misma familia) */
+  --gy-azul-noche-suave: #0B1440;
+  --gy-azul-electrico-suave: #E3ECFF;
+  --gy-naranja-suave: #FFE9E2;
+  --gy-naranja-oscuro: #D93A0E;
+  --gy-gris-suave: #CBD5E1;
+  --gy-texto: #0F172A;
+  --gy-texto-suave: var(--gy-gris);
+  --gy-borde: #D8E0EA;
+
+  /* Semánticos de estado (dentro de la familia de marca) */
+  --gy-exito: #15803D;
+  --gy-exito-suave: #DCFCE7;
+  --gy-alerta: #B45309;
+  --gy-alerta-suave: #FEF3C7;
+  --gy-error: #B91C1C;
+  --gy-error-suave: #FEE2E2;
+  --gy-info: var(--gy-azul-electrico);
+  --gy-info-suave: var(--gy-azul-electrico-suave);
+
+  /* Radios, sombras y ritmo */
+  --gy-radio-s: 6px;
+  --gy-radio-m: 10px;
+  --gy-radio-l: 16px;
+  --gy-sombra-1: 0 1px 2px rgba(5, 11, 43, 0.08);
+  --gy-sombra-2: 0 6px 20px rgba(5, 11, 43, 0.12);
+  --gy-transicion: 160ms ease;
+}

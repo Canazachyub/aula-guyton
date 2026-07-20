@@ -1,0 +1,104 @@
+/* ==========================================================================
+   Base global — Aula Virtual Guyton
+   Reset suave + tipografía base + utilidades. Los tokens viven en tokens.css.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--gy-fuente-ui);
+  color: var(--gy-texto);
+  background-color: var(--gy-superficie);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--gy-azul-noche);
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+a {
+  color: var(--gy-azul-electrico);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gy-azul-electrico);
+  outline-offset: 2px;
+  border-radius: var(--gy-radio-s);
+}
+
+/* --------------------------------------------------------------------------
+   Utilidades
+   -------------------------------------------------------------------------- */
+
+.gy-contenedor {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+.gy-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.gy-texto-suave {
+  color: var(--gy-texto-suave);
+}
+
+@media (min-width: 768px) {
+  .gy-contenedor {
+    padding-inline: 2rem;
+  }
+}
