@@ -20,9 +20,11 @@ Lo que **ya existe** en `web/` (no hay que rehacerlo):
 - El repositorio git ya está inicializado en `C:\PROGRAMACION\ACADEMIA GUYTON`, rama `main`,
   **sin ningún commit todavía**.
 
-Lo que existe pero es **basura del template** y debe borrarse en el Paso 1: `src/App.css`,
-`src/index.css`, `src/assets/react.svg`, `src/assets/vite.svg`, `src/assets/hero.png`,
-`public/vite.svg` y el contenido de `src/App.jsx`.
+Lo que existe pero es **basura del template** y debe borrarse o reemplazarse en el Paso 1:
+`src/App.css`, `src/index.css`, `src/assets/react.svg`, `src/assets/vite.svg`,
+`src/assets/hero.png`, `public/favicon.svg`, `public/icons.svg` y el contenido de `src/App.jsx`.
+El favicon habrá que rehacerlo con el placeholder del isotipo (la "G" sobre el gradiente),
+porque el actual es el de Vite.
 
 Lo que **no existe todavía**: absolutamente todo el código del aula.
 
