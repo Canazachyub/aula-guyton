@@ -336,6 +336,31 @@ export async function obtenerAnuncios(sesion) {
     })
 }
 
+/** Matriculas resueltas con alumno y ciclo. Estudiante: solo las suyas.
+ *  Auxiliar y superadmin: todas (las necesitan para registrar pagos).
+ *  Docente: ninguna. */
+export async function obtenerMatriculas(sesion) {
+  await esperar()
+  if (!sesion || sesion.rol === 'docente') return []
+  let filas = db.matriculas
+  if (sesion.rol === 'estudiante') {
+    filas = filas.filter((m) => m.id_usuario === sesion.id_usuario)
+  }
+  return filas
+    .map((m) => {
+      const alumno = buscarUsuario(m.id_usuario)
+      const ciclo = buscarCiclo(m.id_ciclo)
+      return {
+        ...m,
+        alumno_nombre: alumno ? nombreCompleto(alumno) : '(alumno no encontrado)',
+        alumno_dni: alumno ? alumno.dni : '',
+        ciclo_nombre: ciclo ? ciclo.nombre : '',
+        n_mensualidades: ciclo ? ciclo.n_mensualidades : 0,
+      }
+    })
+    .sort((a, b) => a.ciclo_nombre.localeCompare(b.ciclo_nombre) || a.alumno_nombre.localeCompare(b.alumno_nombre))
+}
+
 export async function obtenerUsuarios(sesion) {
   await esperar()
   if (sesion?.rol !== 'superadmin') return []

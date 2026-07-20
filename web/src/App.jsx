@@ -2,9 +2,10 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProveedorSesion, useSesion } from './auth/SesionContexto.jsx'
 import RutaProtegida from './auth/RutaProtegida.jsx'
 import Entrar from './paginas/Entrar.jsx'
+import PanelEstudiante from './paneles/estudiante/PanelEstudiante.jsx'
 
 // --- Placeholders temporales -------------------------------------------------
-// Los paneles reales llegan en el Paso 7 (paneles/). Estos solo permiten
+// Los paneles restantes llegan en este mismo Paso 7. Estos solo permiten
 // verificar las guardas.
 
 function PanelPlaceholder({ titulo }) {
@@ -50,7 +51,7 @@ function App() {
           path="/panel/estudiante/*"
           element={
             <RutaProtegida roles={['estudiante']}>
-              <PanelPlaceholder titulo="Panel del estudiante" />
+              <PanelEstudiante />
             </RutaProtegida>
           }
         />
