@@ -3,6 +3,7 @@ import { ProveedorSesion, useSesion } from './auth/SesionContexto.jsx'
 import RutaProtegida from './auth/RutaProtegida.jsx'
 import Entrar from './paginas/Entrar.jsx'
 import PanelEstudiante from './paneles/estudiante/PanelEstudiante.jsx'
+import PanelDocente from './paneles/docente/PanelDocente.jsx'
 
 // --- Placeholders temporales -------------------------------------------------
 // Los paneles restantes llegan en este mismo Paso 7. Estos solo permiten
@@ -59,7 +60,7 @@ function App() {
           path="/panel/docente/*"
           element={
             <RutaProtegida roles={['docente']}>
-              <PanelPlaceholder titulo="Panel del docente" />
+              <PanelDocente />
             </RutaProtegida>
           }
         />

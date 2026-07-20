@@ -854,6 +854,15 @@ a:hover {
   gap: 0.5rem;
 }
 
+.gy-material-fila {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
 .gy-select--auto {
   width: auto;
   min-width: 8.5rem;
