@@ -1,5 +1,5 @@
-// Asistencia del auxiliar: pasa lista de cualquier clase (su funcion
-// principal) y ve el historial completo. Vista = bloque compartido.
+// Asistencia del superadmin: pasar lista de cualquier clase y ver el
+// historial completo. Vista = bloque compartido GestionAsistencia.
 
 import GestionAsistencia from '../../componentes/GestionAsistencia.jsx'
 

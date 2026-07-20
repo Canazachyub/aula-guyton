@@ -373,6 +373,14 @@ export async function obtenerConfig(sesion) {
   return db.config
 }
 
+/** Catalogo global de cursos (no confundir con obtenerCursosDelUsuario, que
+ *  devuelve ciclo_cursos resueltos segun el rol). Solo superadmin. */
+export async function obtenerCursosCatalogo(sesion) {
+  await esperar()
+  if (sesion?.rol !== 'superadmin') return []
+  return [...db.cursos].sort((a, b) => a.orden - b.orden)
+}
+
 // ---------------------------------------------------------------------------
 // Escrituras (mutan el mock EN MEMORIA: los cambios se pierden al recargar.
 // Rechazan explicitamente lo no permitido con { ok: false, error }.)
