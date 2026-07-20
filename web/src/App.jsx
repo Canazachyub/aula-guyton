@@ -4,6 +4,7 @@ import RutaProtegida from './auth/RutaProtegida.jsx'
 import Entrar from './paginas/Entrar.jsx'
 import PanelEstudiante from './paneles/estudiante/PanelEstudiante.jsx'
 import PanelDocente from './paneles/docente/PanelDocente.jsx'
+import PanelAuxiliar from './paneles/auxiliar/PanelAuxiliar.jsx'
 
 // --- Placeholders temporales -------------------------------------------------
 // Los paneles restantes llegan en este mismo Paso 7. Estos solo permiten
@@ -68,7 +69,7 @@ function App() {
           path="/panel/auxiliar/*"
           element={
             <RutaProtegida roles={['auxiliar']}>
-              <PanelPlaceholder titulo="Panel del auxiliar" />
+              <PanelAuxiliar />
             </RutaProtegida>
           }
         />
