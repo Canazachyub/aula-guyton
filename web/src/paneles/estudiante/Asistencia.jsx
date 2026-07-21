@@ -6,6 +6,7 @@ import { obtenerAsistencias } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
 import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Tabla from '../../componentes/Tabla.jsx'
+import Kpi from '../../componentes/Kpi.jsx'
 import Insignia from '../../componentes/Insignia.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
@@ -47,26 +48,22 @@ export default function Asistencia() {
 
   return (
     <div>
-      <div className="gy-grilla gy-grilla--4">
-        <div className="gy-kpi gy-kpi--exito">
-          <p className="gy-kpi-valor">{conteos.presente}</p>
-          <p className="gy-kpi-rotulo">Presente</p>
+      <div className="gy-bento" style={{ marginBottom: '1.1rem' }}>
+        <div className="gy-bs-3">
+          <Kpi valor={conteos.presente} rotulo="Presente" icono="lista" tono="exito" />
         </div>
-        <div className="gy-kpi gy-kpi--alerta">
-          <p className="gy-kpi-valor">{conteos.tardanza}</p>
-          <p className="gy-kpi-rotulo">Tardanzas</p>
+        <div className="gy-bs-3">
+          <Kpi valor={conteos.tardanza} rotulo="Tardanzas" icono="reloj" tono="alerta" />
         </div>
-        <div className="gy-kpi">
-          <p className="gy-kpi-valor">{conteos.falta}</p>
-          <p className="gy-kpi-rotulo">Faltas</p>
+        <div className="gy-bs-3">
+          <Kpi valor={conteos.falta} rotulo="Faltas" icono="cerrar" />
         </div>
-        <div className="gy-kpi gy-kpi--acento">
-          <p className="gy-kpi-valor">{conteos.justificado}</p>
-          <p className="gy-kpi-rotulo">Justificadas</p>
+        <div className="gy-bs-3">
+          <Kpi valor={conteos.justificado} rotulo="Justificadas" icono="info" tono="acento" />
         </div>
       </div>
 
-      <Tarjeta titulo={`Asistencia: ${porcentaje}%`}>
+      <Tarjeta titulo={`Asistencia: ${porcentaje}%`} icono="lista" tonoIcono="exito">
         <div className="gy-progreso" role="progressbar" aria-valuenow={porcentaje} aria-valuemin="0" aria-valuemax="100">
           <div className="gy-progreso-relleno gy-progreso-relleno--exito" style={{ width: `${porcentaje}%` }} />
         </div>
@@ -75,7 +72,7 @@ export default function Asistencia() {
         </p>
       </Tarjeta>
 
-      <Tarjeta titulo="Detalle por clase">
+      <Tarjeta titulo="Detalle por clase" icono="calendario">
         <Tabla columnas={columnas} filas={datos} llaveFila={(a) => a.id_asistencia} />
       </Tarjeta>
     </div>

@@ -13,7 +13,7 @@ import { fechaCorta, tipoMaterial } from '../../componentes/formatos.js'
 
 function EnlaceMaterial({ material, esResolucion = false }) {
   return (
-    <div className={esResolucion ? 'gy-material-resolucion' : undefined}>
+    <div className={esResolucion ? 'gy-material-resolucion' : 'gy-material-fila'}>
       <div className="gy-lista-item-principal">
         <p className="gy-lista-item-titulo">
           {esResolucion && <span className="gy-texto-suave">Resolución: </span>}

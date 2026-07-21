@@ -1,16 +1,17 @@
-// Inicio del superadmin: panorama del sistema con tarjetas KPI y barras por
-// estado. Una sola familia de colores de marca para que todo se lea como un
-// solo sistema (naranja solo como acento).
+// Inicio del superadmin: heroe + KPIs + barras por estado. Una sola familia
+// de colores de marca (naranja solo como acento), siguiendo el patron de
+// dashboard de la skill data-viz-renderer: stat cards + barras comparativas.
 
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import {
-  obtenerAnuncios,
   obtenerCiclosDelUsuario,
   obtenerMatriculas,
   obtenerPagos,
   obtenerUsuarios,
 } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
+import Heroe from '../../componentes/Heroe.jsx'
+import Kpi from '../../componentes/Kpi.jsx'
 import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import { soles } from '../../componentes/formatos.js'
@@ -33,20 +34,19 @@ function Barra({ rotulo, valor, total, claseRelleno = '' }) {
 export default function Inicio() {
   const { sesion } = useSesion()
   const { datos, cargando, error } = useDatos(async () => {
-    const [ciclos, matriculas, pagos, usuarios, anuncios] = await Promise.all([
+    const [ciclos, matriculas, pagos, usuarios] = await Promise.all([
       obtenerCiclosDelUsuario(sesion),
       obtenerMatriculas(sesion),
       obtenerPagos(sesion),
       obtenerUsuarios(sesion),
-      obtenerAnuncios(sesion),
     ])
-    return { ciclos, matriculas, pagos, usuarios, anuncios }
+    return { ciclos, matriculas, pagos, usuarios }
   }, sesion.id_usuario)
 
   if (cargando) return <Cargando texto="Cargando el panorama…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>
 
-  const { ciclos, matriculas, pagos, usuarios, anuncios } = datos
+  const { ciclos, matriculas, pagos, usuarios } = datos
   const matriculados = matriculas.filter((m) => m.estado === 'matriculado')
   const conteoPagos = {
     verificado: pagos.filter((p) => p.estado === 'verificado'),
@@ -57,42 +57,55 @@ export default function Inicio() {
   const montoPendiente = conteoPagos.pendiente.reduce((acc, p) => acc + Number(p.monto), 0)
 
   return (
-    <div>
-      <h2 className="gy-saludo">Panorama general</h2>
-
-      <div className="gy-grilla gy-grilla--4">
-        <div className="gy-kpi">
-          <p className="gy-kpi-valor">{ciclos.length}</p>
-          <p className="gy-kpi-rotulo">Ciclos</p>
-        </div>
-        <div className="gy-kpi gy-kpi--exito">
-          <p className="gy-kpi-valor">{matriculados.length}</p>
-          <p className="gy-kpi-rotulo">Alumnos matriculados</p>
-        </div>
-        <div className="gy-kpi gy-kpi--alerta">
-          <p className="gy-kpi-valor">{conteoPagos.pendiente.length}</p>
-          <p className="gy-kpi-rotulo">Pagos por verificar ({soles(montoPendiente)})</p>
-        </div>
-        <div className="gy-kpi gy-kpi--acento">
-          <p className="gy-kpi-valor">{usuarios.length}</p>
-          <p className="gy-kpi-rotulo">Usuarios en el padrón</p>
-        </div>
+    <div className="gy-bento">
+      <div className="gy-bs-12">
+        <Heroe
+          micro="Panel del superadmin"
+          titulo={`Hola, ${sesion.nombres}`}
+          sub={`${ciclos.length} ${ciclos.length === 1 ? 'ciclo' : 'ciclos'} · ${usuarios.length} usuarios en el padrón · ${matriculados.length} ${matriculados.length === 1 ? 'alumno matriculado' : 'alumnos matriculados'}`}
+        />
       </div>
 
-      <div className="gy-grilla gy-grilla--2">
-        <Tarjeta titulo={`Pagos por estado (${pagos.length} en total)`}>
+      <div className="gy-bs-3">
+        <Kpi valor={ciclos.length} rotulo="Ciclos" icono="ciclos" />
+      </div>
+      <div className="gy-bs-3">
+        <Kpi
+          valor={matriculados.length}
+          rotulo="Alumnos matriculados"
+          icono="usuarios"
+          tono="exito"
+        />
+      </div>
+      <div className="gy-bs-3">
+        <Kpi
+          valor={conteoPagos.pendiente.length}
+          rotulo="Pagos por verificar"
+          icono="dinero"
+          tono="alerta"
+          pie={soles(montoPendiente)}
+        />
+      </div>
+      <div className="gy-bs-3">
+        <Kpi valor={usuarios.length} rotulo="Usuarios en el padrón" icono="config" tono="acento" />
+      </div>
+
+      <div className="gy-bs-6">
+        <Tarjeta titulo={`Pagos por estado`} subtitulo={`${pagos.length} en total`} icono="dinero">
           {pagos.length === 0 ? (
             <p className="gy-ayuda-campo">Todavía no hay pagos registrados.</p>
           ) : (
             <>
               <Barra rotulo={`Verificados · ${soles(montoVerificado)}`} valor={conteoPagos.verificado.length} total={pagos.length} claseRelleno="gy-progreso-relleno--exito" />
               <Barra rotulo={`Pendientes · ${soles(montoPendiente)}`} valor={conteoPagos.pendiente.length} total={pagos.length} claseRelleno="gy-progreso-relleno--acento" />
-              <Barra rotulo="Rechazados" valor={conteoPagos.rechazado.length} total={pagos.length} />
+              <Barra rotulo="Rechazados" valor={conteoPagos.rechazado.length} total={pagos.length} claseRelleno="gy-progreso-relleno--error" />
             </>
           )}
         </Tarjeta>
+      </div>
 
-        <Tarjeta titulo="Alumnos matriculados por ciclo">
+      <div className="gy-bs-6">
+        <Tarjeta titulo="Alumnos matriculados por ciclo" icono="usuarios" tonoIcono="exito">
           {ciclos.length === 0 ? (
             <p className="gy-ayuda-campo">No hay ciclos todavía.</p>
           ) : (
@@ -110,23 +123,6 @@ export default function Inicio() {
           )}
         </Tarjeta>
       </div>
-
-      <Tarjeta titulo="Resumen">
-        <ul className="gy-lista">
-          <li className="gy-lista-item">
-            <span className="gy-lista-item-detalle">Anuncios publicados</span>
-            <span>{anuncios.length}</span>
-          </li>
-          <li className="gy-lista-item">
-            <span className="gy-lista-item-detalle">Pagos verificados</span>
-            <span>{conteoPagos.verificado.length} ({soles(montoVerificado)})</span>
-          </li>
-          <li className="gy-lista-item">
-            <span className="gy-lista-item-detalle">Docentes en el padrón</span>
-            <span>{usuarios.filter((u) => u.rol === 'docente').length}</span>
-          </li>
-        </ul>
-      </Tarjeta>
     </div>
   )
 }

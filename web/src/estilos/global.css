@@ -1,6 +1,7 @@
 /* ==========================================================================
-   Base global — Aula Virtual Guyton
-   Reset suave + tipografía base + utilidades. Los tokens viven en tokens.css.
+   Sistema visual — Aula Virtual Guyton (rediseño bento)
+   Reset suave + tipografia base + sistema de clases gy-*.
+   Los tokens (paleta, gradiente, sombras) viven en tokens.css.
    ========================================================================== */
 
 *,
@@ -20,10 +21,15 @@ html {
 body {
   font-family: var(--gy-fuente-ui);
   color: var(--gy-texto);
-  background-color: var(--gy-superficie);
+  background-color: var(--gy-fondo);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+}
+
+::selection {
+  background: var(--gy-naranja);
+  color: var(--gy-blanco);
 }
 
 h1, h2, h3, h4 {
@@ -58,6 +64,7 @@ button {
 a {
   color: var(--gy-azul-electrico);
   text-decoration: none;
+  font-weight: 500;
 }
 
 a:hover {
@@ -76,7 +83,7 @@ a:hover {
 
 .gy-contenedor {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1180px;
   margin-inline: auto;
   padding-inline: 1rem;
 }
@@ -97,10 +104,16 @@ a:hover {
   color: var(--gy-texto-suave);
 }
 
-@media (min-width: 768px) {
-  .gy-contenedor {
-    padding-inline: 2rem;
-  }
+.gy-micro {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gy-azul-electrico);
+}
+
+.gy-micro--claro {
+  color: rgba(255, 255, 255, 0.72);
 }
 
 /* --------------------------------------------------------------------------
@@ -111,7 +124,7 @@ a:hover {
   width: 48px;
   height: 48px;
   flex: none;
-  border-radius: var(--gy-radio-m);
+  border-radius: 14px;
   background: var(--gy-gradiente);
   border: 2px dashed rgba(255, 255, 255, 0.65);
   display: grid;
@@ -121,6 +134,47 @@ a:hover {
   font-weight: 800;
   font-size: 1.35rem;
   user-select: none;
+  box-shadow: var(--gy-sombra-2);
+}
+
+/* Sobre fondo claro, el borde discontinuo se marca en azul */
+.gy-isotipo--claro {
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+/* --------------------------------------------------------------------------
+   Cuadro de icono (tile) — pieza recurrente del sistema bento
+   -------------------------------------------------------------------------- */
+
+.gy-icono {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--gy-tinte-azul);
+  color: var(--gy-azul-real);
+}
+
+.gy-icono--acento {
+  background: var(--gy-tinte-naranja);
+  color: var(--gy-naranja-oscuro);
+}
+
+.gy-icono--exito {
+  background: var(--gy-tinte-exito);
+  color: var(--gy-exito);
+}
+
+.gy-icono--alerta {
+  background: var(--gy-tinte-alerta);
+  color: var(--gy-alerta);
+}
+
+.gy-icono--claro {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--gy-blanco);
 }
 
 /* --------------------------------------------------------------------------
@@ -132,16 +186,22 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.6rem 1.1rem;
-  border-radius: var(--gy-radio-m);
+  padding: 0.62rem 1.15rem;
+  border-radius: 12px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   line-height: 1.2;
-  transition: filter var(--gy-transicion), transform var(--gy-transicion);
+  border: 1px solid transparent;
+  transition: transform var(--gy-transicion), box-shadow var(--gy-transicion),
+    background-color var(--gy-transicion), border-color var(--gy-transicion);
 }
 
 .gy-boton:hover:not(:disabled) {
-  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.gy-boton:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .gy-boton:disabled {
@@ -154,15 +214,28 @@ a:hover {
   color: var(--gy-blanco);
 }
 
+.gy-boton--primario:hover:not(:disabled) {
+  box-shadow: var(--gy-sombra-azul);
+}
+
 .gy-boton--acento {
   background: var(--gy-naranja);
   color: var(--gy-blanco);
 }
 
+.gy-boton--acento:hover:not(:disabled) {
+  box-shadow: var(--gy-sombra-naranja);
+}
+
 .gy-boton--secundario {
   background: var(--gy-blanco);
   color: var(--gy-azul-real);
-  border: 1px solid var(--gy-borde);
+  border-color: var(--gy-borde);
+}
+
+.gy-boton--secundario:hover:not(:disabled) {
+  background: var(--gy-relleno);
+  border-color: var(--gy-gris-suave);
 }
 
 .gy-boton--peligro {
@@ -175,9 +248,9 @@ a:hover {
 }
 
 .gy-boton--chico {
-  padding: 0.35rem 0.7rem;
-  font-size: 0.85rem;
-  border-radius: var(--gy-radio-s);
+  padding: 0.34rem 0.7rem;
+  font-size: 0.8rem;
+  border-radius: 9px;
 }
 
 /* --------------------------------------------------------------------------
@@ -193,7 +266,7 @@ a:hover {
 
 .gy-etiqueta {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--gy-azul-noche);
 }
 
@@ -201,11 +274,12 @@ a:hover {
 .gy-select,
 .gy-textarea {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--gy-borde);
-  border-radius: var(--gy-radio-m);
-  background: var(--gy-blanco);
-  transition: border-color var(--gy-transicion);
+  padding: 0.62rem 0.8rem;
+  border: 1px solid #DCE4F0;
+  border-radius: 12px;
+  background: #FBFDFF;
+  transition: border-color var(--gy-transicion), box-shadow var(--gy-transicion),
+    background-color var(--gy-transicion);
 }
 
 .gy-input:focus,
@@ -213,7 +287,8 @@ a:hover {
 .gy-textarea:focus {
   outline: none;
   border-color: var(--gy-azul-electrico);
-  box-shadow: 0 0 0 3px var(--gy-azul-electrico-suave);
+  background: var(--gy-blanco);
+  box-shadow: 0 0 0 4px var(--gy-azul-electrico-suave);
 }
 
 .gy-input:disabled,
@@ -228,114 +303,50 @@ a:hover {
   color: var(--gy-texto-suave);
 }
 
+.gy-select--auto {
+  width: auto;
+  min-width: 8.5rem;
+}
+
+.gy-casilla {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
 /* --------------------------------------------------------------------------
    Alertas
    -------------------------------------------------------------------------- */
 
 .gy-alerta {
-  padding: 0.65rem 0.85rem;
-  border-radius: var(--gy-radio-m);
-  font-size: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
   margin-bottom: 1rem;
+  border: 1px solid transparent;
 }
 
 .gy-alerta--error {
   background: var(--gy-error-suave);
   color: var(--gy-error);
+  border-color: #FECACA;
 }
 
 .gy-alerta--exito {
   background: var(--gy-exito-suave);
   color: var(--gy-exito);
+  border-color: #BBF7D0;
 }
 
 .gy-alerta--info {
   background: var(--gy-info-suave);
   color: var(--gy-azul-real);
+  border-color: #BFDBFE;
 }
 
 /* --------------------------------------------------------------------------
-   Pantalla de acceso
-   -------------------------------------------------------------------------- */
-
-.gy-login {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background: var(--gy-gradiente);
-  padding: 1.5rem 1rem;
-}
-
-.gy-login-tarjeta {
-  width: 100%;
-  max-width: 420px;
-  background: var(--gy-blanco);
-  border-radius: var(--gy-radio-l);
-  box-shadow: var(--gy-sombra-2);
-  padding: 2rem 1.75rem;
-}
-
-.gy-login-marca {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1.5rem;
-}
-
-.gy-login-titulo {
-  font-size: 1.45rem;
-}
-
-.gy-login-subtitulo {
-  color: var(--gy-texto-suave);
-  font-size: 0.85rem;
-}
-
-.gy-login-ayuda {
-  margin-top: 1rem;
-  font-size: 0.85rem;
-  color: var(--gy-texto-suave);
-  text-align: center;
-}
-
-.gy-demo-caja {
-  margin-top: 1.25rem;
-  border: 1px dashed var(--gy-gris-suave);
-  border-radius: var(--gy-radio-m);
-  background: var(--gy-superficie);
-  padding: 0.85rem 1rem;
-}
-
-.gy-demo-titulo {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--gy-azul-real);
-  margin-bottom: 0.5rem;
-}
-
-.gy-demo-lista {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.gy-demo-cuenta {
-  width: 100%;
-  text-align: left;
-  font-size: 0.8rem;
-  padding: 0.3rem 0.4rem;
-  border-radius: var(--gy-radio-s);
-  color: var(--gy-texto);
-}
-
-.gy-demo-cuenta:hover {
-  background: var(--gy-azul-electrico-suave);
-}
-
-/* --------------------------------------------------------------------------
-   Layout de paneles (mobile-first: el cajon lateral es la regla en celular)
+   Layout de paneles
    -------------------------------------------------------------------------- */
 
 .gy-layout {
@@ -345,14 +356,14 @@ a:hover {
 .gy-lateral {
   position: fixed;
   inset: 0 auto 0 0;
-  width: 264px;
-  background: var(--gy-azul-noche);
+  width: 272px;
+  background: linear-gradient(180deg, var(--gy-azul-noche) 0%, #071A52 100%);
   color: var(--gy-blanco);
   display: flex;
   flex-direction: column;
   z-index: 40;
   transform: translateX(-100%);
-  transition: transform 220ms ease;
+  transition: transform 240ms cubic-bezier(0.32, 0.72, 0.24, 1);
 }
 
 .gy-lateral--abierto {
@@ -363,7 +374,8 @@ a:hover {
 .gy-cortina {
   position: fixed;
   inset: 0;
-  background: rgba(5, 11, 43, 0.55);
+  background: rgba(5, 11, 43, 0.5);
+  backdrop-filter: blur(2px);
   z-index: 30;
   cursor: default;
 }
@@ -372,8 +384,7 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1.1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1.15rem 1.25rem 1rem;
 }
 
 .gy-lateral-marca-texto {
@@ -389,49 +400,70 @@ a:hover {
 
 .gy-lateral-marca-texto span {
   font-size: 0.72rem;
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
 .gy-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 0.9rem 0.75rem;
+  padding: 0.5rem 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 .gy-nav-item {
   display: flex;
   align-items: center;
   gap: 0.7rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: var(--gy-radio-m);
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 0.92rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
   font-weight: 500;
-  border-left: 3px solid transparent;
+  transition: background-color var(--gy-transicion), color var(--gy-transicion);
+}
+
+.gy-nav-icono {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  transition: background-color var(--gy-transicion), color var(--gy-transicion);
 }
 
 .gy-nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.07);
   color: var(--gy-blanco);
   text-decoration: none;
 }
 
 .gy-nav-item--activo {
-  background: rgba(20, 92, 255, 0.28);
-  color: var(--gy-blanco);
-  border-left-color: var(--gy-naranja);
+  background: var(--gy-blanco);
+  color: var(--gy-azul-noche);
   font-weight: 600;
+}
+
+.gy-nav-item--activo .gy-nav-icono {
+  background: var(--gy-naranja);
+  color: var(--gy-blanco);
 }
 
 .gy-lateral-usuario {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.9rem 1.1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0.85rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: var(--gy-radio-l);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 .gy-avatar {
@@ -464,17 +496,18 @@ a:hover {
 
 .gy-lateral-usuario-texto span {
   font-size: 0.72rem;
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
 .gy-lateral-salir {
-  color: rgba(255, 255, 255, 0.75);
-  padding: 0.35rem;
-  border-radius: var(--gy-radio-s);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.4rem;
+  border-radius: 9px;
+  transition: background-color var(--gy-transicion), color var(--gy-transicion);
 }
 
 .gy-lateral-salir:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--gy-blanco);
 }
 
@@ -491,41 +524,88 @@ a:hover {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: var(--gy-blanco);
-  box-shadow: var(--gy-sombra-1);
-  padding: 0.8rem 1rem;
+  background: rgba(244, 247, 252, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gy-borde-suave);
+  padding: 0.7rem 1rem;
 }
 
 .gy-cabecera-menu {
   color: var(--gy-azul-noche);
-  padding: 0.35rem;
-  border-radius: var(--gy-radio-s);
+  padding: 0.4rem;
+  border-radius: 10px;
 }
 
 .gy-cabecera-menu:hover {
-  background: var(--gy-superficie);
+  background: var(--gy-blanco);
+}
+
+.gy-cabecera-bloque {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
 }
 
 .gy-cabecera-titulo {
   font-size: 1.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gy-cabecera-derecha {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.gy-fecha-chip {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--gy-blanco);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: 999px;
+  padding: 0.32rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--gy-texto-suave);
+  font-weight: 500;
 }
 
 .gy-contenido {
   flex: 1;
   width: 100%;
-  max-width: 1120px;
+  max-width: 1180px;
   margin-inline: auto;
-  padding: 1rem;
+  padding: 1.1rem 1rem 3rem;
 }
 
 .gy-aviso-demo {
-  background: var(--gy-alerta-suave);
-  color: var(--gy-alerta);
-  border: 1px solid rgba(180, 83, 9, 0.25);
-  border-radius: var(--gy-radio-m);
-  padding: 0.55rem 0.85rem;
-  font-size: 0.82rem;
-  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #FFF7ED;
+  color: #9A3412;
+  border: 1px solid #FED7AA;
+  border-radius: 12px;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.8rem;
+  margin-bottom: 1.1rem;
+}
+
+.gy-aviso-demo-icono {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: var(--gy-tinte-naranja);
+  color: var(--gy-naranja-oscuro);
+  margin-top: 0.05rem;
 }
 
 @media (min-width: 900px) {
@@ -539,56 +619,73 @@ a:hover {
   }
 
   .gy-principal {
-    margin-left: 264px;
+    margin-left: 272px;
   }
 
   .gy-cabecera {
-    padding: 0.9rem 2rem;
+    padding: 0.75rem 2rem;
   }
 
   .gy-cabecera-titulo {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
+  }
+
+  .gy-fecha-chip {
+    display: inline-flex;
   }
 
   .gy-contenido {
-    padding: 1.5rem 2rem 2.5rem;
+    padding: 1.5rem 2rem 3rem;
   }
 }
 
 /* --------------------------------------------------------------------------
-   Tarjetas y grillas
+   Bento: reticula de 12 columnas con cajas de distinto tamaño
    -------------------------------------------------------------------------- */
 
-.gy-tarjeta {
-  background: var(--gy-blanco);
-  border-radius: var(--gy-radio-l);
-  box-shadow: var(--gy-sombra-1);
-  padding: 1.15rem 1.25rem;
-  margin-bottom: 1.25rem;
+.gy-bento {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(12, 1fr);
 }
 
-.gy-tarjeta-cabecera {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.9rem;
+.gy-bento > * {
+  grid-column: span 12;
+  min-width: 0;
 }
 
-.gy-tarjeta-titulo {
-  font-size: 1.05rem;
+@media (min-width: 640px) {
+  .gy-bento > .gy-bs-3,
+  .gy-bento > .gy-bs-4 {
+    grid-column: span 6;
+  }
 }
 
-.gy-tarjeta-acciones {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+@media (min-width: 760px) {
+  .gy-bento > .gy-bs-6 {
+    grid-column: span 6;
+  }
 }
+
+@media (min-width: 1024px) {
+  .gy-bento > .gy-bs-3 {
+    grid-column: span 3;
+  }
+
+  .gy-bento > .gy-bs-4 {
+    grid-column: span 4;
+  }
+
+  .gy-bento > .gy-bs-8 {
+    grid-column: span 8;
+  }
+}
+
+/* Grilla uniforme (hermana del bento, para cajas iguales) */
 
 .gy-grilla {
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
   grid-template-columns: 1fr;
 }
 
@@ -606,45 +703,150 @@ a:hover {
   }
 }
 
-/* Tarjeta de metrica (KPI): numero grande + rotulo. Una sola familia de
-   colores de marca para que todo se lea como un solo sistema. */
+/* --------------------------------------------------------------------------
+   Tarjetas
+   -------------------------------------------------------------------------- */
+
+.gy-tarjeta {
+  background: var(--gy-tarjeta);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: var(--gy-radio-xl);
+  box-shadow: var(--gy-sombra-tarjeta);
+  padding: 1.25rem 1.35rem;
+}
+
+.gy-tarjeta--clicable {
+  transition: transform var(--gy-transicion), box-shadow var(--gy-transicion);
+}
+
+.gy-tarjeta--clicable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--gy-sombra-tarjeta-hover);
+}
+
+.gy-tarjeta-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.95rem;
+}
+
+.gy-tarjeta-cabecera-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.gy-tarjeta-titulo {
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.gy-tarjeta-subtitulo {
+  font-size: 0.78rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-tarjeta-acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Heroe (cabecera de los Inicio): gradiente de marca + arte geometrico
+   -------------------------------------------------------------------------- */
+
+.gy-heroe {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--gy-radio-2xl);
+  background: var(--gy-gradiente);
+  color: var(--gy-blanco);
+  padding: 1.6rem 1.5rem;
+  box-shadow: var(--gy-sombra-2);
+}
+
+.gy-heroe-contenido {
+  position: relative;
+  z-index: 1;
+  max-width: 70%;
+}
+
+.gy-heroe-titulo {
+  color: var(--gy-blanco);
+  font-size: clamp(1.45rem, 4vw, 1.9rem);
+  margin: 0.25rem 0 0.35rem;
+}
+
+.gy-heroe-sub {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.gy-heroe-arte {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 210px;
+  height: 210px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .gy-heroe {
+    padding: 2rem 2.25rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tarjeta de metrica (KPI): cuadro de icono + numero grande + rotulo
+   -------------------------------------------------------------------------- */
+
 .gy-kpi {
-  background: var(--gy-blanco);
-  border-radius: var(--gy-radio-l);
-  box-shadow: var(--gy-sombra-1);
-  padding: 1rem 1.15rem;
-  border-top: 4px solid var(--gy-azul-electrico);
+  background: var(--gy-tarjeta);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: var(--gy-radio-xl);
+  box-shadow: var(--gy-sombra-tarjeta);
+  padding: 1.05rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  transition: transform var(--gy-transicion), box-shadow var(--gy-transicion);
 }
 
-.gy-kpi--acento {
-  border-top-color: var(--gy-naranja);
-}
-
-.gy-kpi--exito {
-  border-top-color: var(--gy-exito);
-}
-
-.gy-kpi--alerta {
-  border-top-color: #D97706;
+.gy-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--gy-sombra-tarjeta-hover);
 }
 
 .gy-kpi-valor {
   font-family: var(--gy-fuente-titulos);
   font-weight: 800;
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   color: var(--gy-azul-noche);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .gy-kpi-rotulo {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--gy-texto-suave);
-  margin-top: 0.15rem;
+  font-weight: 500;
 }
 
-/* Barra de progreso simple (resumen de asistencia, avance de pagos) */
+.gy-kpi-pie {
+  font-size: 0.74rem;
+  color: var(--gy-texto-suave);
+  border-top: 1px dashed var(--gy-borde);
+  padding-top: 0.5rem;
+}
+
+/* Barra de progreso */
+
 .gy-progreso {
-  height: 10px;
+  height: 8px;
   border-radius: 999px;
   background: var(--gy-superficie);
   overflow: hidden;
@@ -653,19 +855,24 @@ a:hover {
 .gy-progreso-relleno {
   height: 100%;
   border-radius: 999px;
-  background: var(--gy-azul-electrico);
+  background: linear-gradient(90deg, var(--gy-azul-real), var(--gy-azul-electrico));
+  transition: width 400ms ease;
 }
 
 .gy-progreso-relleno--acento {
-  background: var(--gy-naranja);
+  background: linear-gradient(90deg, var(--gy-naranja-oscuro), var(--gy-naranja));
 }
 
 .gy-progreso-relleno--exito {
-  background: var(--gy-exito);
+  background: linear-gradient(90deg, #15803D, #4ADE80);
+}
+
+.gy-progreso-relleno--error {
+  background: linear-gradient(90deg, #B91C1C, #F87171);
 }
 
 /* --------------------------------------------------------------------------
-   Tablas
+   Tablas: en escritorio tabla; en celular cada fila se vuelve una tarjeta
    -------------------------------------------------------------------------- */
 
 .gy-tabla-envoltura {
@@ -676,15 +883,15 @@ a:hover {
 .gy-tabla {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   min-width: 480px;
 }
 
 .gy-tabla th {
   text-align: left;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   color: var(--gy-texto-suave);
   font-weight: 700;
   padding: 0.55rem 0.75rem;
@@ -698,21 +905,91 @@ a:hover {
   vertical-align: middle;
 }
 
+.gy-tabla tbody tr {
+  transition: background-color var(--gy-transicion);
+}
+
 .gy-tabla tbody tr:hover {
-  background: var(--gy-superficie);
+  background: var(--gy-fila-hover);
+}
+
+@media (max-width: 719px) {
+  .gy-tabla-envoltura {
+    overflow-x: visible;
+  }
+
+  .gy-tabla {
+    min-width: 0;
+  }
+
+  .gy-tabla thead {
+    display: none;
+  }
+
+  .gy-tabla,
+  .gy-tabla tbody,
+  .gy-tabla tr,
+  .gy-tabla td {
+    display: block;
+    width: 100%;
+  }
+
+  .gy-tabla tbody tr {
+    background: var(--gy-relleno);
+    border: 1px solid var(--gy-borde-suave);
+    border-radius: var(--gy-radio-l);
+    padding: 0.45rem 0.9rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .gy-tabla tbody tr:hover {
+    background: var(--gy-relleno);
+  }
+
+  .gy-tabla td {
+    border: none;
+    padding: 0.42rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    text-align: right;
+  }
+
+  .gy-tabla td::before {
+    content: attr(data-etiqueta);
+    flex: none;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gy-texto-suave);
+    font-weight: 700;
+    text-align: left;
+  }
 }
 
 /* --------------------------------------------------------------------------
-   Insignias de estado
+   Insignias de estado (pastilla con punto de color)
    -------------------------------------------------------------------------- */
 
 .gy-insignia {
-  display: inline-block;
-  padding: 0.18rem 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.2rem 0.62rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.gy-insignia::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
 }
 
 .gy-insignia--exito {
@@ -741,33 +1018,21 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Estado vacio
+   Estado vacio (con arte geometrico de marca, sin mascotas inventadas)
    -------------------------------------------------------------------------- */
 
 .gy-estado-vacio {
-  border: 1px dashed var(--gy-gris-suave);
-  border-radius: var(--gy-radio-l);
-  padding: 2rem 1.25rem;
+  background: var(--gy-relleno);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: var(--gy-radio-xl);
+  padding: 2.1rem 1.4rem;
   text-align: center;
   color: var(--gy-texto-suave);
 }
 
-.gy-estado-vacio-marca {
-  display: flex;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
-}
-
-.gy-estado-vacio-marca span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--gy-gris-suave);
-}
-
-.gy-estado-vacio-marca span:first-child {
-  background: var(--gy-naranja);
+.gy-estado-vacio-arte {
+  width: 76px;
+  margin: 0 auto 0.85rem;
 }
 
 .gy-estado-vacio-titulo {
@@ -777,11 +1042,13 @@ a:hover {
 }
 
 .gy-estado-vacio-detalle {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
+  max-width: 46ch;
+  margin-inline: auto;
 }
 
 /* --------------------------------------------------------------------------
-   Bloques de lista simples dentro de tarjetas
+   Listas dentro de tarjetas
    -------------------------------------------------------------------------- */
 
 .gy-lista {
@@ -796,12 +1063,17 @@ a:hover {
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.7rem 0;
+  padding: 0.72rem 0;
   border-bottom: 1px solid var(--gy-borde);
 }
 
 .gy-lista-item:last-child {
   border-bottom: none;
+  padding-bottom: 0.2rem;
+}
+
+.gy-lista-item:first-child {
+  padding-top: 0.2rem;
 }
 
 .gy-lista-item-principal {
@@ -822,14 +1094,10 @@ a:hover {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 /* Variantes y piezas sueltas de vistas */
-
-.gy-saludo {
-  font-size: 1.35rem;
-  margin-bottom: 1rem;
-}
 
 .gy-lista-item--columna {
   flex-direction: column;
@@ -846,7 +1114,7 @@ a:hover {
 }
 
 .gy-material-resoluciones {
-  margin-top: 0.5rem;
+  margin-top: 0.55rem;
   padding-left: 1rem;
   border-left: 3px solid var(--gy-azul-electrico-suave);
   display: flex;
@@ -863,17 +1131,7 @@ a:hover {
   flex-wrap: wrap;
 }
 
-.gy-select--auto {
-  width: auto;
-  min-width: 8.5rem;
-}
-
-.gy-casilla {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-}
+/* Indicador de carga */
 
 .gy-cargando {
   display: flex;
@@ -895,4 +1153,197 @@ a:hover {
 @keyframes gy-pulso {
   0%, 100% { opacity: 0.35; transform: scale(0.85); }
   50% { opacity: 1; transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Pantalla de acceso (split: panel de marca + panel de formulario)
+   -------------------------------------------------------------------------- */
+
+.gy-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--gy-fondo);
+  padding: 1.1rem;
+}
+
+.gy-login-marco {
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: 1fr;
+  background: var(--gy-blanco);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: var(--gy-sombra-2);
+}
+
+.gy-login-marca-panel {
+  position: relative;
+  overflow: hidden;
+  background: var(--gy-gradiente);
+  color: var(--gy-blanco);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.gy-login-marca-arte {
+  position: absolute;
+  right: -40px;
+  bottom: -40px;
+  width: 240px;
+  height: 240px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.gy-login-marca-cabecera {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.gy-login-marca-texto {
+  position: relative;
+  z-index: 1;
+}
+
+.gy-login-titulo {
+  color: var(--gy-blanco);
+  font-size: clamp(1.5rem, 4.5vw, 2rem);
+}
+
+.gy-login-subtitulo {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+  max-width: 40ch;
+}
+
+.gy-login-marca-pie {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: auto;
+}
+
+.gy-login-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+}
+
+.gy-login-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--gy-blanco);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+}
+
+.gy-login-demo-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gy-naranja);
+  flex: none;
+}
+
+.gy-login-panel {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gy-login-panel-titulo {
+  font-size: 1.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.gy-login-panel-sub {
+  font-size: 0.85rem;
+  color: var(--gy-texto-suave);
+  margin-bottom: 1.25rem;
+}
+
+.gy-login-ayuda {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--gy-texto-suave);
+  text-align: center;
+}
+
+.gy-demo-caja {
+  margin-top: 1.25rem;
+  border: 1px dashed var(--gy-gris-suave);
+  border-radius: var(--gy-radio-l);
+  background: var(--gy-relleno);
+  padding: 0.85rem 0.95rem;
+}
+
+.gy-demo-titulo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gy-azul-real);
+  margin-bottom: 0.55rem;
+}
+
+.gy-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.gy-demo-cuenta {
+  text-align: left;
+  background: var(--gy-blanco);
+  border: 1px solid var(--gy-borde);
+  border-radius: 11px;
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  transition: border-color var(--gy-transicion), background-color var(--gy-transicion);
+}
+
+.gy-demo-cuenta:hover {
+  border-color: var(--gy-azul-electrico);
+  background: var(--gy-azul-electrico-suave);
+}
+
+.gy-demo-cuenta strong {
+  font-size: 0.78rem;
+  color: var(--gy-azul-noche);
+}
+
+.gy-demo-cuenta span {
+  font-size: 0.7rem;
+  color: var(--gy-texto-suave);
+}
+
+@media (min-width: 880px) {
+  .gy-login-marco {
+    grid-template-columns: 1.05fr 1fr;
+    min-height: 580px;
+  }
+
+  .gy-login-marca-panel {
+    padding: 2.5rem;
+  }
+
+  .gy-login-panel {
+    padding: 2.5rem 2.25rem;
+  }
 }

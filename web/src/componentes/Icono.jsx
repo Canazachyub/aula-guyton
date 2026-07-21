@@ -79,6 +79,31 @@ const TRAZOS = {
       <path d="M21 3v6h-6" />
     </>
   ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5" />
+      <path d="M12 8h.01" />
+    </>
+  ),
+  mas: <path d="M12 5v14M5 12h14" />,
+  reloj: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 3" />
+    </>
+  ),
+  flecha: (
+    <>
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </>
+  ),
+  lapiz: (
+    <>
+      <path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z" />
+    </>
+  ),
 }
 
 export default function Icono({ nombre, tamano = 20 }) {

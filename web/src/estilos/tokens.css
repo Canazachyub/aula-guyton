@@ -46,7 +46,26 @@
   --gy-radio-s: 6px;
   --gy-radio-m: 10px;
   --gy-radio-l: 16px;
+  --gy-radio-xl: 20px;
+  --gy-radio-2xl: 24px;
   --gy-sombra-1: 0 1px 2px rgba(5, 11, 43, 0.08);
   --gy-sombra-2: 0 6px 20px rgba(5, 11, 43, 0.12);
+  --gy-sombra-tarjeta: 0 1px 2px rgba(5, 11, 43, 0.04), 0 10px 28px -14px rgba(5, 11, 43, 0.14);
+  --gy-sombra-tarjeta-hover: 0 2px 4px rgba(5, 11, 43, 0.05), 0 16px 36px -14px rgba(5, 11, 43, 0.2);
+  --gy-sombra-azul: 0 6px 16px -6px rgba(20, 92, 255, 0.45);
+  --gy-sombra-naranja: 0 6px 16px -6px rgba(255, 74, 24, 0.45);
   --gy-transicion: 160ms ease;
+
+  /* Superficies y bordes del sistema bento */
+  --gy-fondo: #F4F7FC;
+  --gy-tarjeta: #FFFFFF;
+  --gy-relleno: #F7FAFF;
+  --gy-borde-suave: rgba(5, 11, 43, 0.07);
+  --gy-fila-hover: #F6F9FF;
+
+  /* Tintes para los cuadros de icono (familia de marca) */
+  --gy-tinte-azul: #E3ECFF;
+  --gy-tinte-naranja: #FFE9E2;
+  --gy-tinte-exito: #DCFCE7;
+  --gy-tinte-alerta: #FEF3C7;
 }

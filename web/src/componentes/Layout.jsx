@@ -1,7 +1,7 @@
-// Estructura comun de los cuatro paneles: barra lateral con navegacion,
-// cabecera con el titulo de la seccion actual, banner DEMO y area de contenido.
-// En celular la barra lateral se vuelve un cajon que se abre con el boton de
-// menu — muchos alumnos entraran desde el telefono, no es opcional.
+// Estructura comun de los cuatro paneles: barra lateral con navegacion tipo
+// pill, cabecera pegajosa con desenfoque, banner DEMO y area de contenido.
+// En celular la barra lateral es un cajon que se abre con el boton de menu —
+// muchos alumnos entraran desde el telefono, no es opcional.
 
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -15,6 +15,14 @@ const NOMBRE_ROL = {
   docente: 'Docente',
   auxiliar: 'Auxiliar',
   superadmin: 'Superadmin',
+}
+
+const DIAS_CORTOS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb']
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+
+function fechaDeHoy() {
+  const hoy = new Date()
+  return `${DIAS_CORTOS[hoy.getDay()]} ${hoy.getDate()} ${MESES_CORTOS[hoy.getMonth()]} ${hoy.getFullYear()}`
 }
 
 export default function Layout({ menu, children }) {
@@ -55,7 +63,9 @@ export default function Layout({ menu, children }) {
               end={item.exacto === true}
               className={({ isActive }) => `gy-nav-item${isActive ? ' gy-nav-item--activo' : ''}`}
             >
-              <Icono nombre={item.icono} />
+              <span className="gy-nav-icono">
+                <Icono nombre={item.icono} tamano={17} />
+              </span>
               <span>{item.etiqueta}</span>
             </NavLink>
           ))}
@@ -99,7 +109,17 @@ export default function Layout({ menu, children }) {
           >
             <Icono nombre="menu" />
           </button>
-          <h1 className="gy-cabecera-titulo">{actual?.titulo ?? actual?.etiqueta ?? ''}</h1>
+          <div className="gy-cabecera-bloque">
+            <span className="gy-micro">Aula Virtual</span>
+            <h1 className="gy-cabecera-titulo">{actual?.titulo ?? actual?.etiqueta ?? ''}</h1>
+          </div>
+          <div className="gy-cabecera-derecha">
+            <span className="gy-fecha-chip">
+              <Icono nombre="calendario" tamano={14} />
+              {fechaDeHoy()}
+            </span>
+            <span className="gy-avatar" aria-hidden="true">{iniciales}</span>
+          </div>
         </header>
 
         <div className="gy-contenido">
