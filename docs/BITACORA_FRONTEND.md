@@ -317,3 +317,34 @@ completa sin tocar datos ni lógica:
 - **Lo que NO cambió**: paleta, gradiente, tipografías provisionales, placeholder
   del isotipo, banner DEMO, ni una sola línea de la capa de datos ni de los
   flujos por rol.
+
+---
+
+## 9. Mejora de las vistas internas (misma fecha, tercera iteración)
+
+El usuario pidió subir al nivel del rediseño las secciones que seguían planas
+("horario, etc., materiales"). Todo sigue siendo CSS y componentes del sistema:
+la capa de datos no se tocó.
+
+- **Mi horario (estudiante)**: de lista de texto a **horario semanal visual**:
+  grilla día × hora con eje de horas, bloques posicionados por hora de
+  inicio/fin, un color por curso (familia de marca), leyenda con docente y el
+  día actual marcado con insignia "Hoy". En celular la grilla se cambia por
+  secciones por día con las mismas tarjetas de color.
+- **Materiales (estudiante y docente)**: selector de curso como **chips**
+  (pestañas, con el primer curso preseleccionado) y tarjetas por tipo de
+  material (cuadro de ícono: video, documento, enlace) agrupadas por semana.
+  La resolución sigue pegada a su práctica, ahora como sub-bloque con borde
+  verde dentro de la tarjeta. El docente conserva insignia de estado y el
+  botón publicar/borrador por tarjeta. Ambas aceptan llegar con curso
+  preseleccionado (`Link state`) desde Mis cursos.
+- **Mis cursos (estudiante y docente)**: tarjetas con ícono, docente/horario
+  y accesos directos a Materiales y Clases/Horario.
+- **Pagos**: tira de KPIs arriba en las tres vistas (estudiante: verificado/
+  pendiente/total; Gestión compartida auxiliar+superadmin: por verificar/
+  verificados/rechazados con montos).
+- **Ciclos y Cursos (superadmin)**: de tabla a **tarjetas** (estado con
+  insignia, fechas, precios, selector de estado en la tarjeta del ciclo).
+- Verificado con capturas reales (escritorio 1366 px y móvil 390 px) sobre el
+  Chrome instalado; detalle corregido en caliente: etiqueta de la última hora
+  del eje del horario quedaba cortada por el borde.
