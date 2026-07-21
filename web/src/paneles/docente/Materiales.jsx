@@ -1,8 +1,10 @@
-// Materiales del docente: ve TODOS los de sus cursos (incluidos borradores),
-// puede alternar borrador <-> publicado y subir nuevos. Al crear una
-// resolucion solo se ofrecen practicas del MISMO ciclo_curso (regla 5).
+// Materiales del docente: ve TODOS los de sus cursos (incluidos borradores,
+// con su insignia) y puede alternar borrador <-> publicado. Tarjetas por tipo
+// con las resoluciones pegadas a su practica. Al crear una resolucion solo se
+// ofrecen practicas del MISMO ciclo_curso (regla 5 del modelo).
 
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import {
   guardarMaterial,
@@ -16,7 +18,8 @@ import Insignia from '../../componentes/Insignia.jsx'
 import Boton from '../../componentes/Boton.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
-import { fechaCorta, tipoMaterial } from '../../componentes/formatos.js'
+import Icono from '../../componentes/Icono.jsx'
+import { META_TIPO_MATERIAL, fechaCorta, tipoMaterial } from '../../componentes/formatos.js'
 
 const FORM_VACIO = {
   tipo: 'pdf_teoria',
@@ -30,23 +33,26 @@ const FORM_VACIO = {
 
 export default function Materiales() {
   const { sesion } = useSesion()
-  const [idCicloCurso, setIdCicloCurso] = useState('')
+  const ubicacion = useLocation()
+  // Permite llegar con un curso preseleccionado (desde Mis cursos).
+  const [idElegido, setIdElegido] = useState(ubicacion.state?.idCicloCurso ?? '')
   const [formulario, setFormulario] = useState(null)
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
   const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
+  const seleccionado = idElegido || cursos.datos?.[0]?.id_ciclo_curso || ''
+
   const materiales = useDatos(
-    () => (idCicloCurso ? obtenerMateriales(sesion, idCicloCurso) : Promise.resolve([])),
-    idCicloCurso,
+    () => (seleccionado ? obtenerMateriales(sesion, seleccionado) : Promise.resolve([])),
+    seleccionado,
   )
   const clases = useDatos(
-    () => (idCicloCurso ? obtenerClases(sesion, idCicloCurso) : Promise.resolve([])),
-    idCicloCurso,
+    () => (seleccionado ? obtenerClases(sesion, seleccionado) : Promise.resolve([])),
+    seleccionado,
   )
 
-  // La lista agrupada trae las practicas como raiz y las resoluciones dentro.
-  // Para el selector de "practica que resuelve" se aplanan las practicas.
+  // Para el selector de "practica que resuelve" se aplanan las practicas raiz.
   const practicas = (materiales.datos ?? []).filter((m) => m.tipo === 'pdf_practica')
 
   const alternarEstado = async (material, nuevoEstado) => {
@@ -63,7 +69,7 @@ export default function Materiales() {
     evento.preventDefault()
     setMensaje(null)
     setGuardando(true)
-    const resultado = await guardarMaterial(sesion, { ...formulario, id_ciclo_curso: idCicloCurso })
+    const resultado = await guardarMaterial(sesion, { ...formulario, id_ciclo_curso: seleccionado })
     setGuardando(false)
     if (resultado.ok) {
       setFormulario(null)
@@ -85,100 +91,104 @@ export default function Materiales() {
     )
   }
 
-  const renderMaterial = (m, esResolucion = false) => (
-    <div className={esResolucion ? 'gy-material-resolucion' : 'gy-material-fila'}>
-      <div className="gy-lista-item-principal">
-        <p className="gy-lista-item-titulo">
-          {esResolucion && <span className="gy-texto-suave">Resolución: </span>}
-          {m.titulo}
-        </p>
-        <p className="gy-lista-item-detalle">
-          {tipoMaterial(m.tipo)}
-          {m.semana !== '' && m.semana != null && ` · Semana ${m.semana}`}
-          {` · ${fechaCorta(m.fecha_publicacion)}`}
-        </p>
-      </div>
-      <div className="gy-acciones-fila">
-        <Insignia valor={m.estado} />
-        <a href={m.url_drive} target="_blank" rel="noopener noreferrer">Abrir</a>
-        {m.estado === 'borrador' ? (
-          <Boton chico onClick={() => alternarEstado(m, 'publicado')}>Publicar</Boton>
-        ) : (
-          <Boton chico variante="secundario" onClick={() => alternarEstado(m, 'borrador')}>
-            Pasar a borrador
-          </Boton>
-        )}
-      </div>
+  const renderAcciones = (m) => (
+    <div className="gy-acciones-fila">
+      <Insignia valor={m.estado} />
+      <a href={m.url_drive} target="_blank" rel="noopener noreferrer">Abrir</a>
+      {m.estado === 'borrador' ? (
+        <Boton chico onClick={() => alternarEstado(m, 'publicado')}>Publicar</Boton>
+      ) : (
+        <Boton chico variante="secundario" onClick={() => alternarEstado(m, 'borrador')}>
+          Pasar a borrador
+        </Boton>
+      )}
     </div>
   )
 
   return (
     <div>
-      <Tarjeta
-        titulo="Materiales por curso"
-        acciones={
-          <Boton variante="acento" onClick={() => { setFormulario({ ...FORM_VACIO }); setMensaje(null) }} disabled={!idCicloCurso}>
-            Nuevo material
-          </Boton>
-        }
-      >
-        <div className="gy-campo">
-          <label className="gy-etiqueta" htmlFor="mtl-curso">Curso</label>
-          <select
-            id="mtl-curso"
-            className="gy-select"
-            value={idCicloCurso}
-            onChange={(e) => { setIdCicloCurso(e.target.value); setFormulario(null); setMensaje(null) }}
-          >
-            <option value="">Elige un curso…</option>
-            {cursos.datos.map((c) => (
-              <option key={c.id_ciclo_curso} value={c.id_ciclo_curso}>
-                {c.curso_nombre} — {c.ciclo_nombre}
-              </option>
-            ))}
-          </select>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.1rem' }}>
+        <div className="gy-chips" style={{ marginBottom: 0 }} role="tablist" aria-label="Cursos">
+          {cursos.datos.map((c) => (
+            <button
+              key={c.id_ciclo_curso}
+              type="button"
+              role="tab"
+              aria-selected={seleccionado === c.id_ciclo_curso}
+              className={`gy-chip${seleccionado === c.id_ciclo_curso ? ' gy-chip--activo' : ''}`}
+              onClick={() => { setIdElegido(c.id_ciclo_curso); setFormulario(null); setMensaje(null) }}
+            >
+              {c.curso_nombre}
+            </button>
+          ))}
         </div>
+        <Boton variante="acento" onClick={() => { setFormulario({ ...FORM_VACIO }); setMensaje(null) }}>
+          Nuevo material
+        </Boton>
+      </div>
 
-        {mensaje && (
-          <p className={`gy-alerta gy-alerta--${mensaje.tipo}`} role={mensaje.tipo === 'error' ? 'alert' : 'status'}>
-            {mensaje.texto}
-          </p>
-        )}
+      {mensaje && (
+        <p className={`gy-alerta gy-alerta--${mensaje.tipo}`} role={mensaje.tipo === 'error' ? 'alert' : 'status'}>
+          {mensaje.texto}
+        </p>
+      )}
 
-        {!idCicloCurso && <EstadoVacio titulo="Elige un curso para gestionar sus materiales" />}
-        {idCicloCurso && materiales.cargando && <Cargando texto="Cargando materiales…" />}
-        {idCicloCurso && !materiales.cargando && materiales.datos.length === 0 && (
-          <EstadoVacio
-            titulo="Este curso todavía no tiene materiales"
-            detalle="Sube la primera práctica, teoría o grabación con el botón Nuevo material."
-          />
-        )}
-        {idCicloCurso && !materiales.cargando && materiales.datos.length > 0 && (
-          <ul className="gy-lista">
-            {materiales.datos.map((m) => (
-              <li key={m.id_material} className="gy-lista-item gy-lista-item--columna">
-                {renderMaterial(m)}
-                {m.resoluciones.length > 0 && (
-                  <div className="gy-material-resoluciones">
-                    {m.resoluciones.map((r) => (
-                      <div key={r.id_material}>{renderMaterial(r, true)}</div>
-                    ))}
+      {materiales.cargando && <Cargando texto="Cargando materiales…" />}
+      {!materiales.cargando && materiales.datos.length === 0 && (
+        <EstadoVacio
+          titulo="Este curso todavía no tiene materiales"
+          detalle="Sube la primera práctica, teoría o grabación con el botón Nuevo material."
+        />
+      )}
+
+      {!materiales.cargando && materiales.datos.length > 0 && (
+        <>
+          <div className="gy-grilla gy-grilla--2">
+            {materiales.datos.map((m) => {
+              const meta = META_TIPO_MATERIAL[m.tipo] ?? META_TIPO_MATERIAL.enlace
+              return (
+                <Tarjeta key={m.id_material}>
+                  <div className="gy-tarjeta-cabecera">
+                    <span className={`gy-icono gy-icono--${meta.tono}`}>
+                      <Icono nombre={meta.icono} tamano={19} />
+                    </span>
+                    <div className="gy-tarjeta-cabecera-texto">
+                      <h3 className="gy-tarjeta-titulo">{m.titulo}</h3>
+                      <p className="gy-tarjeta-subtitulo">
+                        {tipoMaterial(m.tipo)}
+                        {m.semana !== '' && m.semana != null && ` · Semana ${m.semana}`}
+                        {` · ${fechaCorta(m.fecha_publicacion)}`}
+                      </p>
+                    </div>
                   </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-        {idCicloCurso && !materiales.cargando && (
+                  {renderAcciones(m)}
+                  {m.resoluciones.map((r) => (
+                    <div key={r.id_material} className="gy-resolucion-bloque">
+                      <div className="gy-lista-item-principal">
+                        <p className="gy-resolucion-bloque-titulo">
+                          <span className="gy-texto-suave">Resolución: </span>
+                          {r.titulo}
+                        </p>
+                        <p className="gy-resolucion-bloque-detalle">
+                          {fechaCorta(r.fecha_publicacion)}
+                        </p>
+                      </div>
+                      {renderAcciones(r)}
+                    </div>
+                  ))}
+                </Tarjeta>
+              )
+            })}
+          </div>
           <p className="gy-ayuda-campo" style={{ marginTop: '0.75rem' }}>
             Los alumnos solo ven los materiales en estado publicado. Lo que esté en borrador
             todavía no les aparece.
           </p>
-        )}
-      </Tarjeta>
+        </>
+      )}
 
       {formulario && (
-        <Tarjeta titulo="Nuevo material">
+        <Tarjeta titulo="Nuevo material" icono="mas" tonoIcono="acento" className="gy-formulario-flotante">
           <form onSubmit={alGuardar} noValidate>
             <div className="gy-grilla gy-grilla--2">
               <div className="gy-campo">

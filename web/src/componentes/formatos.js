@@ -51,6 +51,15 @@ export function tipoMaterial(tipo) {
   return nombres[tipo] ?? tipo
 }
 
+/** Metadatos de presentacion por tipo de material: icono y tono del tile. */
+export const META_TIPO_MATERIAL = {
+  video_grabado: { icono: 'video', tono: 'acento' },
+  pdf_teoria: { icono: 'documento', tono: 'azul' },
+  pdf_practica: { icono: 'documento', tono: 'alerta' },
+  pdf_resolucion: { icono: 'lista', tono: 'exito' },
+  enlace: { icono: 'enlace', tono: 'azul' },
+}
+
 /** 'yape' -> 'Yape', 'transferencia' -> 'Transferencia' */
 export function medioPago(medio) {
   const nombres = { yape: 'Yape', plin: 'Plin', efectivo: 'Efectivo', transferencia: 'Transferencia' }

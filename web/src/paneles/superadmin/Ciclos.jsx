@@ -1,12 +1,12 @@
-// Ciclos (superadmin): crea ciclos nuevos y cambia su estado (planificado ->
-// inscripciones_abiertas -> en_curso -> finalizado) sin tocar codigo.
+// Ciclos (superadmin): tarjetas por ciclo con su estado, fechas y precios.
+// Crear un ciclo y cambiar su estado (planificado -> inscripciones_abiertas
+// -> en_curso -> finalizado) se hace desde aqui, sin tocar codigo.
 
 import { useState } from 'react'
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import { guardarCiclo, obtenerCiclosDelUsuario } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
 import Tarjeta from '../../componentes/Tarjeta.jsx'
-import Tabla from '../../componentes/Tabla.jsx'
 import Insignia from '../../componentes/Insignia.jsx'
 import Boton from '../../componentes/Boton.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
@@ -52,60 +52,73 @@ export default function Ciclos() {
     }
   }
 
-  const columnas = [
-    { clave: 'nombre', titulo: 'Ciclo' },
-    { clave: 'fecha_inicio', titulo: 'Inicio', render: (c) => fechaCorta(c.fecha_inicio) },
-    { clave: 'fecha_fin', titulo: 'Fin', render: (c) => fechaCorta(c.fecha_fin) },
-    { clave: 'precio_matricula', titulo: 'Matrícula', render: (c) => soles(c.precio_matricula) },
-    { clave: 'precio_mensualidad', titulo: 'Mensualidad', render: (c) => soles(c.precio_mensualidad) },
-    { clave: 'n_mensualidades', titulo: 'N° mens.' },
-    { clave: 'estado', titulo: 'Estado', render: (c) => <Insignia valor={c.estado} /> },
-    {
-      clave: 'acciones',
-      titulo: 'Cambiar estado',
-      render: (c) => (
-        <select
-          className="gy-select gy-select--auto"
-          value={c.estado}
-          onChange={(e) => cambiarEstado(c, e.target.value)}
-          aria-label={`Estado del ciclo ${c.nombre}`}
-        >
-          {ESTADOS_CICLO.map((e) => (
-            <option key={e} value={e}>{e.replaceAll('_', ' ')}</option>
-          ))}
-        </select>
-      ),
-    },
-  ]
-
   if (ciclos.cargando) return <Cargando texto="Cargando ciclos…" />
   if (ciclos.error) return <p className="gy-alerta gy-alerta--error">{ciclos.error}</p>
 
   return (
     <div>
-      <Tarjeta
-        titulo="Ciclos de preparación"
-        acciones={
-          <Boton variante="acento" onClick={() => { setFormulario({ ...FORM_VACIO }); setMensaje(null) }}>
-            Nuevo ciclo
-          </Boton>
-        }
-      >
-        {mensaje && (
-          <p className={`gy-alerta gy-alerta--${mensaje.tipo}`} role={mensaje.tipo === 'error' ? 'alert' : 'status'}>
-            {mensaje.texto}
-          </p>
-        )}
-        <Tabla
-          columnas={columnas}
-          filas={ciclos.datos}
-          llaveFila={(c) => c.id_ciclo}
-          vacio={<EstadoVacio titulo="No hay ciclos todavía" detalle="Crea el primero con el botón Nuevo ciclo." />}
-        />
-      </Tarjeta>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.1rem' }}>
+        <p className="gy-texto-suave" style={{ fontSize: '0.88rem' }}>
+          {ciclos.datos.length} {ciclos.datos.length === 1 ? 'ciclo' : 'ciclos'} de preparación
+        </p>
+        <Boton variante="acento" onClick={() => { setFormulario({ ...FORM_VACIO }); setMensaje(null) }}>
+          Nuevo ciclo
+        </Boton>
+      </div>
+
+      {mensaje && (
+        <p className={`gy-alerta gy-alerta--${mensaje.tipo}`} role={mensaje.tipo === 'error' ? 'alert' : 'status'}>
+          {mensaje.texto}
+        </p>
+      )}
+
+      {ciclos.datos.length === 0 ? (
+        <EstadoVacio titulo="No hay ciclos todavía" detalle="Crea el primero con el botón Nuevo ciclo." />
+      ) : (
+        <div className="gy-grilla gy-grilla--2">
+          {ciclos.datos.map((c) => (
+            <Tarjeta
+              key={c.id_ciclo}
+              titulo={`Ciclo ${c.nombre}`}
+              subtitulo={`${fechaCorta(c.fecha_inicio)} — ${fechaCorta(c.fecha_fin)}`}
+              icono="ciclos"
+              acciones={<Insignia valor={c.estado} />}
+            >
+              <ul className="gy-lista">
+                <li className="gy-lista-item">
+                  <span className="gy-lista-item-detalle">Matrícula</span>
+                  <span>{soles(c.precio_matricula)}</span>
+                </li>
+                <li className="gy-lista-item">
+                  <span className="gy-lista-item-detalle">Mensualidad</span>
+                  <span>{soles(c.precio_mensualidad)} × {c.n_mensualidades}</span>
+                </li>
+                {c.descripcion && (
+                  <li className="gy-lista-item">
+                    <span className="gy-lista-item-detalle">{c.descripcion}</span>
+                  </li>
+                )}
+              </ul>
+              <div className="gy-material-pie">
+                <label className="gy-ayuda-campo" htmlFor={`estado-${c.id_ciclo}`}>Estado del ciclo</label>
+                <select
+                  id={`estado-${c.id_ciclo}`}
+                  className="gy-select gy-select--auto"
+                  value={c.estado}
+                  onChange={(e) => cambiarEstado(c, e.target.value)}
+                >
+                  {ESTADOS_CICLO.map((e) => (
+                    <option key={e} value={e}>{e.replaceAll('_', ' ')}</option>
+                  ))}
+                </select>
+              </div>
+            </Tarjeta>
+          ))}
+        </div>
+      )}
 
       {formulario && (
-        <Tarjeta titulo="Nuevo ciclo">
+        <Tarjeta titulo="Nuevo ciclo" icono="mas" tonoIcono="acento">
           <form onSubmit={alGuardar} noValidate>
             <div className="gy-grilla gy-grilla--2">
               <div className="gy-campo">
@@ -202,7 +215,7 @@ export default function Ciclos() {
             </div>
             <p className="gy-ayuda-campo" style={{ marginBottom: '1rem' }}>
               El ciclo nuevo nace en estado planificado. Cuando esté listo, cambia su estado a
-              inscripciones abiertas desde la tabla.
+              inscripciones abiertas desde su tarjeta.
             </p>
             <div className="gy-acciones-fila">
               <Boton type="submit" variante="acento" disabled={guardando}>

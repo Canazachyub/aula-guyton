@@ -1156,6 +1156,245 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
+   Selector tipo chips (pestanas de cursos, filtros)
+   -------------------------------------------------------------------------- */
+
+.gy-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.1rem;
+}
+
+.gy-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--gy-borde);
+  background: var(--gy-blanco);
+  color: var(--gy-texto);
+  font-size: 0.84rem;
+  font-weight: 600;
+  transition: border-color var(--gy-transicion), background-color var(--gy-transicion),
+    color var(--gy-transicion), box-shadow var(--gy-transicion);
+}
+
+.gy-chip:hover {
+  border-color: var(--gy-azul-electrico);
+  color: var(--gy-azul-real);
+}
+
+.gy-chip--activo {
+  background: var(--gy-azul-electrico);
+  border-color: var(--gy-azul-electrico);
+  color: var(--gy-blanco);
+  box-shadow: var(--gy-sombra-azul);
+}
+
+/* --------------------------------------------------------------------------
+   Horario semanal visual
+   -------------------------------------------------------------------------- */
+
+.gy-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  margin-bottom: 1rem;
+  font-size: 0.82rem;
+}
+
+.gy-leyenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.gy-leyenda-punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.gy-hoy {
+  font-size: 0.6rem;
+  background: var(--gy-naranja);
+  color: var(--gy-blanco);
+  border-radius: 999px;
+  padding: 0.12rem 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gy-semana {
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: var(--gy-radio-l);
+  overflow: hidden;
+  background: var(--gy-blanco);
+}
+
+.gy-semana-cabecera {
+  display: grid;
+  grid-template-columns: 56px repeat(6, 1fr);
+  border-bottom: 1px solid var(--gy-borde);
+  background: var(--gy-relleno);
+}
+
+.gy-semana-dia {
+  padding: 0.55rem 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.gy-semana-dia--hoy {
+  color: var(--gy-azul-real);
+}
+
+.gy-semana-cuerpo {
+  display: grid;
+  grid-template-columns: 56px repeat(6, 1fr);
+  position: relative;
+}
+
+.gy-semana-horas {
+  position: relative;
+  border-right: 1px solid var(--gy-borde);
+  background: var(--gy-relleno);
+}
+
+.gy-semana-horas span {
+  position: absolute;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  font-size: 0.66rem;
+  color: var(--gy-texto-suave);
+  font-weight: 600;
+}
+
+.gy-semana-columna {
+  position: relative;
+  border-right: 1px dashed var(--gy-borde);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--gy-borde) 0,
+    var(--gy-borde) 1px,
+    transparent 1px,
+    transparent 56px
+  );
+}
+
+.gy-semana-columna:last-child {
+  border-right: none;
+}
+
+.gy-semana-columna--hoy {
+  background-color: rgba(20, 92, 255, 0.045);
+}
+
+.gy-bloque {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 10px;
+  border-left: 4px solid transparent;
+  padding: 0.42rem 0.55rem;
+  overflow: hidden;
+}
+
+.gy-bloque-curso {
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.gy-bloque-hora {
+  font-size: 0.72rem;
+  color: var(--gy-texto-suave);
+  font-weight: 600;
+}
+
+.gy-bloque-detalle {
+  font-size: 0.68rem;
+  color: var(--gy-texto-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gy-semana-movil {
+  display: none;
+}
+
+.gy-dia-movil {
+  margin-bottom: 1.1rem;
+}
+
+.gy-bloque-movil {
+  border-radius: 12px;
+  border-left: 4px solid transparent;
+  padding: 0.65rem 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 719px) {
+  .gy-semana {
+    display: none;
+  }
+
+  .gy-semana-movil {
+    display: block;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tarjetas de material (estudiante y docente)
+   -------------------------------------------------------------------------- */
+
+.gy-seccion-micro {
+  margin: 1.1rem 0 0.6rem;
+}
+
+.gy-resolucion-bloque {
+  margin-top: 0.7rem;
+  background: var(--gy-relleno);
+  border: 1px solid var(--gy-borde-suave);
+  border-left: 4px solid #16A34A;
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.gy-resolucion-bloque-titulo {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.gy-resolucion-bloque-detalle {
+  font-size: 0.72rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-material-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
    Pantalla de acceso (split: panel de marca + panel de formulario)
    -------------------------------------------------------------------------- */
 

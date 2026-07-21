@@ -3,6 +3,7 @@
 // rechaza cualquier otro).
 
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import { guardarClase, obtenerClases, obtenerCursosDelUsuario } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
@@ -27,7 +28,9 @@ const FORM_VACIO = {
 
 export default function Clases() {
   const { sesion } = useSesion()
-  const [idCicloCurso, setIdCicloCurso] = useState('')
+  const ubicacion = useLocation()
+  // Permite llegar con un curso preseleccionado (desde Mis cursos).
+  const [idCicloCurso, setIdCicloCurso] = useState(ubicacion.state?.idCicloCurso ?? '')
   const [formulario, setFormulario] = useState(null) // null = formulario cerrado
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)

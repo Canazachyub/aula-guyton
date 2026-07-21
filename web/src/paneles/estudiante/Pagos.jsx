@@ -1,9 +1,10 @@
-// Pagos del estudiante: solo los de sus matriculas. Puede reportar un pago
-// nuevo (queda pendiente de verificacion); no puede verificarlo.
+// Pagos del estudiante: resumen (KPIs), detalle y reporte de pago nuevo.
+// Solo ve los de sus matriculas y no puede verificar — solo reportar.
 
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import { obtenerMatriculas, obtenerPagos, registrarPago } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
+import Kpi from '../../componentes/Kpi.jsx'
 import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Tabla from '../../componentes/Tabla.jsx'
 import Insignia from '../../componentes/Insignia.jsx'
@@ -26,6 +27,10 @@ export default function Pagos() {
   if (pagos.error) return <p className="gy-alerta gy-alerta--error">{pagos.error}</p>
   if (matriculas.error) return <p className="gy-alerta gy-alerta--error">{matriculas.error}</p>
 
+  const verificados = pagos.datos.filter((p) => p.estado === 'verificado')
+  const pendientes = pagos.datos.filter((p) => p.estado === 'pendiente')
+  const suma = (filas) => filas.reduce((acc, p) => acc + Number(p.monto), 0)
+
   const columnas = [
     { clave: 'concepto', titulo: 'Concepto', render: (p) => conceptoPago(p.concepto) },
     { clave: 'monto', titulo: 'Monto', render: (p) => soles(p.monto) },
@@ -42,7 +47,37 @@ export default function Pagos() {
 
   return (
     <div>
-      <Tarjeta titulo="Mis pagos">
+      {pagos.datos.length > 0 && (
+        <div className="gy-bento" style={{ marginBottom: '1.1rem' }}>
+          <div className="gy-bs-4">
+            <Kpi
+              valor={soles(suma(verificados))}
+              rotulo="Verificado"
+              icono="lista"
+              tono="exito"
+              pie={`${verificados.length} ${verificados.length === 1 ? 'pago' : 'pagos'}`}
+            />
+          </div>
+          <div className="gy-bs-4">
+            <Kpi
+              valor={soles(suma(pendientes))}
+              rotulo="Pendiente de verificación"
+              icono="reloj"
+              tono="alerta"
+              pie={`${pendientes.length} ${pendientes.length === 1 ? 'pago' : 'pagos'}`}
+            />
+          </div>
+          <div className="gy-bs-4">
+            <Kpi
+              valor={pagos.datos.length}
+              rotulo="Pagos reportados en total"
+              icono="dinero"
+            />
+          </div>
+        </div>
+      )}
+
+      <Tarjeta titulo="Mis pagos" icono="dinero">
         <Tabla
           columnas={columnas}
           filas={pagos.datos}
@@ -57,7 +92,7 @@ export default function Pagos() {
       </Tarjeta>
 
       {matriculas.datos.length > 0 ? (
-        <Tarjeta titulo="Reportar un pago">
+        <Tarjeta titulo="Reportar un pago" icono="mas" tonoIcono="acento">
           <p className="gy-ayuda-campo" style={{ marginBottom: '1rem' }}>
             Haz el pago por Yape, Plin, efectivo o transferencia y repórtalo aquí.
             La academia lo verificará contra su comprobante.

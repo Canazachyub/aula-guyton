@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useSesion } from '../auth/SesionContexto.jsx'
 import { obtenerMatriculas, obtenerPagos, registrarPago, verificarPago } from '../api/cliente.js'
 import { useDatos } from './useDatos.js'
+import Kpi from './Kpi.jsx'
 import Tarjeta from './Tarjeta.jsx'
 import Tabla from './Tabla.jsx'
 import Insignia from './Insignia.jsx'
@@ -45,6 +46,11 @@ export default function GestionPagos() {
   if (pagos.error) return <p className="gy-alerta gy-alerta--error">{pagos.error}</p>
   if (matriculas.error) return <p className="gy-alerta gy-alerta--error">{matriculas.error}</p>
 
+  const pendientes = pagos.datos.filter((p) => p.estado === 'pendiente')
+  const verificados = pagos.datos.filter((p) => p.estado === 'verificado')
+  const rechazados = pagos.datos.filter((p) => p.estado === 'rechazado')
+  const suma = (filas) => filas.reduce((acc, p) => acc + Number(p.monto), 0)
+
   const columnas = [
     { clave: 'alumno_nombre', titulo: 'Alumno' },
     { clave: 'ciclo_nombre', titulo: 'Ciclo' },
@@ -75,8 +81,34 @@ export default function GestionPagos() {
 
   return (
     <div>
+      <div className="gy-bento" style={{ marginBottom: '1.1rem' }}>
+        <div className="gy-bs-4">
+          <Kpi
+            valor={pendientes.length}
+            rotulo="Por verificar"
+            icono="reloj"
+            tono="alerta"
+            pie={soles(suma(pendientes))}
+          />
+        </div>
+        <div className="gy-bs-4">
+          <Kpi
+            valor={verificados.length}
+            rotulo="Verificados"
+            icono="lista"
+            tono="exito"
+            pie={soles(suma(verificados))}
+          />
+        </div>
+        <div className="gy-bs-4">
+          <Kpi valor={rechazados.length} rotulo="Rechazados" icono="cerrar" />
+        </div>
+      </div>
+
       <Tarjeta
         titulo="Todos los pagos"
+        subtitulo={`${pagos.datos.length} en total`}
+        icono="dinero"
         acciones={
           <Boton variante="acento" onClick={() => setMostrarFormulario((v) => !v)}>
             {mostrarFormulario ? 'Cerrar formulario' : 'Registrar pago'}
