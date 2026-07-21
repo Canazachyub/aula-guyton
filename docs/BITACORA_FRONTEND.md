@@ -277,3 +277,43 @@ Puntos a no perder de vista en la migración:
 - **Los nombres de campo ya son los del Sheet** (`id_ciclo_curso`, `clave_acceso`,
   `fecha_publicacion`…): las respuestas del backend pueden serializar las filas tal
   cual y la UI las consume sin cambios.
+
+---
+
+## 8. Rediseño visual (misma fecha, segunda iteración)
+
+El usuario pidió una interfaz "menos simple": navegación más agradable, cajas tipo
+**bento**, responsive de verdad y fuera el look genérico. Se rehízo la capa visual
+completa sin tocar datos ni lógica:
+
+- **Sistema**: `global.css` reescrito — retícula bento de 12 columnas
+  (`gy-bento` + `gy-bs-3/4/6/8`), tarjetas con borde fino y sombra en capas, cuadros
+  de ícono con tintes de la familia de marca, nav lateral tipo *pill* (item activo
+  blanco con ícono naranja), cabecera pegajosa con desenfoque y chip de fecha,
+  botones con micro-interacción (elevación + sombra de color), inputs con anillo de
+  foco suave, insignias con punto de color, banner DEMO más delgado (sigue sin
+  poder ocultarse).
+- **Tablas responsive de verdad**: por debajo de 720 px cada fila se convierte en
+  tarjeta apilada con sus etiquetas (vía `data-etiqueta`), en vez de scroll
+  horizontal. Cero cambios de markup: lo aplica el CSS a todas las tablas.
+- **Componentes nuevos**: `Heroe` (banda con el gradiente de marca y arte
+  **geométrico** — círculos y cuadrados, nunca un ave inventada) y `Kpi`
+  (cuadro de ícono + número grande + rótulo + pie). Los cuatro Inicio se
+  rearmaron en bento alrededor de ellos; el EstadoVacio también lleva arte
+  geométrico de marca.
+- **Login split**: panel de marca (gradiente + isotipo placeholder + nota honesta
+  de entorno DEMO) junto al panel de formulario; en celular se apila.
+- **Skills aplicadas** (descargadas por el usuario a `docs/SKILLS/` y extraídas a
+  `.agents/skills/`, que es el directorio que este CLI escanea):
+  `design-system-builder` (checklist de sistema completo: colores, tipografía,
+  componentes, espaciado, estados, movimiento — su paso de Tailwind/lucide se
+  omitió porque la guía prohíbe librerías de UI), `data-viz-renderer` (su patrón
+  de stat-card/dashboard valida el diseño de `Kpi` e Inicio del superadmin; su
+  script genera HTML suelto, que no encaja en una app React con datos vivos, así
+  que no se usó para la app), `browse` (verificación visual con capturas).
+  `theme-factory` no aplica: la paleta Guyton ya está confirmada y un tema preset
+  la violaría. Para invocación automática de las skills hace falta `/reload` o
+  una sesión nueva; aquí se leyeron y aplicaron directamente.
+- **Lo que NO cambió**: paleta, gradiente, tipografías provisionales, placeholder
+  del isotipo, banner DEMO, ni una sola línea de la capa de datos ni de los
+  flujos por rol.
