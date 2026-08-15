@@ -7,16 +7,19 @@ real que prepara postulantes para el examen de admisión universitaria. WhatsApp
 Este repositorio es **independiente** del proyecto SimulaUNA (otra plataforma, otro cliente,
 otro código). No comparten base de datos, dominio ni identidad visual.
 
-## Estado actual: rumbo a producción
+## Estado actual: EN LÍNEA (con datos DEMO)
+
+**Aula publicada:** https://canazachyub.github.io/aula-guyton/ — conectada al backend real.
 
 - **Fase 0 — Diseño:** completa (modelo de datos, roles y flujos, identidad visual).
 - **Fase 1 — Infraestructura:** el Sheet **BD Guyton** existe en Google Sheets y la carpeta raíz
   de Drive también; sus ids están incrustados en `apps-script/Codigo.gs`.
 - **Fase 2 — Backend (Apps Script):** implementado y **desplegado** como Web App; probado contra
   el Sheet real (login por rol, lecturas filtradas por permiso, escrituras).
-- **Fase 3a — Aula (frontend React):** los 4 paneles por rol están construidos. La capa de datos
-  puede correr en **modo DEMO** (mock en memoria) o **conectada al backend real** con solo
-  definir `VITE_API_URL` (ver `docs/DESPLIEGUE.md`).
+- **Fase 3a — Aula (frontend React):** los 4 paneles por rol están construidos y **publicados en
+  GitHub Pages**, conectados al backend real vía la variable de repositorio `VITE_API_URL`. Cada
+  push a `main` redespliega automáticamente (`.github/workflows/deploy.yml`). Sin esa variable la
+  app corre en **modo DEMO** (mock en memoria) — útil para desarrollo local.
 
 > **Nota honesta:** los datos del Sheet siguen siendo **DEMO** (filas `-demo-`). "Producción"
 > aquí significa *plataforma lista y conectada*, no que ya haya alumnos reales cargados. Antes de
@@ -96,14 +99,15 @@ el modelo de datos.
 
 ## Qué falta de parte del usuario para cerrar producción
 
-1. **Crear el repositorio en GitHub** y autorizar la subida (para activar GitHub Pages).
-2. Configurar `VITE_API_URL` como **variable de repositorio** en GitHub (la URL del Web App).
-3. **Datos reales**: borrar las filas DEMO y cargar **ciclos, cursos, docentes y precios**
-   reales (los del Excel son 100% DEMO).
-4. **OK al diseño de Repasos** (`docs/REPASOS.md`) para construir el banco de preguntas.
-5. **Lista de videos del canal de YouTube** para cargarlos como grabaciones (`video_grabado`).
-6. **Logo/isotipo vectorial** y la **imagen final de la mascota fénix** (el usuario la generará).
-7. **Fotos autorizadas** de la academia y el **dominio** final, si se usará uno propio.
+Ya hecho: repo `Canazachyub/aula-guyton` creado, `VITE_API_URL` configurada, Pages activo y
+desplegado. Falta:
+
+1. **Datos reales**: borrar las filas DEMO y cargar **ciclos, cursos, docentes y precios**
+   reales (los del Excel son 100% DEMO). Hasta entonces, el aula en línea muestra datos de ejemplo.
+2. **OK al diseño de Repasos** (`docs/REPASOS.md`) para construir el banco de preguntas.
+3. **Lista de videos del canal de YouTube** para cargarlos como grabaciones (`video_grabado`).
+4. **Logo/isotipo vectorial** y la **imagen final de la mascota fénix** (el usuario la generará).
+5. **Fotos autorizadas** de la academia y el **dominio** final, si se usará uno propio.
 
 Mientras esto no llegue, cualquier documento que necesite uno de estos datos lo marca como
 **pendiente de confirmar**, nunca como un hecho.

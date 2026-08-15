@@ -4,10 +4,12 @@ Guía paso a paso para poner el aula en línea. Son tres bloques: **A)** publica
 (Apps Script), **B)** conectar el frontend al backend, **C)** publicar el frontend en GitHub
 Pages. Al final, el bloque **D** lista lo que sigue pendiente con honestidad.
 
-> **Estado honesto:** el código está listo para producción, pero **la infraestructura la
-> enciendes tú** con los pasos de abajo (desplegar el Web App y crear el repo). Además, los datos
-> del Sheet **siguen siendo DEMO**: "producción" aquí significa *plataforma lista y conectada*,
-> no que ya haya alumnos reales. Antes de operar con alumnos, ver bloque D.
+> **YA DESPLEGADO (2026-08-15).** El aula está en línea en
+> **https://canazachyub.github.io/aula-guyton/**, conectada al backend real. El repo es
+> `Canazachyub/aula-guyton`, con `VITE_API_URL` configurada como variable y Pages activo. Esta
+> guía queda como **referencia para redesplegar** (bloque A tras cambios en el `.gs`) y para
+> entender cómo está armado. Los datos del Sheet **siguen siendo DEMO**: el aula funciona, pero
+> muestra ejemplos hasta cargar datos reales (bloque D).
 
 ---
 
