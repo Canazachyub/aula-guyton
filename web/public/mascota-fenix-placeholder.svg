@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 210" fill="none" role="img" aria-label="Mascota provisional: fénix">
+  <g fill="#FF4A18">
+    <!-- Ala izquierda (plumas escalonadas) -->
+    <path d="M120 96 L34 52 L74 82 L28 92 L78 100 L44 122 L92 112 L120 150 Z" />
+    <!-- Ala derecha (espejo) -->
+    <path d="M120 96 L206 52 L166 82 L212 92 L162 100 L196 122 L148 112 L120 150 Z" />
+    <!-- Cuerpo (flama central) -->
+    <path d="M120 58 C106 58 100 72 106 90 L120 158 L134 90 C140 72 134 58 120 58 Z" />
+    <!-- Cabeza -->
+    <circle cx="120" cy="50" r="15" />
+    <!-- Pico -->
+    <path d="M120 40 L102 34 L120 30 Z" />
+    <!-- Cola (tres puntas tipo flama) -->
+    <path d="M120 150 L100 196 L112 176 L120 190 L128 176 L140 196 Z" />
+  </g>
+</svg>

@@ -117,6 +117,13 @@ const TRAZOS = {
       <path d="M8 13h8M8 17h5" />
     </>
   ),
+  repasos: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="4.5" />
+      <path d="M12 12h.01" />
+    </>
+  ),
 }
 
 export default function Icono({ nombre, tamano = 20 }) {

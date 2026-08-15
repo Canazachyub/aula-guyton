@@ -65,3 +65,22 @@ export function medioPago(medio) {
   const nombres = { yape: 'Yape', plin: 'Plin', efectivo: 'Efectivo', transferencia: 'Transferencia' }
   return nombres[medio] ?? medio
 }
+
+/** Extrae el id (11 caracteres) de un enlace de YouTube: youtube.com/watch?v=…,
+ *  youtu.be/…, /embed/… o /shorts/…. Devuelve '' si el enlace no es de YouTube;
+ *  así la vista de materiales puede decidir entre reproductor embebido y enlace
+ *  normal sin cambiar ningún dato del mock. */
+export function idYouTube(url) {
+  const texto = String(url ?? '').trim()
+  if (!texto) return ''
+  const patrones = [
+    /[?&]v=([\w-]{11})/,
+    /youtu\.be\/([\w-]{11})/,
+    /youtube\.com\/(?:embed|shorts)\/([\w-]{11})/,
+  ]
+  for (const patron of patrones) {
+    const coincidencia = patron.exec(texto)
+    if (coincidencia) return coincidencia[1]
+  }
+  return ''
+}

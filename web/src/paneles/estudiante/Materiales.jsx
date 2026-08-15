@@ -12,10 +12,13 @@ import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
 import Icono from '../../componentes/Icono.jsx'
-import { META_TIPO_MATERIAL, fechaCorta, tipoMaterial } from '../../componentes/formatos.js'
+import { META_TIPO_MATERIAL, fechaCorta, idYouTube, tipoMaterial } from '../../componentes/formatos.js'
 
 function TarjetaMaterial({ material }) {
   const meta = META_TIPO_MATERIAL[material.tipo] ?? META_TIPO_MATERIAL.enlace
+  // Solo las grabaciones cuyo enlace es de YouTube se embeben como reproductor;
+  // cualquier otro enlace (Drive, etc.) mantiene el comportamiento normal.
+  const idVideo = material.tipo === 'video_grabado' ? idYouTube(material.url_drive) : ''
   return (
     <Tarjeta className="gy-tarjeta--clicable">
       <div className="gy-tarjeta-cabecera">
@@ -30,6 +33,18 @@ function TarjetaMaterial({ material }) {
         </div>
       </div>
 
+      {idVideo && (
+        <div className="gy-video-embed">
+          <iframe
+            src={`https://www.youtube.com/embed/${idVideo}`}
+            title={material.titulo}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+      )}
+
       <div className="gy-material-pie">
         <a
           className="gy-boton gy-boton--secundario gy-boton--chico"
@@ -37,7 +52,7 @@ function TarjetaMaterial({ material }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Abrir material
+          {idVideo ? 'Ver grabación en YouTube' : 'Abrir material'}
         </a>
       </div>
 
