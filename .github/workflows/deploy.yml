@@ -1,0 +1,64 @@
+name: Desplegar aula en GitHub Pages
+
+# Publica web/dist en GitHub Pages en cada push a main.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos mínimos que exige el despliegue oficial de Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo despliegue a la vez; no se cancelan los que ya están en curso.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar el aula
+        run: npm run build
+        env:
+          # Variable de repositorio (no secreta): la URL del Web App es pública.
+          # Si está vacía, la app compila en modo DEMO (mock en memoria).
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir el artefacto de Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
