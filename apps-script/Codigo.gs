@@ -153,6 +153,9 @@ var ESQUEMAS = {
 var ACCIONES = {
   // Sesion
   iniciarSesion: { fn: accIniciarSesion, publica: true },
+  // Autoservicio de registro/preinscripcion (publicas, sin sesion)
+  obtenerCiclosAbiertos: { fn: accObtenerCiclosAbiertos, publica: true },
+  registrarse: { fn: accRegistrarse, publica: true, escritura: true },
   // Lecturas
   obtenerCiclosDelUsuario: { fn: accObtenerCiclosDelUsuario },
   obtenerCursosDelUsuario: { fn: accObtenerCursosDelUsuario },
@@ -480,6 +483,148 @@ function accIniciarSesion(bd, sesion, params) {
   }
   // La sesion nunca incluye la clave_acceso.
   return { ok: true, usuario: sinClave(usuario) };
+}
+
+// ---------------------------------------------------------------------------
+// Autoservicio de registro/preinscripcion (PUBLICO, sin sesion)
+// Un postulante sin cuenta se registra desde el login: crea su usuario
+// (rol estudiante), una matricula 'preinscrito' y un pago 'matricula'
+// 'pendiente' con su voucher. Luego un auxiliar/admin verifica el pago con
+// accVerificarPago, que pasa la matricula a 'matriculado'.
+// ---------------------------------------------------------------------------
+
+var ESTADOS_CICLO_ABIERTO = ['inscripciones_abiertas', 'en_curso'];
+
+/** Ciclos abiertos para inscripcion, exponiendo SOLO los campos publicos que
+ *  necesita el formulario de registro. Publico: no filtra por rol. */
+function accObtenerCiclosAbiertos(bd, sesion, params) {
+  return bd.d.ciclos
+    .filter(function (c) { return ESTADOS_CICLO_ABIERTO.indexOf(c.estado) !== -1; })
+    .map(function (c) {
+      return {
+        id_ciclo: c.id_ciclo,
+        nombre: c.nombre,
+        anio: c.anio,
+        estado: c.estado,
+        precio_matricula: c.precio_matricula,
+        precio_mensualidad: c.precio_mensualidad,
+        n_mensualidades: c.n_mensualidades,
+      };
+    });
+}
+
+/** Registra un postulante nuevo: usuario + matricula preinscrita + pago
+ *  pendiente de matricula (con voucher opcional en Drive). No inicia sesion
+ *  ni devuelve la clave. */
+function accRegistrarse(bd, sesion, params) {
+  var datos = params.datos || {};
+
+  var nombres = String(datos.nombres != null ? datos.nombres : '').trim();
+  var apellidos = String(datos.apellidos != null ? datos.apellidos : '').trim();
+  var dni = String(datos.dni != null ? datos.dni : '').trim();
+  var clave = String(datos.clave != null ? datos.clave : '').trim();
+  var idCiclo = String(datos.id_ciclo != null ? datos.id_ciclo : '').trim();
+  var medio = String(datos.medio != null ? datos.medio : '').trim();
+  var celular = String(datos.celular != null ? datos.celular : '').trim();
+  var email = String(datos.email != null ? datos.email : '').trim();
+
+  // 1. Validaciones de obligatorios.
+  if (!nombres) return { ok: false, error: 'Ingresa tus nombres.' };
+  if (!apellidos) return { ok: false, error: 'Ingresa tus apellidos.' };
+  if (!dni) return { ok: false, error: 'Ingresa tu DNI.' };
+  if (clave.length < 4) return { ok: false, error: 'La clave debe tener al menos 4 caracteres.' };
+  if (!idCiclo) return { ok: false, error: 'Elige un ciclo para inscribirte.' };
+  var mediosValidos = ['yape', 'plin', 'efectivo', 'transferencia'];
+  if (mediosValidos.indexOf(medio) === -1) {
+    return { ok: false, error: 'Elige un medio de pago válido.' };
+  }
+
+  // 2. El ciclo debe existir y estar abierto.
+  var ciclo = buscarCiclo(bd, idCiclo);
+  if (!ciclo || ESTADOS_CICLO_ABIERTO.indexOf(ciclo.estado) === -1) {
+    return { ok: false, error: 'El ciclo elegido no está abierto para inscripción.' };
+  }
+
+  // 3. Unicidad de DNI.
+  var yaExiste = bd.d.usuarios.some(function (u) { return u.dni === dni; });
+  if (yaExiste) {
+    return { ok: false, error: 'Ya existe una cuenta con ese DNI. Inicia sesión con tu clave.' };
+  }
+
+  // 4. Crea el usuario (rol estudiante).
+  var usuario = {
+    id_usuario: siguienteId(bd, 'usuarios'),
+    dni: dni,
+    nombres: nombres,
+    apellidos: apellidos,
+    celular: celular,
+    email: email,
+    rol: 'estudiante',
+    clave_acceso: clave,
+    foto_url: '',
+    estado: 'activo',
+    fecha_registro: hoy(bd),
+  };
+  agregarFila(bd, 'usuarios', usuario);
+
+  // 5. Crea la matricula preinscrita.
+  var matricula = {
+    id_matricula: siguienteId(bd, 'matriculas'),
+    id_usuario: usuario.id_usuario,
+    id_ciclo: idCiclo,
+    fecha: hoy(bd),
+    estado: 'preinscrito',
+    turno: String(datos.turno != null ? datos.turno : '').trim(),
+    observaciones: 'Preinscripción por autoservicio',
+  };
+  agregarFila(bd, 'matriculas', matricula);
+
+  // 6. Voucher opcional a Drive (no rompe el registro si falla).
+  var urlVoucher = '';
+  if (datos.voucher_base64) {
+    urlVoucher = guardarVoucherEnDrive(datos.voucher_base64, datos.voucher_tipo, 'voucher_' + dni);
+  }
+
+  // 7. Crea el pago de matricula pendiente de verificacion.
+  var pago = {
+    id_pago: siguienteId(bd, 'pagos'),
+    id_matricula: matricula.id_matricula,
+    concepto: 'matricula',
+    monto: Number(ciclo.precio_matricula) || 0,
+    fecha_reporte: hoy(bd),
+    fecha_verificacion: '',
+    medio: medio,
+    estado: 'pendiente',
+    voucher_ref: urlVoucher || String(datos.voucher_ref != null ? datos.voucher_ref : '').trim(),
+    id_verificador: '',
+  };
+  agregarFila(bd, 'pagos', pago);
+
+  // 8. Respuesta (sin clave, sin sesion).
+  return {
+    ok: true,
+    mensaje: 'Tu preinscripción se registró correctamente. Un asesor verificará tu pago y activaremos tu acceso al ciclo.',
+    ciclo_nombre: ciclo.nombre,
+  };
+}
+
+/** Guarda el voucher (base64) en <raiz>/Vouchers y devuelve su URL publica.
+ *  Devuelve '' ante cualquier fallo para NO romper el registro. */
+function guardarVoucherEnDrive(base64, mime, nombreBase) {
+  try {
+    var raiz = DriveApp.getFolderById(DRIVE_ROOT_ID);
+    var carpeta = obtenerOCrearCarpeta(raiz, 'Vouchers');
+    var bytes = Utilities.base64Decode(base64);
+    var tipo = mime || 'image/jpeg';
+    var ext = tipo.indexOf('pdf') !== -1 ? '.pdf' : (tipo.indexOf('png') !== -1 ? '.png' : '.jpg');
+    var blob = Utilities.newBlob(bytes, tipo, nombreBase + '_' + new Date().getTime() + ext);
+    var archivo = carpeta.createFile(blob);
+    archivo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return archivo.getUrl();
+  } catch (err) {
+    Logger.log('No se pudo guardar el voucher en Drive: %s', err);
+    return '';
+  }
 }
 
 // ---------------------------------------------------------------------------
