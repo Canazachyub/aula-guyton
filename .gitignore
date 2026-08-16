@@ -1,3 +1,10 @@
 # Paquetes de skills descargados (.zip), ajenos al aula virtual. Se conservan
 # en disco pero NO se versionan ni se publican en el repo de GitHub.
 docs/SKILLS/
+
+# Excel de simulacros UNA Puno: contiene DATOS PERSONALES REALES (DNI, correos,
+# celulares de 231 personas) y el banco de preguntas (material de la academia).
+# NUNCA debe entrar al repo público. Se usa solo localmente para generar el banco.
+UNA PUNO SIMULACROS*.xlsx
+BANQUEO_GUYTON.xlsx
+
