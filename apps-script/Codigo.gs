@@ -180,6 +180,7 @@ var ACCIONES = {
   guardarUsuario: { fn: accGuardarUsuario, escritura: true },
   // Banqueo (banco de preguntas de practica; hojas de CARGA DIFERIDA, ver seccion Banqueo)
   obtenerBanqueoCursos: { fn: accObtenerBanqueoCursos },
+  obtenerBanqueoTemas: { fn: accObtenerBanqueoTemas },
   obtenerBanqueoPreguntas: { fn: accObtenerBanqueoPreguntas },
   obtenerBanqueoProgreso: { fn: accObtenerBanqueoProgreso },
   registrarRespuestaBanqueo: { fn: accRegistrarRespuestaBanqueo, escritura: true },
@@ -1299,6 +1300,29 @@ function accObtenerBanqueoCursos(bd, sesion) {
   return resultado;
 }
 
+/** Temas (con conteo) de las preguntas 'publicado' de un curso, para que el
+ *  estudiante pueda filtrar su practica por tema. [] si la hoja no existe o
+ *  falta el `curso`. */
+function accObtenerBanqueoTemas(bd, sesion, params) {
+  var datos = params.datos || {};
+  var curso = String((params.curso != null ? params.curso : datos.curso) || '').trim();
+  if (!curso) return [];
+  var h = leerHojaBanqueo(BANQUEO_HOJA_PREGUNTAS);
+  if (!h) return [];
+  if (h.col['curso'] === undefined) return [];
+  var conteo = {};
+  h.filas.forEach(function (f) {
+    var cr = f.cruda;
+    if (String(celdaBanqueo(h, cr, 'estado')).trim() !== 'publicado') return;
+    if (String(celdaBanqueo(h, cr, 'curso')).trim() !== curso) return;
+    var tema = String(celdaBanqueo(h, cr, 'tema')).trim() || '(sin tema)';
+    conteo[tema] = (conteo[tema] || 0) + 1;
+  });
+  return Object.keys(conteo)
+    .map(function (t) { return { tema: t, total: conteo[t] }; })
+    .sort(function (a, b) { return a.tema.localeCompare(b.tema); });
+}
+
 /** Preguntas 'publicado' de un curso (filtradas por tema si viene), barajadas
  *  y cortadas a `limite` (por defecto 10). Es PRACTICA: incluye correcta y
  *  justificacion. [] si la hoja no existe o no hay coincidencias. */
@@ -1347,6 +1371,7 @@ function accObtenerBanqueoPreguntas(bd, sesion, params) {
       correcta: correctaCompacta || (isFinite(correctaNum) ? correctaNum : ''),
       justificacion: String(celdaBanqueo(h, cr, 'justificacion')).trim(),
       imagen_url: String(celdaBanqueo(h, cr, 'imagen_url')).trim(),
+      fuente: String(celdaBanqueo(h, cr, 'fuente')).trim(),
     });
   });
 
