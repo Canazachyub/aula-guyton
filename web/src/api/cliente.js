@@ -19,10 +19,19 @@ import * as clienteMock from './clienteMock.js'
 
 const impl = import.meta.env.VITE_API_URL ? clienteApi : clienteMock
 
+// Bandera de entorno: true cuando NO hay backend real configurado (VITE_API_URL
+// vacio => corre el mock en memoria). La UI la usa para mostrar avisos "DEMO"
+// SOLO en ese modo; en produccion (con VITE_API_URL) deben desaparecer.
+export const MODO_DEMO = !import.meta.env.VITE_API_URL
+
 // Sesion
 export const iniciarSesion = impl.iniciarSesion
 export const cerrarSesion = impl.cerrarSesion
 export const obtenerSesion = impl.obtenerSesion
+
+// Registro / matricula publica (sin sesion, desde el login)
+export const obtenerCiclosAbiertos = impl.obtenerCiclosAbiertos
+export const registrarse = impl.registrarse
 
 // Lecturas
 export const obtenerCiclosDelUsuario = impl.obtenerCiclosDelUsuario

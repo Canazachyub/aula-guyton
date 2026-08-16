@@ -97,6 +97,21 @@ export async function obtenerSesion() {
 }
 
 // ---------------------------------------------------------------------------
+// Registro / matricula publica (sin sesion, desde el login)
+// ---------------------------------------------------------------------------
+
+/** Ciclos con inscripcion abierta (GET publico, sin sesion). */
+export async function obtenerCiclosAbiertos() {
+  return leer('obtenerCiclosAbiertos', {})
+}
+
+/** Autoservicio de preinscripcion (POST publico, sin sesion). El voucher viaja
+ *  como voucher_base64/voucher_tipo/voucher_nombre dentro de `datos`. */
+export async function registrarse(datos) {
+  return escribir('registrarse', { datos })
+}
+
+// ---------------------------------------------------------------------------
 // Lecturas (GET) — mismas firmas que el mock
 // ---------------------------------------------------------------------------
 

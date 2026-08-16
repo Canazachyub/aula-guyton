@@ -3,8 +3,9 @@
 // Diseno split: panel de marca con el gradiente + panel de formulario.
 
 import { useState } from 'react'
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContexto.jsx'
+import { MODO_DEMO } from '../api/cliente.js'
 import Isotipo from '../componentes/Isotipo.jsx'
 
 // Credenciales del entorno DEMO, visibles a proposito: toda la app corre con
@@ -87,10 +88,12 @@ export default function Entrar() {
             </div>
           </div>
 
-          <p className="gy-login-marca-pie">
-            <span className="gy-login-demo-punto" aria-hidden="true" />
-            Entorno de demostración: todos los datos son de ejemplo.
-          </p>
+          {MODO_DEMO && (
+            <p className="gy-login-marca-pie">
+              <span className="gy-login-demo-punto" aria-hidden="true" />
+              Entorno de demostración: todos los datos son de ejemplo.
+            </p>
+          )}
         </aside>
 
         <section className="gy-login-panel">
@@ -139,28 +142,35 @@ export default function Entrar() {
             </button>
           </form>
 
+          <p className="gy-login-registro">
+            ¿No tienes cuenta?{' '}
+            <Link className="gy-login-registro-enlace" to="/registro">Regístrate</Link>
+          </p>
+
           <p className="gy-login-ayuda">
             ¿Problemas para entrar? Comunícate con la academia por WhatsApp.
           </p>
 
-          <div className="gy-demo-caja">
-            <p className="gy-demo-titulo">
-              Prueba cada rol con un clic (datos de ejemplo):
-            </p>
-            <div className="gy-demo-grid">
-              {CREDENCIALES_DEMO.map((c) => (
-                <button
-                  key={c.dni}
-                  type="button"
-                  className="gy-demo-cuenta"
-                  onClick={() => { setDni(c.dni); setClave(c.clave); setError('') }}
-                >
-                  <strong>{c.rol}</strong>
-                  <span>{c.nombre} · DNI {c.dni} · clave {c.clave}</span>
-                </button>
-              ))}
+          {MODO_DEMO && (
+            <div className="gy-demo-caja">
+              <p className="gy-demo-titulo">
+                Prueba cada rol con un clic (datos de ejemplo):
+              </p>
+              <div className="gy-demo-grid">
+                {CREDENCIALES_DEMO.map((c) => (
+                  <button
+                    key={c.dni}
+                    type="button"
+                    className="gy-demo-cuenta"
+                    onClick={() => { setDni(c.dni); setClave(c.clave); setError('') }}
+                  >
+                    <strong>{c.rol}</strong>
+                    <span>{c.nombre} · DNI {c.dni} · clave {c.clave}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </section>
       </div>
     </main>

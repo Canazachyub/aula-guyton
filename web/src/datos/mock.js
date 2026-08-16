@@ -131,6 +131,19 @@ export const db = {
       tipo: 'video_grabado', titulo: 'Grabacion: Comprension lectora - clase 1 (DEMO)', semana: 1,
       url_drive: 'https://drive.google.com/file/d/DEMO-grabacion-1/view', id_material_padre: '',
       fecha_publicacion: '2026-07-15', id_autor: 'usr-demo-2', estado: 'borrador' },
+    // Clases grabadas de ejemplo (YouTube) para ver el reproductor embebido.
+    { id_material: 'mtl-demo-4', id_ciclo_curso: 'cco-demo-1', id_clase: 'cls-demo-1',
+      tipo: 'video_grabado', titulo: 'Clase grabada 1 (ejemplo)', semana: 1,
+      url_drive: 'https://youtu.be/u86Anc8VTVo', id_material_padre: '',
+      fecha_publicacion: '2026-07-13', id_autor: 'usr-demo-2', estado: 'publicado' },
+    { id_material: 'mtl-demo-5', id_ciclo_curso: 'cco-demo-1', id_clase: '',
+      tipo: 'video_grabado', titulo: 'Clase grabada 2 (ejemplo)', semana: 2,
+      url_drive: 'https://youtu.be/FqmqxrfhgAA', id_material_padre: '',
+      fecha_publicacion: '2026-07-20', id_autor: 'usr-demo-2', estado: 'publicado' },
+    { id_material: 'mtl-demo-6', id_ciclo_curso: 'cco-demo-2', id_clase: 'cls-demo-2',
+      tipo: 'video_grabado', titulo: 'Clase grabada de Comunicacion (ejemplo)', semana: 1,
+      url_drive: 'https://youtu.be/4fp-4dEoLX8', id_material_padre: '',
+      fecha_publicacion: '2026-07-15', id_autor: 'usr-demo-2', estado: 'publicado' },
   ],
 
   // 11. asistencias -------------------------------------------------------------

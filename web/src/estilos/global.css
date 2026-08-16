@@ -1606,6 +1606,161 @@ a:hover {
   }
 }
 
+/* Enlace "¿No tienes cuenta? Regístrate" bajo el formulario de login. */
+.gy-login-registro {
+  margin-top: 1.1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-login-registro-enlace {
+  font-weight: 700;
+  color: var(--gy-azul-electrico);
+}
+
+/* --------------------------------------------------------------------------
+   Registro / matrícula pública (usa el marco del login)
+   -------------------------------------------------------------------------- */
+
+.gy-registro-marco {
+  width: min(1040px, 100%);
+}
+
+/* El formulario es largo: en escritorio se limita la altura y hace scroll
+   interno para no romper la caja de marca. */
+.gy-registro-panel {
+  gap: 0;
+}
+
+.gy-registro-fila {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 1rem;
+}
+
+.gy-registro-monto {
+  margin: -0.35rem 0 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  background: var(--gy-azul-electrico-suave);
+  color: var(--gy-azul-real);
+  font-size: 0.9rem;
+}
+
+.gy-registro-archivo {
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.gy-registro-archivo::file-selector-button {
+  margin-right: 0.7rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--gy-borde);
+  border-radius: 999px;
+  background: var(--gy-relleno);
+  color: var(--gy-azul-real);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--gy-transicion), border-color var(--gy-transicion);
+}
+
+.gy-registro-archivo::file-selector-button:hover {
+  border-color: var(--gy-azul-electrico);
+  background: var(--gy-azul-electrico-suave);
+}
+
+.gy-registro-voucher {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--gy-borde);
+  border-radius: 12px;
+  background: var(--gy-relleno);
+}
+
+.gy-registro-voucher-previa {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--gy-borde);
+}
+
+.gy-registro-voucher-archivo {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.gy-registro-voucher-nombre {
+  font-size: 0.82rem;
+  color: var(--gy-texto-suave);
+  word-break: break-all;
+}
+
+.gy-registro-enlace-claro {
+  color: var(--gy-blanco);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Pantalla de confirmación tras enviar la preinscripción. */
+.gy-registro-exito {
+  width: min(460px, 100%);
+  background: var(--gy-blanco);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: 26px;
+  box-shadow: var(--gy-sombra-2);
+  padding: 2.25rem 1.75rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.gy-registro-exito-marca {
+  display: inline-flex;
+}
+
+.gy-registro-exito-check {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gy-exito-suave);
+  color: var(--gy-exito);
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.gy-registro-exito-titulo {
+  font-size: 1.4rem;
+}
+
+.gy-registro-exito-texto {
+  font-size: 0.92rem;
+  color: var(--gy-texto);
+  line-height: 1.55;
+  margin-bottom: 0.6rem;
+}
+
+@media (min-width: 620px) {
+  .gy-registro-fila {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 880px) {
+  .gy-registro-panel {
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+}
+
 /* --------------------------------------------------------------------------
    Repasos (placeholder "en diseño") — panel del estudiante
    -------------------------------------------------------------------------- */

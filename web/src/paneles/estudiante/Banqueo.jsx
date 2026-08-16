@@ -11,6 +11,7 @@
 import { useState } from 'react'
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import {
+  MODO_DEMO,
   obtenerBanqueoCursos,
   obtenerBanqueoTemas,
   obtenerBanqueoPreguntas,
@@ -121,9 +122,11 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
         </div>
       </section>
 
-      <p className="gy-banqueo-curso-detalle" style={{ marginBottom: '1rem' }}>
-        Tu avance del banqueo es de práctica (modo DEMO): se reinicia al recargar la página.
-      </p>
+      {MODO_DEMO && (
+        <p className="gy-banqueo-curso-detalle" style={{ marginBottom: '1rem' }}>
+          Tu avance del banqueo es de práctica (modo demostración): se reinicia al recargar la página.
+        </p>
+      )}
 
       {cursos.length === 0 ? (
         <EstadoVacio

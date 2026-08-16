@@ -150,6 +150,110 @@ export async function obtenerSesion() {
 }
 
 // ---------------------------------------------------------------------------
+// Registro / matricula publica (sin sesion, desde el login)
+// ---------------------------------------------------------------------------
+
+/** Ciclos con inscripcion abierta que un visitante puede elegir para matricularse.
+ *  Contrato publico: [{ id_ciclo, nombre, anio, estado, precio_matricula,
+ *  precio_mensualidad, n_mensualidades }]. Devuelve los ciclos DEMO en estado
+ *  'inscripciones_abiertas' o 'en_curso'; si ninguno califica, cae al ciclo
+ *  'en_curso' para que el registro siempre se pueda probar. */
+export async function obtenerCiclosAbiertos() {
+  await esperar()
+  const abiertos = db.ciclos.filter(
+    (c) => c.estado === 'inscripciones_abiertas' || c.estado === 'en_curso',
+  )
+  const elegibles = abiertos.length ? abiertos : db.ciclos.filter((c) => c.estado === 'en_curso')
+  return elegibles.map((c) => ({
+    id_ciclo: c.id_ciclo,
+    nombre: c.nombre,
+    anio: c.anio,
+    estado: c.estado,
+    precio_matricula: c.precio_matricula,
+    precio_mensualidad: c.precio_mensualidad,
+    n_mensualidades: c.n_mensualidades,
+  }))
+}
+
+/** Autoservicio de preinscripcion desde el login (sin sesion). Crea usuario
+ *  estudiante + matricula 'preinscrito' + pago de matricula 'pendiente' EN
+ *  MEMORIA y devuelve { ok:true, mensaje, ciclo_nombre }. En DEMO el voucher se
+ *  ignora (no se guarda el archivo): solo se conserva voucher_ref si viene. */
+export async function registrarse(datos = {}) {
+  await esperar()
+  const nombres = String(datos.nombres ?? '').trim()
+  const apellidos = String(datos.apellidos ?? '').trim()
+  const dni = String(datos.dni ?? '').trim()
+  const celular = String(datos.celular ?? '').trim()
+  const email = String(datos.email ?? '').trim()
+  const clave = String(datos.clave ?? '').trim()
+  const idCiclo = String(datos.id_ciclo ?? '').trim()
+  const medio = String(datos.medio ?? '').trim()
+
+  if (!nombres || !apellidos || !dni || !clave) {
+    return { ok: false, error: 'Completa tus nombres, apellidos, DNI y clave.' }
+  }
+  if (clave.length < 4) {
+    return { ok: false, error: 'La clave debe tener al menos 4 caracteres.' }
+  }
+  const ciclo = buscarCiclo(idCiclo)
+  if (!ciclo) return { ok: false, error: 'Elige un ciclo válido para matricularte.' }
+  const mediosValidos = ['yape', 'plin', 'efectivo', 'transferencia']
+  if (!mediosValidos.includes(medio)) {
+    return { ok: false, error: 'Elige un medio de pago válido.' }
+  }
+  if (db.usuarios.some((u) => u.dni === dni)) {
+    return { ok: false, error: 'Ya existe una cuenta con ese DNI. Intenta iniciar sesión.' }
+  }
+
+  const usuario = {
+    id_usuario: siguienteIdDemo(db.usuarios, 'id_usuario', 'usr'),
+    dni,
+    nombres,
+    apellidos,
+    celular,
+    email,
+    rol: 'estudiante',
+    clave_acceso: clave,
+    foto_url: '',
+    estado: 'activo',
+    fecha_registro: hoy(),
+  }
+  db.usuarios.push(usuario)
+
+  const matricula = {
+    id_matricula: siguienteIdDemo(db.matriculas, 'id_matricula', 'mat'),
+    id_usuario: usuario.id_usuario,
+    id_ciclo: ciclo.id_ciclo,
+    fecha: hoy(),
+    estado: 'preinscrito',
+    turno: '',
+    observaciones: 'Preinscripción desde el registro público (modo demostración)',
+  }
+  db.matriculas.push(matricula)
+
+  const pago = {
+    id_pago: siguienteIdDemo(db.pagos, 'id_pago', 'pag'),
+    id_matricula: matricula.id_matricula,
+    concepto: 'matricula',
+    monto: ciclo.precio_matricula,
+    fecha_reporte: hoy(),
+    fecha_verificacion: '',
+    medio,
+    estado: 'pendiente',
+    voucher_ref: String(datos.voucher_ref ?? '').trim(),
+    id_verificador: '',
+  }
+  db.pagos.push(pago)
+
+  return {
+    ok: true,
+    mensaje: 'Tu preinscripción se registró y tu pago de matrícula quedó en revisión.',
+    ciclo_nombre: ciclo.nombre,
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Lecturas (siempre reciben la sesion y filtran segun el rol)
 // ---------------------------------------------------------------------------
 

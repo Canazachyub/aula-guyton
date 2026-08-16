@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { ProveedorSesion, useSesion } from './auth/SesionContexto.jsx'
 import RutaProtegida from './auth/RutaProtegida.jsx'
 import Entrar from './paginas/Entrar.jsx'
+import Registro from './paginas/Registro.jsx'
 import PanelEstudiante from './paneles/estudiante/PanelEstudiante.jsx'
 import PanelDocente from './paneles/docente/PanelDocente.jsx'
 import PanelAuxiliar from './paneles/auxiliar/PanelAuxiliar.jsx'
@@ -27,6 +28,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/panel" replace />} />
         <Route path="/entrar" element={<Entrar />} />
+        <Route path="/registro" element={<Registro />} />
         <Route path="/panel" element={<RedireccionPanel />} />
         <Route
           path="/panel/estudiante/*"
