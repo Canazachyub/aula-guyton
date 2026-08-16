@@ -55,7 +55,7 @@ SHEETS.append((
     [
         ["nombre_academia", "Academia Preuniversitaria Guyton",
          "Nombre completo de la academia"],
-        ["whatsapp", "+51 986 833 308",
+        ["whatsapp", "+51 934 068 491",
          "Numero de WhatsApp de contacto de la academia"],
         ["drive_root_id", "",
          "ID de la carpeta raiz de Google Drive (vacio hasta que el usuario la comparta)"],

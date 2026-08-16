@@ -6,7 +6,6 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useSesion } from '../auth/SesionContexto.jsx'
 import { MODO_DEMO } from '../api/cliente.js'
-import Isotipo from '../componentes/Isotipo.jsx'
 
 // Credenciales del entorno DEMO, visibles a proposito: toda la app corre con
 // datos de ejemplo y la interfaz debe decirlo (regla de honestidad).
@@ -69,8 +68,11 @@ export default function Entrar() {
           </svg>
 
           <div className="gy-login-marca-cabecera">
-            <Isotipo tamano={46} />
-            <strong>Academia Preuniversitaria Guyton</strong>
+            <img
+              className="gy-login-logo"
+              src={`${import.meta.env.BASE_URL}logo-guyton.png`}
+              alt="Academia Preuniversitaria Guyton — Asegura tu ingreso"
+            />
           </div>
 
           <div className="gy-login-marca-texto">
@@ -148,7 +150,16 @@ export default function Entrar() {
           </p>
 
           <p className="gy-login-ayuda">
-            ¿Problemas para entrar? Comunícate con la academia por WhatsApp.
+            ¿Problemas para entrar?{' '}
+            <a
+              className="gy-login-registro-enlace"
+              href="https://wa.me/51934068491"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Escríbenos por WhatsApp
+            </a>
+            {' '}(+51 934 068 491).
           </p>
 
           {MODO_DEMO && (

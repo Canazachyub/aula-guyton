@@ -2,7 +2,7 @@
 
 Proyecto de aula virtual para la **Academia Preuniversitaria Guyton** (Puno, Perú), academia
 real que prepara postulantes para el examen de admisión universitaria. WhatsApp de contacto:
-**+51 986 833 308**.
+**+51 934 068 491**.
 
 Este repositorio es **independiente** del proyecto SimulaUNA (otra plataforma, otro cliente,
 otro código). No comparten base de datos, dominio ni identidad visual.

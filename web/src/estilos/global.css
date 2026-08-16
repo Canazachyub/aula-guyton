@@ -117,7 +117,7 @@ a:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Isotipo provisional (el logo real esta pendiente — ver IDENTIDAD_VISUAL.md)
+   Isotipo de marca (ave fénix + "G" del logo real de Guyton)
    -------------------------------------------------------------------------- */
 
 .gy-isotipo {
@@ -125,21 +125,23 @@ a:hover {
   height: 48px;
   flex: none;
   border-radius: 14px;
-  background: var(--gy-gradiente);
-  border: 2px dashed rgba(255, 255, 255, 0.65);
-  display: grid;
-  place-items: center;
-  color: var(--gy-blanco);
-  font-family: var(--gy-fuente-titulos);
-  font-weight: 800;
-  font-size: 1.35rem;
+  object-fit: cover;
   user-select: none;
   box-shadow: var(--gy-sombra-2);
 }
 
-/* Sobre fondo claro, el borde discontinuo se marca en azul */
 .gy-isotipo--claro {
-  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: var(--gy-sombra-2);
+}
+
+/* Logo completo (lockup) para el panel de marca del login/registro */
+.gy-login-logo {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: var(--gy-sombra-2);
 }
 
 /* --------------------------------------------------------------------------

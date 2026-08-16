@@ -14,7 +14,7 @@ export const db = {
   config: [
     { clave: 'nombre_academia', valor: 'Academia Preuniversitaria Guyton',
       descripcion: 'Nombre completo de la academia' },
-    { clave: 'whatsapp', valor: '+51 986 833 308',
+    { clave: 'whatsapp', valor: '+51 934 068 491',
       descripcion: 'Numero de WhatsApp de contacto de la academia' },
     { clave: 'drive_root_id', valor: '',
       descripcion: 'ID de la carpeta raiz de Google Drive (vacio hasta que el usuario la comparta)' },

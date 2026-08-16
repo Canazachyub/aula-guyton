@@ -26,7 +26,7 @@ import EstadoVacio from '../../componentes/EstadoVacio.jsx'
 
 // El asset vive en public/. Se referencia con BASE_URL para que funcione en
 // cualquier subruta de hosting (GitHub Pages) sin conocer el nombre del repo.
-const MASCOTA = `${import.meta.env.BASE_URL}mascota-fenix-placeholder.svg`
+const MASCOTA = `${import.meta.env.BASE_URL}mascota-fenix.png`
 
 const TONOS_RELLENO = ['', '--acento', '--exito']
 
@@ -108,7 +108,7 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
         <img
           className="gy-banqueo-hero-mascota"
           src={MASCOTA}
-          alt="Mascota provisional de la Academia Guyton: un fénix estilizado"
+          alt="Fénix, la mascota de la Academia Guyton"
           width="120"
           height="106"
         />
@@ -334,7 +334,7 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
           <img
             className="gy-banqueo-resumen-mascota"
             src={MASCOTA}
-            alt="Mascota provisional de la Academia Guyton: un fénix estilizado"
+            alt="Fénix, la mascota de la Academia Guyton"
             width="110"
             height="97"
           />

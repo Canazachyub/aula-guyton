@@ -1,18 +1,18 @@
-// Placeholder del isotipo: un bloque con el gradiente de marca y la "G".
-// El logo real (ave naranja + "G") no existe como archivo todavia y NO se
-// sabe que ave es — no se dibuja un ave inventada (regla de honestidad,
-// docs/IDENTIDAD_VISUAL.md). El title lo declara provisional en pantalla.
+// Isotipo de marca: el ave fénix con la "G" del logo real de la Academia
+// Guyton, recortado como badge cuadrado. El asset vive en public/ y se
+// referencia con BASE_URL para que funcione en cualquier subruta (GitHub Pages).
+
+const ISOTIPO = `${import.meta.env.BASE_URL}isotipo-guyton.png`
 
 export default function Isotipo({ tamano = 48 }) {
   return (
-    <div
+    <img
       className="gy-isotipo"
-      style={{ width: tamano, height: tamano, fontSize: Math.round(tamano * 0.44) }}
-      title="Isotipo provisional - el logo real está pendiente"
-      role="img"
-      aria-label="Isotipo provisional de la Academia Guyton (el logo real está pendiente)"
-    >
-      G
-    </div>
+      src={ISOTIPO}
+      alt="Isotipo de la Academia Preuniversitaria Guyton"
+      width={tamano}
+      height={tamano}
+      style={{ width: tamano, height: tamano }}
+    />
   )
 }
