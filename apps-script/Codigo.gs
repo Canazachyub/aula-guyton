@@ -178,6 +178,11 @@ var ACCIONES = {
   guardarCurso: { fn: accGuardarCurso, escritura: true },
   guardarAsignacion: { fn: accGuardarAsignacion, escritura: true },
   guardarUsuario: { fn: accGuardarUsuario, escritura: true },
+  // Banqueo (banco de preguntas de practica; hojas de CARGA DIFERIDA, ver seccion Banqueo)
+  obtenerBanqueoCursos: { fn: accObtenerBanqueoCursos },
+  obtenerBanqueoPreguntas: { fn: accObtenerBanqueoPreguntas },
+  obtenerBanqueoProgreso: { fn: accObtenerBanqueoProgreso },
+  registrarRespuestaBanqueo: { fn: accRegistrarRespuestaBanqueo, escritura: true },
 };
 
 function doGet(e) {
@@ -1190,4 +1195,297 @@ function instalarDrive() {
 function obtenerOCrearCarpeta(padre, nombre) {
   var it = padre.getFoldersByName(nombre);
   return it.hasNext() ? it.next() : padre.createFolder(nombre);
+}
+
+// ==========================================================================
+// BANQUEO — banco de preguntas de practica (CARGA DIFERIDA)
+// --------------------------------------------------------------------------
+// Dos hojas NUEVAS en el mismo spreadsheet BD Guyton, subidas aparte por el
+// usuario (pueden NO existir aun; se maneja su ausencia con gracia):
+//   - banqueo_preguntas (~2800 filas): id_pregunta, curso, tema, subtema,
+//     enunciado, opcion_1..5, correcta (num 1..5), justificacion, tiempo_seg,
+//     imagen_url, fuente, estado ('publicado'/'borrador').
+//   - banqueo_progreso: id_progreso (prefijo bqp), id_usuario, curso,
+//     respondidas, correctas, ultima_practica.
+//
+// RENDIMIENTO (regla critica): estas hojas NO estan en ESQUEMAS ni en
+// cargarBd() — con ~2800 filas frenarian CADA llamada del API. Se leen SOLO
+// dentro de las acciones de banqueo, on-demand, con getDataRange().getValues()
+// y SIEMPRE por nombre de header (nunca por indice fijo). No se cachea el
+// payload de preguntas (excede el limite de 100KB por clave de CacheService);
+// solo se cachea el resumen liviano de cursos.
+// ==========================================================================
+
+var BANQUEO_HOJA_PREGUNTAS = 'banqueo_preguntas';
+var BANQUEO_HOJA_PROGRESO = 'banqueo_progreso';
+var BANQUEO_CACHE_CURSOS = 'banqueo_cursos_v1';
+var BANQUEO_CACHE_SEG = 300; // 5 min: el resumen de cursos solo cambia al re-subir la hoja.
+
+/** Lee una hoja de banqueo on-demand abriendo el spreadsheet por SPREADSHEET_ID.
+ *  Devuelve null si la hoja NO existe (se trata como "banco no configurado").
+ *  Estructura: { hoja, headers, col:{header->indice}, filas:[{cruda, rowNum}] }.
+ *  Nunca se referencia por indice fijo: siempre via `col[header]`. */
+function leerHojaBanqueo(nombreHoja) {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var hoja = ss.getSheetByName(nombreHoja);
+  if (!hoja) return null;
+  var valores = hoja.getDataRange().getValues();
+  if (!valores.length) return { hoja: hoja, headers: [], col: {}, filas: [] };
+  var headers = valores[0].map(function (h) { return String(h).trim(); });
+  var col = {};
+  headers.forEach(function (h, i) { col[h] = i; });
+  var filas = [];
+  for (var i = 1; i < valores.length; i++) {
+    var cruda = valores[i];
+    var vacia = cruda.every(function (v) { return v === '' || v === null; });
+    if (vacia) continue;
+    filas.push({ cruda: cruda, rowNum: i + 1 });
+  }
+  return { hoja: hoja, headers: headers, col: col, filas: filas };
+}
+
+/** Valor de una celda por HEADER (no por indice). '' si el header no existe. */
+function celdaBanqueo(h, cruda, header) {
+  var i = h.col[header];
+  return i === undefined ? '' : cruda[i];
+}
+
+/** Formatea un valor de fecha (Date de getValues o string) a 'YYYY-MM-DD'. */
+function textoFechaBanqueo(valor, tz) {
+  if (valor === null || valor === undefined || valor === '') return '';
+  if (Object.prototype.toString.call(valor) === '[object Date]') {
+    if (isNaN(valor.getTime())) return '';
+    return Utilities.formatDate(valor, tz, 'yyyy-MM-dd');
+  }
+  return String(valor).trim();
+}
+
+/** Baraja un array in-place (Fisher-Yates). Math.random esta permitido en GAS. */
+function barajarBanqueo(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
+/** Calcula [{curso, total}] de las preguntas 'publicado'. [] si no hay hoja. */
+function calcularBanqueoCursos() {
+  var h = leerHojaBanqueo(BANQUEO_HOJA_PREGUNTAS);
+  if (!h) return [];
+  if (h.col['curso'] === undefined) return [];
+  var conteo = {};
+  h.filas.forEach(function (f) {
+    if (String(celdaBanqueo(h, f.cruda, 'estado')).trim() !== 'publicado') return;
+    var curso = String(celdaBanqueo(h, f.cruda, 'curso')).trim();
+    if (!curso) return;
+    conteo[curso] = (conteo[curso] || 0) + 1;
+  });
+  return Object.keys(conteo)
+    .map(function (c) { return { curso: c, total: conteo[c] }; })
+    .sort(function (a, b) { return a.curso.localeCompare(b.curso); });
+}
+
+/** Cursos con preguntas publicadas y su conteo. Cachea SOLO este resumen
+ *  liviano (no las preguntas). [] si la hoja no existe. */
+function accObtenerBanqueoCursos(bd, sesion) {
+  var cache = CacheService.getScriptCache();
+  var guardado = cache.get(BANQUEO_CACHE_CURSOS);
+  if (guardado) {
+    try { return JSON.parse(guardado); } catch (err) { /* recalcular */ }
+  }
+  var resultado = calcularBanqueoCursos();
+  try { cache.put(BANQUEO_CACHE_CURSOS, JSON.stringify(resultado), BANQUEO_CACHE_SEG); } catch (err) { /* sin cache */ }
+  return resultado;
+}
+
+/** Preguntas 'publicado' de un curso (filtradas por tema si viene), barajadas
+ *  y cortadas a `limite` (por defecto 10). Es PRACTICA: incluye correcta y
+ *  justificacion. [] si la hoja no existe o no hay coincidencias. */
+function accObtenerBanqueoPreguntas(bd, sesion, params) {
+  var datos = params.datos || {};
+  var curso = String((params.curso != null ? params.curso : datos.curso) || '').trim();
+  if (!curso) return [];
+  var tema = String((params.tema != null ? params.tema : datos.tema) || '').trim();
+  var limiteRaw = params.limite != null ? params.limite : datos.limite;
+  var limite = Number(limiteRaw);
+  if (!isFinite(limite) || limite <= 0) limite = 10;
+  limite = Math.floor(limite);
+
+  var h = leerHojaBanqueo(BANQUEO_HOJA_PREGUNTAS);
+  if (!h) return [];
+  if (h.col['curso'] === undefined) return [];
+
+  var preguntas = [];
+  h.filas.forEach(function (f) {
+    var cr = f.cruda;
+    if (String(celdaBanqueo(h, cr, 'estado')).trim() !== 'publicado') return;
+    if (String(celdaBanqueo(h, cr, 'curso')).trim() !== curso) return;
+    if (tema && String(celdaBanqueo(h, cr, 'tema')).trim() !== tema) return;
+
+    var correctaNum = Number(celdaBanqueo(h, cr, 'correcta'));
+    var opciones = [];
+    var correctaCompacta = '';
+    ['opcion_1', 'opcion_2', 'opcion_3', 'opcion_4', 'opcion_5'].forEach(function (o, idx) {
+      var val = celdaBanqueo(h, cr, o);
+      val = val === null || val === undefined ? '' : String(val).trim();
+      if (val === '') return;
+      opciones.push(val);
+      // Al compactar (descartar opciones vacias) la posicion de la correcta
+      // puede moverse; se re-mapea al indice 1-based dentro de `opciones`, para
+      // que el frontend (que numera las opciones devueltas) marque bien la
+      // correcta aunque haya un hueco intermedio en la hoja.
+      if (idx + 1 === correctaNum) correctaCompacta = opciones.length;
+    });
+    preguntas.push({
+      id_pregunta: String(celdaBanqueo(h, cr, 'id_pregunta')).trim(),
+      curso: String(celdaBanqueo(h, cr, 'curso')).trim(),
+      tema: String(celdaBanqueo(h, cr, 'tema')).trim(),
+      subtema: String(celdaBanqueo(h, cr, 'subtema')).trim(),
+      enunciado: String(celdaBanqueo(h, cr, 'enunciado')).trim(),
+      opciones: opciones,
+      correcta: correctaCompacta || (isFinite(correctaNum) ? correctaNum : ''),
+      justificacion: String(celdaBanqueo(h, cr, 'justificacion')).trim(),
+      imagen_url: String(celdaBanqueo(h, cr, 'imagen_url')).trim(),
+    });
+  });
+
+  barajarBanqueo(preguntas);
+  return preguntas.slice(0, limite);
+}
+
+/** Filas de banqueo_progreso del usuario en sesion, con porcentaje calculado
+ *  (correctas/respondidas*100, 0 si respondidas=0). [] si la hoja no existe. */
+function accObtenerBanqueoProgreso(bd, sesion) {
+  var h = leerHojaBanqueo(BANQUEO_HOJA_PROGRESO);
+  if (!h) return [];
+  if (h.col['id_usuario'] === undefined) return [];
+  var out = [];
+  h.filas.forEach(function (f) {
+    var cr = f.cruda;
+    if (String(celdaBanqueo(h, cr, 'id_usuario')).trim() !== sesion.id_usuario) return;
+    var respondidas = Number(celdaBanqueo(h, cr, 'respondidas')) || 0;
+    var correctas = Number(celdaBanqueo(h, cr, 'correctas')) || 0;
+    var porcentaje = respondidas > 0 ? Math.round((correctas / respondidas) * 100) : 0;
+    out.push({
+      id_progreso: String(celdaBanqueo(h, cr, 'id_progreso')).trim(),
+      id_usuario: sesion.id_usuario,
+      curso: String(celdaBanqueo(h, cr, 'curso')).trim(),
+      respondidas: respondidas,
+      correctas: correctas,
+      ultima_practica: textoFechaBanqueo(celdaBanqueo(h, cr, 'ultima_practica'), bd.tz),
+      porcentaje: porcentaje,
+    });
+  });
+  return out;
+}
+
+/** Siguiente id de progreso: bqp-NNN (3 digitos). Soporta ids demo
+ *  (bqp-demo-N) para que no colisionen. Opera sobre la hoja leida. */
+function siguienteIdBanqueoProgreso(h) {
+  var reReal = /^bqp-(\d+)$/;
+  var reDemo = /^bqp-demo-(\d+)$/;
+  var max = h.filas.reduce(function (acc, f) {
+    var id = String(celdaBanqueo(h, f.cruda, 'id_progreso')).trim();
+    var m = reReal.exec(id) || reDemo.exec(id);
+    return m ? Math.max(acc, Number(m[1])) : acc;
+  }, 0);
+  var correlativo = String(max + 1);
+  while (correlativo.length < 3) correlativo = '0' + correlativo;
+  return 'bqp-' + correlativo;
+}
+
+/** Actualiza o crea la fila de progreso para (idUsuario, curso): +1 respondida,
+ *  +1 correcta si `correcta`, ultima_practica = hoyStr. Localiza columnas por
+ *  header (nunca por indice). Mantiene sincronizada la copia leida `h`. */
+function registrarProgresoBanqueo(h, idUsuario, curso, correcta, hoyStr) {
+  var col = h.col;
+  var existente = null;
+  for (var i = 0; i < h.filas.length; i++) {
+    var cr = h.filas[i].cruda;
+    if (String(celdaBanqueo(h, cr, 'id_usuario')).trim() === idUsuario &&
+        String(celdaBanqueo(h, cr, 'curso')).trim() === curso) {
+      existente = h.filas[i];
+      break;
+    }
+  }
+
+  if (existente) {
+    var respondidas = (Number(celdaBanqueo(h, existente.cruda, 'respondidas')) || 0) + 1;
+    var correctas = (Number(celdaBanqueo(h, existente.cruda, 'correctas')) || 0) + (correcta ? 1 : 0);
+    h.hoja.getRange(existente.rowNum, col['respondidas'] + 1).setValue(respondidas);
+    h.hoja.getRange(existente.rowNum, col['correctas'] + 1).setValue(correctas);
+    h.hoja.getRange(existente.rowNum, col['ultima_practica'] + 1).setValue(hoyStr);
+    existente.cruda[col['respondidas']] = respondidas;
+    existente.cruda[col['correctas']] = correctas;
+    existente.cruda[col['ultima_practica']] = hoyStr;
+    return {
+      id_progreso: String(celdaBanqueo(h, existente.cruda, 'id_progreso')).trim(),
+      id_usuario: idUsuario,
+      curso: curso,
+      respondidas: respondidas,
+      correctas: correctas,
+      ultima_practica: hoyStr,
+    };
+  }
+
+  var nuevoId = siguienteIdBanqueoProgreso(h);
+  var respondidasN = 1;
+  var correctasN = correcta ? 1 : 0;
+  var fila = h.headers.map(function (header) {
+    switch (header) {
+      case 'id_progreso': return nuevoId;
+      case 'id_usuario': return idUsuario;
+      case 'curso': return curso;
+      case 'respondidas': return respondidasN;
+      case 'correctas': return correctasN;
+      case 'ultima_practica': return hoyStr;
+      default: return '';
+    }
+  });
+  h.hoja.appendRow(fila);
+  var cruda = fila.slice();
+  h.filas.push({ cruda: cruda, rowNum: h.hoja.getLastRow() });
+  return {
+    id_progreso: nuevoId,
+    id_usuario: idUsuario,
+    curso: curso,
+    respondidas: respondidasN,
+    correctas: correctasN,
+    ultima_practica: hoyStr,
+  };
+}
+
+/** Registra una respuesta (o lista de respuestas) de practica. Params:
+ *  datos:{ curso, correcta_bool } o datos:{ respuestas:[{curso, correcta_bool}] }.
+ *  Escritura con lock (lo toma manejar()). Si banqueo_progreso no existe:
+ *  { ok:false, error:'El banco aún no está configurado.' }. */
+function accRegistrarRespuestaBanqueo(bd, sesion, params) {
+  var datos = params.datos || {};
+  var esLista = Array.isArray(datos.respuestas);
+  var respuestas = esLista
+    ? datos.respuestas
+    : [{ curso: datos.curso, correcta_bool: datos.correcta_bool }];
+
+  var h = leerHojaBanqueo(BANQUEO_HOJA_PROGRESO);
+  if (!h) return { ok: false, error: 'El banco aún no está configurado.' };
+
+  var requeridas = ['id_progreso', 'id_usuario', 'curso', 'respondidas', 'correctas', 'ultima_practica'];
+  for (var r = 0; r < requeridas.length; r++) {
+    if (h.col[requeridas[r]] === undefined) {
+      return { ok: false, error: 'La hoja de progreso del banco no tiene la columna "' + requeridas[r] + '".' };
+    }
+  }
+
+  var hoyStr = hoy(bd);
+  var acumulado = [];
+  for (var k = 0; k < respuestas.length; k++) {
+    var curso = String(respuestas[k] && respuestas[k].curso != null ? respuestas[k].curso : '').trim();
+    if (!curso) return { ok: false, error: 'Falta indicar el curso de la respuesta.' };
+    var cb = respuestas[k].correcta_bool;
+    var correcta = cb === true || cb === 'true' || cb === 1 || cb === '1';
+    acumulado.push(registrarProgresoBanqueo(h, sesion.id_usuario, curso, correcta, hoyStr));
+  }
+
+  return { ok: true, progreso: esLista ? acumulado : acumulado[0] };
 }
