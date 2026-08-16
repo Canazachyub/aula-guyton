@@ -227,7 +227,16 @@ function manejar(params) {
       }
     });
 
-    var bd = cargarBd();
+    // Las escrituras toman un lock ANTES de leer, para que dos requests
+    // concurrentes no generen el mismo id correlativo ni pisen filas.
+    if (def.escritura) {
+      lock = LockService.getScriptLock();
+      lock.waitLock(25000);
+    }
+
+    // Lecturas: bd desde cache (rapido, no relee las 12 hojas). Escrituras:
+    // bd fresca (con el lock tomado, asi los ids salen correctos).
+    var bd = def.escritura ? cargarBd() : cargarBdLectura();
 
     var sesion = null;
     if (!def.publica) {
@@ -237,14 +246,11 @@ function manejar(params) {
       }
     }
 
-    // Las escrituras toman un lock para que dos requests concurrentes no
-    // generen el mismo id correlativo ni pisen filas.
-    if (def.escritura) {
-      lock = LockService.getScriptLock();
-      lock.waitLock(25000);
-    }
-
-    return responder(def.fn(bd, sesion, params));
+    var resultado = def.fn(bd, sesion, params);
+    // Tras una escritura los datos cambiaron: se invalida la cache para que la
+    // proxima lectura los tome frescos (el propio autor ve su cambio de inmediato).
+    if (def.escritura) invalidarBdCache();
+    return responder(resultado);
   } catch (err) {
     Logger.log('Error en accion "%s": %s\n%s', params && params.accion, err, err && err.stack);
     return responder({ ok: false, error: 'Error interno del servidor. Inténtalo de nuevo.' });
@@ -387,6 +393,59 @@ function siguienteId(bd, tabla) {
 /** 'YYYY-MM-DD' de hoy en la zona horaria del spreadsheet. */
 function hoy(bd) {
   return Utilities.formatDate(new Date(), bd.tz, 'yyyy-MM-dd');
+}
+
+// ---------------------------------------------------------------------------
+// Cache de LECTURA: evita releer las 12 hojas en cada request (lo lento de
+// Apps Script). Se guardan solo los datos planos (bd.d) en CacheService por un
+// tiempo corto; las lecturas reconstruyen un bd de solo-lectura desde ahi. Las
+// escrituras NO usan cache (leen fresco tras el lock) e INVALIDAN al terminar.
+// ---------------------------------------------------------------------------
+
+var BD_CACHE_KEY = 'gy_bd_v1';
+var BD_CACHE_SEG = 30; // 30 s: navegar entre pestañas cae en cache; los cambios propios invalidan.
+
+/** Reconstruye un bd de SOLO LECTURA desde los datos planos cacheados. Rehace
+ *  el indice porId (id -> { datos }) para que buscarFila/buscarRef funcionen
+ *  sin las hojas vivas (que solo hacen falta para escribir). */
+function bdDeLecturaDesde(dCache, tz) {
+  var bd = { d: dCache, t: {}, tz: tz };
+  Object.keys(ESQUEMAS).forEach(function (nombre) {
+    var esquema = ESQUEMAS[nombre];
+    var porId = {};
+    var filas = dCache[nombre] || [];
+    if (esquema.id) {
+      filas.forEach(function (row) {
+        if (row[esquema.id] !== '' && row[esquema.id] != null) porId[row[esquema.id]] = { datos: row };
+      });
+    }
+    bd.t[nombre] = { porId: porId, esquema: esquema };
+  });
+  return bd;
+}
+
+/** bd para lecturas: desde CacheService si existe; si no, lee las hojas y
+ *  cachea los datos planos. Si el payload excede el limite de CacheService
+ *  (100KB), simplemente no se cachea (degrada al comportamiento actual). */
+function cargarBdLectura() {
+  var cache = CacheService.getScriptCache();
+  var guardado = cache.get(BD_CACHE_KEY);
+  if (guardado) {
+    try {
+      var obj = JSON.parse(guardado);
+      return bdDeLecturaDesde(obj.d, obj.tz);
+    } catch (err) { /* cache corrupta: se relee fresco */ }
+  }
+  var bd = cargarBd();
+  try {
+    cache.put(BD_CACHE_KEY, JSON.stringify({ d: bd.d, tz: bd.tz }), BD_CACHE_SEG);
+  } catch (err) { /* payload > 100KB u otro: se sigue sin cache */ }
+  return bd;
+}
+
+/** Invalida la cache de lectura (tras una escritura, los datos cambiaron). */
+function invalidarBdCache() {
+  try { CacheService.getScriptCache().remove(BD_CACHE_KEY); } catch (err) { /* nada que hacer */ }
 }
 
 // ---------------------------------------------------------------------------
