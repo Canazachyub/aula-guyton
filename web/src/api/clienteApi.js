@@ -152,6 +152,20 @@ export async function obtenerCursosCatalogo(sesion) {
   return leer('obtenerCursosCatalogo', { sesion })
 }
 
+// --- Banqueo Guyton UNA Puno (lecturas GET) ---------------------------------
+
+export async function obtenerBanqueoCursos(sesion) {
+  return leer('obtenerBanqueoCursos', { sesion })
+}
+
+export async function obtenerBanqueoPreguntas(sesion, { curso, tema, limite } = {}) {
+  return leer('obtenerBanqueoPreguntas', { sesion, curso, tema, limite })
+}
+
+export async function obtenerBanqueoProgreso(sesion) {
+  return leer('obtenerBanqueoProgreso', { sesion })
+}
+
 // ---------------------------------------------------------------------------
 // Escrituras (POST) — mismas firmas y formas de respuesta que el mock
 // ---------------------------------------------------------------------------
@@ -195,4 +209,9 @@ export async function guardarAsignacion(sesion, datos) {
 
 export async function guardarUsuario(sesion, datos) {
   return escribir('guardarUsuario', { sesion, datos })
+}
+
+/** Registra una respuesta del banqueo (escritura POST, patron `escribir`). */
+export async function registrarRespuestaBanqueo(sesion, datos) {
+  return escribir('registrarRespuestaBanqueo', { sesion, datos })
 }

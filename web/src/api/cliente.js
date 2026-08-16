@@ -39,6 +39,11 @@ export const obtenerUsuarios = impl.obtenerUsuarios
 export const obtenerConfig = impl.obtenerConfig
 export const obtenerCursosCatalogo = impl.obtenerCursosCatalogo
 
+// Banqueo Guyton (lecturas)
+export const obtenerBanqueoCursos = impl.obtenerBanqueoCursos
+export const obtenerBanqueoPreguntas = impl.obtenerBanqueoPreguntas
+export const obtenerBanqueoProgreso = impl.obtenerBanqueoProgreso
+
 // Escrituras
 export const registrarPago = impl.registrarPago
 export const verificarPago = impl.verificarPago
@@ -50,3 +55,6 @@ export const guardarCiclo = impl.guardarCiclo
 export const guardarCurso = impl.guardarCurso
 export const guardarAsignacion = impl.guardarAsignacion
 export const guardarUsuario = impl.guardarUsuario
+
+// Banqueo Guyton (escritura)
+export const registrarRespuestaBanqueo = impl.registrarRespuestaBanqueo

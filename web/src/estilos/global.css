@@ -1660,3 +1660,243 @@ a:hover {
   color: var(--gy-texto-suave);
   margin-top: 0.6rem;
 }
+
+/* --------------------------------------------------------------------------
+   Banqueo Guyton UNA Puno — práctica de preguntas del estudiante
+   -------------------------------------------------------------------------- */
+
+.gy-banqueo-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1rem;
+  background: var(--gy-relleno);
+  border: 1px solid var(--gy-borde-suave);
+  border-radius: var(--gy-radio-2xl);
+}
+
+.gy-banqueo-hero-mascota {
+  width: 120px;
+  max-width: 30%;
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 8px 18px rgba(255, 74, 24, 0.3));
+}
+
+.gy-banqueo-hero-titulo {
+  font-family: var(--gy-fuente-titulos);
+  font-size: 1.3rem;
+  color: var(--gy-texto);
+  margin: 0.5rem 0 0.35rem;
+}
+
+.gy-banqueo-hero-texto {
+  color: var(--gy-texto-suave);
+  line-height: 1.55;
+  max-width: 60ch;
+}
+
+.gy-banqueo-curso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.gy-banqueo-curso-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.gy-banqueo-dominio {
+  font-family: var(--gy-fuente-titulos);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gy-azul-real);
+  line-height: 1;
+}
+
+.gy-banqueo-curso-detalle {
+  font-size: 0.85rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-banqueo-barra {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.1rem;
+}
+
+.gy-banqueo-barra-curso {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 700;
+  color: var(--gy-texto);
+}
+
+.gy-banqueo-progreso-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gy-texto-suave);
+  margin-bottom: 0.6rem;
+}
+
+.gy-banqueo-enunciado {
+  font-family: var(--gy-fuente-titulos);
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: var(--gy-texto);
+  margin: 0.2rem 0 1rem;
+}
+
+.gy-banqueo-imagen {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--gy-radio-m);
+  margin-bottom: 1rem;
+}
+
+.gy-banqueo-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.gy-banqueo-opcion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--gy-borde);
+  border-radius: var(--gy-radio-m);
+  background: var(--gy-blanco);
+  color: var(--gy-texto);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: border-color var(--gy-transicion), background-color var(--gy-transicion),
+    box-shadow var(--gy-transicion);
+}
+
+.gy-banqueo-opcion:not(:disabled):hover {
+  border-color: var(--gy-azul-electrico);
+  box-shadow: var(--gy-sombra-azul);
+}
+
+.gy-banqueo-opcion:disabled {
+  cursor: default;
+}
+
+.gy-banqueo-opcion-letra {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--gy-superficie);
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--gy-azul-real);
+}
+
+.gy-banqueo-opcion--correcta {
+  border-color: var(--gy-exito);
+  background: var(--gy-exito-suave);
+  color: var(--gy-exito);
+}
+
+.gy-banqueo-opcion--correcta .gy-banqueo-opcion-letra {
+  background: var(--gy-exito);
+  color: var(--gy-blanco);
+}
+
+.gy-banqueo-opcion--incorrecta {
+  border-color: var(--gy-error);
+  background: var(--gy-error-suave);
+  color: var(--gy-error);
+}
+
+.gy-banqueo-opcion--incorrecta .gy-banqueo-opcion-letra {
+  background: var(--gy-error);
+  color: var(--gy-blanco);
+}
+
+.gy-banqueo-opcion--apagada {
+  opacity: 0.55;
+}
+
+.gy-banqueo-feedback {
+  margin-top: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--gy-radio-m);
+  border-left: 4px solid;
+}
+
+.gy-banqueo-feedback--exito {
+  background: var(--gy-exito-suave);
+  border-color: var(--gy-exito);
+}
+
+.gy-banqueo-feedback--error {
+  background: var(--gy-error-suave);
+  border-color: var(--gy-error);
+}
+
+.gy-banqueo-feedback-titulo {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.gy-banqueo-feedback--exito .gy-banqueo-feedback-titulo {
+  color: var(--gy-exito);
+}
+
+.gy-banqueo-feedback--error .gy-banqueo-feedback-titulo {
+  color: var(--gy-error);
+}
+
+.gy-banqueo-feedback-texto {
+  color: var(--gy-texto);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.gy-banqueo-resumen {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 2.2rem 1.4rem;
+}
+
+.gy-banqueo-resumen-mascota {
+  width: 110px;
+  height: auto;
+  margin-bottom: 0.6rem;
+  filter: drop-shadow(0 8px 18px rgba(255, 74, 24, 0.3));
+}
+
+.gy-banqueo-resumen .gy-acciones-fila {
+  justify-content: center;
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .gy-banqueo-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+}

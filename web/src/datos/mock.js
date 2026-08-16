@@ -151,4 +151,70 @@ export const db = {
       cuerpo: 'Recuerden reportar su pago de mensualidad antes del 25.',
       fecha: '2026-07-17', fijado: 'no', id_autor: 'usr-demo-3', estado: 'publicado' },
   ],
+
+  // 13. banqueo_preguntas -------------------------------------------------------
+  // Banco de preguntas del "Banqueo Guyton UNA Puno". Estas preguntas son
+  // INVENTADAS de muestra (NO son preguntas reales de la academia): solo sirven
+  // para probar la vista en modo DEMO. Cada justificacion arranca con "Ejemplo
+  // DEMO." para dejar claro su caracter provisional. En produccion, el backend
+  // sirve el banco real desde la hoja privada banqueo_preguntas (nunca el repo).
+  // 'correcta' es un numero 1..5 que apunta a la opcion correcta (1 = la primera).
+  banqueo_preguntas: [
+    { id_pregunta: 'bpg-demo-1', curso: 'Comunicación', tema: 'Ortografía', subtema: 'Tildación',
+      enunciado: '¿Cuál de las siguientes palabras lleva tilde correctamente?',
+      opciones: ['exámen', 'cárcel', 'júven', 'facilmente', 'reirse'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. "Cárcel" es una palabra grave (llana) terminada en consonante distinta de "n" o "s", por eso lleva tilde. "Examen" y "joven" son graves terminadas en "n", así que no se tildan.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-2', curso: 'Comunicación', tema: 'Gramática', subtema: 'Categorías gramaticales',
+      enunciado: 'En la oración "Ella corre velozmente por el parque", la palabra "velozmente" es un…',
+      opciones: ['adjetivo', 'sustantivo', 'adverbio', 'verbo', 'pronombre'], correcta: 3,
+      justificacion: 'Ejemplo DEMO. "Velozmente" modifica al verbo "corre" e indica el modo; las palabras terminadas en "-mente" que responden a "¿cómo?" son adverbios.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-3', curso: 'Comunicación', tema: 'Semántica', subtema: 'Sinónimos',
+      enunciado: '¿Cuál es el sinónimo más preciso de la palabra "efímero"?',
+      opciones: ['eterno', 'pasajero', 'profundo', 'resistente', 'enorme'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. "Efímero" significa de muy corta duración; su sinónimo es "pasajero". "Eterno" sería su antónimo.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-4', curso: 'Comunicación', tema: 'Conectores lógicos', subtema: 'Concesión',
+      enunciado: 'En "Aunque estudió toda la noche, no aprobó el examen", ¿qué relación expresa el conector "aunque"?',
+      opciones: ['causa', 'consecuencia', 'concesión', 'condición', 'finalidad'], correcta: 3,
+      justificacion: 'Ejemplo DEMO. "Aunque" introduce una objeción que no impide lo que dice la oración principal: es un conector de concesión.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-5', curso: 'Historia', tema: 'Perú prehispánico', subtema: 'Los incas',
+      enunciado: '¿Cuál fue la capital del Imperio incaico (Tahuantinsuyo)?',
+      opciones: ['Cajamarca', 'Cusco', 'Lima', 'Chan Chan', 'Tiwanaku'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. El Cusco fue el centro político y religioso del Tahuantinsuyo; de él partían los cuatro suyos que dan nombre al imperio.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-6', curso: 'Historia', tema: 'Independencia del Perú', subtema: 'Proclamación',
+      enunciado: '¿En qué año se proclamó la independencia del Perú?',
+      opciones: ['1810', '1821', '1824', '1879', '1532'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. José de San Martín proclamó la independencia del Perú el 28 de julio de 1821 en Lima.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-7', curso: 'Historia', tema: 'Mundo contemporáneo', subtema: 'Guerras mundiales',
+      enunciado: '¿Qué acontecimiento desencadenó el inicio de la Primera Guerra Mundial en 1914?',
+      opciones: ['La caída del Muro de Berlín', 'El asesinato del archiduque Francisco Fernando', 'El ataque a Pearl Harbor', 'La Revolución rusa', 'La firma del Tratado de Versalles'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. El asesinato del archiduque Francisco Fernando en Sarajevo desató la crisis diplomática que llevó a la Primera Guerra Mundial.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-8', curso: 'Razonamiento Verbal', tema: 'Analogías', subtema: 'Agente y lugar',
+      enunciado: 'MÉDICO es a HOSPITAL como MAESTRO es a…',
+      opciones: ['pizarra', 'escuela', 'libro', 'alumno', 'examen'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. La relación es "agente : lugar donde labora". El médico trabaja en el hospital; el maestro, en la escuela.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-9', curso: 'Razonamiento Verbal', tema: 'Término excluido', subtema: 'Campo semántico',
+      enunciado: 'Señala la palabra que NO pertenece al grupo: rosa, clavel, girasol, roble, tulipán.',
+      opciones: ['rosa', 'clavel', 'girasol', 'roble', 'tulipán'], correcta: 4,
+      justificacion: 'Ejemplo DEMO. Rosa, clavel, girasol y tulipán son flores; el roble es un árbol, por eso queda excluido del grupo.',
+      imagen_url: '', estado: 'publicado' },
+    { id_pregunta: 'bpg-demo-10', curso: 'Razonamiento Verbal', tema: 'Oraciones incompletas', subtema: 'Coherencia léxica',
+      enunciado: 'Completa: "La sequía fue tan ______ que los ríos quedaron completamente ______."',
+      opciones: ['breve – llenos', 'severa – secos', 'leve – caudalosos', 'corta – crecidos', 'húmeda – vacíos'], correcta: 2,
+      justificacion: 'Ejemplo DEMO. El sentido exige intensidad y consecuencia coherentes: una sequía "severa" deja los ríos "secos".',
+      imagen_url: '', estado: 'publicado' },
+  ],
+
+  // 14. banqueo_progreso --------------------------------------------------------
+  // Progreso del banqueo POR usuario y curso. Arranca vacío y se llena EN
+  // MEMORIA a medida que el alumno responde (registrarRespuestaBanqueo): al
+  // recargar la página se reinicia, como el resto de escrituras del mock DEMO.
+  banqueo_progreso: [],
 }

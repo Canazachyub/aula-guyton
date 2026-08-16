@@ -752,6 +752,88 @@ export async function guardarAsignacion(sesion, datos) {
   return { ok: true, ciclo_curso: cc }
 }
 
+// ---------------------------------------------------------------------------
+// Banqueo Guyton UNA Puno (practica de preguntas de opcion multiple).
+// Lecturas del banco publicado + progreso EN MEMORIA por usuario y curso.
+// El banco DEMO son preguntas inventadas de muestra (ver datos/mock.js).
+// ---------------------------------------------------------------------------
+
+/** Solo las preguntas publicadas se sirven al alumno (patron "fila publica"). */
+function preguntasPublicadas() {
+  return db.banqueo_preguntas.filter((p) => p.estado === 'publicado')
+}
+
+/** Fila de progreso del usuario para un curso; la crea si aun no existe. */
+function progresoDe(idUsuario, curso) {
+  let fila = db.banqueo_progreso.find((p) => p.id_usuario === idUsuario && p.curso === curso)
+  if (!fila) {
+    fila = { id_usuario: idUsuario, curso, respondidas: 0, correctas: 0 }
+    db.banqueo_progreso.push(fila)
+  }
+  return fila
+}
+
+/** Cursos con banco disponible: [{ curso, total }] (solo preguntas publicadas). */
+export async function obtenerBanqueoCursos(sesion) {
+  await esperar()
+  if (!sesion) return []
+  const conteo = new Map()
+  for (const p of preguntasPublicadas()) {
+    conteo.set(p.curso, (conteo.get(p.curso) ?? 0) + 1)
+  }
+  return [...conteo.entries()]
+    .map(([curso, total]) => ({ curso, total }))
+    .sort((a, b) => a.curso.localeCompare(b.curso))
+}
+
+/** Preguntas publicadas de un curso (opcionalmente de un tema), hasta 'limite'. */
+export async function obtenerBanqueoPreguntas(sesion, { curso, tema, limite } = {}) {
+  await esperar()
+  if (!sesion || !curso) return []
+  let filas = preguntasPublicadas().filter((p) => p.curso === curso)
+  if (tema) filas = filas.filter((p) => p.tema === tema)
+  if (limite != null && Number.isFinite(Number(limite))) filas = filas.slice(0, Number(limite))
+  // Se devuelve una copia para que la UI no mute el banco del mock.
+  return filas.map((p) => ({
+    id_pregunta: p.id_pregunta,
+    curso: p.curso,
+    tema: p.tema,
+    subtema: p.subtema,
+    enunciado: p.enunciado,
+    opciones: [...p.opciones],
+    correcta: p.correcta,
+    justificacion: p.justificacion,
+    imagen_url: p.imagen_url ?? '',
+  }))
+}
+
+/** Registra una respuesta (acertada o no) y devuelve el progreso actualizado. */
+export async function registrarRespuestaBanqueo(sesion, { curso, correcta_bool } = {}) {
+  await esperar()
+  if (!sesion) return sinPermiso('practicar el banqueo')
+  if (!curso) return { ok: false, error: 'Falta indicar el curso de la pregunta.' }
+
+  const fila = progresoDe(sesion.id_usuario, curso)
+  fila.respondidas += 1
+  if (correcta_bool) fila.correctas += 1
+  const porcentaje = fila.respondidas ? Math.round((fila.correctas / fila.respondidas) * 100) : 0
+  return { ok: true, progreso: { curso, respondidas: fila.respondidas, correctas: fila.correctas, porcentaje } }
+}
+
+/** Progreso del usuario por curso: [{ curso, respondidas, correctas, porcentaje }]. */
+export async function obtenerBanqueoProgreso(sesion) {
+  await esperar()
+  if (!sesion) return []
+  return db.banqueo_progreso
+    .filter((p) => p.id_usuario === sesion.id_usuario)
+    .map((p) => ({
+      curso: p.curso,
+      respondidas: p.respondidas,
+      correctas: p.correctas,
+      porcentaje: p.respondidas ? Math.round((p.correctas / p.respondidas) * 100) : 0,
+    }))
+}
+
 /** Reasigna rol o estado de cuenta de un usuario. Solo superadmin. */
 export async function guardarUsuario(sesion, datos) {
   await esperar()

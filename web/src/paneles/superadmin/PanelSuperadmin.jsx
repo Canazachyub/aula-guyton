@@ -9,6 +9,7 @@ import Ciclos from './Ciclos.jsx'
 import Cursos from './Cursos.jsx'
 import Asignaciones from './Asignaciones.jsx'
 import Usuarios from './Usuarios.jsx'
+import Grabaciones from './Grabaciones.jsx'
 import Pagos from './Pagos.jsx'
 import Asistencia from './Asistencia.jsx'
 import Anuncios from './Anuncios.jsx'
@@ -20,6 +21,7 @@ const MENU = [
   { ruta: '/panel/superadmin/cursos', etiqueta: 'Cursos', icono: 'libro' },
   { ruta: '/panel/superadmin/asignaciones', etiqueta: 'Asignaciones', icono: 'enlace' },
   { ruta: '/panel/superadmin/usuarios', etiqueta: 'Usuarios', icono: 'usuarios' },
+  { ruta: '/panel/superadmin/grabaciones', etiqueta: 'Grabaciones', icono: 'video' },
   { ruta: '/panel/superadmin/pagos', etiqueta: 'Pagos', icono: 'dinero' },
   { ruta: '/panel/superadmin/asistencia', etiqueta: 'Asistencia', icono: 'lista' },
   { ruta: '/panel/superadmin/anuncios', etiqueta: 'Anuncios', icono: 'megafono' },
@@ -35,6 +37,7 @@ export default function PanelSuperadmin() {
         <Route path="cursos" element={<Cursos />} />
         <Route path="asignaciones" element={<Asignaciones />} />
         <Route path="usuarios" element={<Usuarios />} />
+        <Route path="grabaciones" element={<Grabaciones />} />
         <Route path="pagos" element={<Pagos />} />
         <Route path="asistencia" element={<Asistencia />} />
         <Route path="anuncios" element={<Anuncios />} />
