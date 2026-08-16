@@ -1892,11 +1892,179 @@ a:hover {
 .gy-banqueo-resumen .gy-acciones-fila {
   justify-content: center;
   margin-top: 0.8rem;
+  flex-wrap: wrap;
+}
+
+/* Paso 2: selector de tema (chips con conteo) --------------------------------- */
+
+.gy-banqueo-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.gy-banqueo-temas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+.gy-banqueo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid var(--gy-borde);
+  border-radius: var(--gy-radio-xl);
+  background: var(--gy-blanco);
+  color: var(--gy-texto);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--gy-transicion), background-color var(--gy-transicion),
+    box-shadow var(--gy-transicion);
+}
+
+.gy-banqueo-chip:hover {
+  border-color: var(--gy-azul-electrico);
+  box-shadow: var(--gy-sombra-azul);
+}
+
+.gy-banqueo-chip--todos {
+  border-color: var(--gy-naranja);
+  color: var(--gy-naranja-oscuro);
+}
+
+.gy-banqueo-chip--todos:hover {
+  border-color: var(--gy-naranja);
+  box-shadow: var(--gy-sombra-naranja);
+}
+
+.gy-banqueo-chip-conteo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: var(--gy-radio-pildora, 999px);
+  background: var(--gy-superficie);
+  font-family: var(--gy-fuente-titulos);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gy-azul-real);
+}
+
+.gy-banqueo-chip--todos .gy-banqueo-chip-conteo {
+  background: var(--gy-naranja-suave);
+  color: var(--gy-naranja-oscuro);
+}
+
+/* Paso 3: fuente, puntitos de salto y navegación ------------------------------ */
+
+.gy-banqueo-fuente {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-banqueo-fuente-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--gy-radio-pildora, 999px);
+  background: var(--gy-superficie);
+  font-family: var(--gy-fuente-titulos);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--gy-azul-real);
+}
+
+.gy-banqueo-puntos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.gy-banqueo-punto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border: 1.5px solid var(--gy-borde);
+  border-radius: 50%;
+  background: var(--gy-blanco);
+  color: var(--gy-texto-suave);
+  font-family: var(--gy-fuente-titulos);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color var(--gy-transicion), background-color var(--gy-transicion),
+    color var(--gy-transicion);
+}
+
+.gy-banqueo-punto:hover {
+  border-color: var(--gy-azul-electrico);
+}
+
+.gy-banqueo-punto--acierto {
+  border-color: var(--gy-exito);
+  background: var(--gy-exito-suave);
+  color: var(--gy-exito);
+}
+
+.gy-banqueo-punto--fallo {
+  border-color: var(--gy-error);
+  background: var(--gy-error-suave);
+  color: var(--gy-error);
+}
+
+.gy-banqueo-punto--actual {
+  border-color: var(--gy-azul-real);
+  border-width: 2.5px;
+  color: var(--gy-azul-real);
+}
+
+.gy-banqueo-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 1.1rem;
+}
+
+.gy-banqueo-nav .gy-boton {
+  flex: 1;
+}
+
+.gy-banqueo-nav-secundaria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
 }
 
 @media (max-width: 640px) {
   .gy-banqueo-hero {
     flex-direction: column;
     text-align: center;
+  }
+
+  .gy-banqueo-chip {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .gy-banqueo-nav-secundaria .gy-boton {
+    flex: 1;
   }
 }

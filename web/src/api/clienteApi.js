@@ -158,6 +158,10 @@ export async function obtenerBanqueoCursos(sesion) {
   return leer('obtenerBanqueoCursos', { sesion })
 }
 
+export async function obtenerBanqueoTemas(sesion, { curso } = {}) {
+  return leer('obtenerBanqueoTemas', { sesion, curso })
+}
+
 export async function obtenerBanqueoPreguntas(sesion, { curso, tema, limite } = {}) {
   return leer('obtenerBanqueoPreguntas', { sesion, curso, tema, limite })
 }

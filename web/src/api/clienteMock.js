@@ -763,6 +763,16 @@ function preguntasPublicadas() {
   return db.banqueo_preguntas.filter((p) => p.estado === 'publicado')
 }
 
+/** Baraja una copia del arreglo (Fisher–Yates). No muta el original. */
+function barajar(filas) {
+  const copia = [...filas]
+  for (let i = copia.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copia[i], copia[j]] = [copia[j], copia[i]]
+  }
+  return copia
+}
+
 /** Fila de progreso del usuario para un curso; la crea si aun no existe. */
 function progresoDe(idUsuario, curso) {
   let fila = db.banqueo_progreso.find((p) => p.id_usuario === idUsuario && p.curso === curso)
@@ -786,13 +796,33 @@ export async function obtenerBanqueoCursos(sesion) {
     .sort((a, b) => a.curso.localeCompare(b.curso))
 }
 
-/** Preguntas publicadas de un curso (opcionalmente de un tema), hasta 'limite'. */
+/** Temas de un curso con su conteo: [{ tema, total }] (solo preguntas
+ *  publicadas del curso). Alimenta el selector de tema antes de practicar. */
+export async function obtenerBanqueoTemas(sesion, { curso } = {}) {
+  await esperar()
+  if (!sesion || !curso) return []
+  const conteo = new Map()
+  for (const p of preguntasPublicadas()) {
+    if (p.curso !== curso) continue
+    const tema = p.tema || '(sin tema)'
+    conteo.set(tema, (conteo.get(tema) ?? 0) + 1)
+  }
+  return [...conteo.entries()]
+    .map(([tema, total]) => ({ tema, total }))
+    .sort((a, b) => a.tema.localeCompare(b.tema))
+}
+
+/** Preguntas publicadas de un curso (opcionalmente de un tema), hasta 'limite'.
+ *  Cuando hay 'limite', las preguntas se barajan antes de recortar para que
+ *  cada tanda sea distinta (Fisher–Yates sobre una copia, no muta el banco). */
 export async function obtenerBanqueoPreguntas(sesion, { curso, tema, limite } = {}) {
   await esperar()
   if (!sesion || !curso) return []
   let filas = preguntasPublicadas().filter((p) => p.curso === curso)
   if (tema) filas = filas.filter((p) => p.tema === tema)
-  if (limite != null && Number.isFinite(Number(limite))) filas = filas.slice(0, Number(limite))
+  if (limite != null && Number.isFinite(Number(limite))) {
+    filas = barajar(filas).slice(0, Number(limite))
+  }
   // Se devuelve una copia para que la UI no mute el banco del mock.
   return filas.map((p) => ({
     id_pregunta: p.id_pregunta,
@@ -803,6 +833,7 @@ export async function obtenerBanqueoPreguntas(sesion, { curso, tema, limite } = 
     opciones: [...p.opciones],
     correcta: p.correcta,
     justificacion: p.justificacion,
+    fuente: p.fuente ?? '',
     imagen_url: p.imagen_url ?? '',
   }))
 }

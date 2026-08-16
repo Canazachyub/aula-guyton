@@ -41,6 +41,7 @@ export const obtenerCursosCatalogo = impl.obtenerCursosCatalogo
 
 // Banqueo Guyton (lecturas)
 export const obtenerBanqueoCursos = impl.obtenerBanqueoCursos
+export const obtenerBanqueoTemas = impl.obtenerBanqueoTemas
 export const obtenerBanqueoPreguntas = impl.obtenerBanqueoPreguntas
 export const obtenerBanqueoProgreso = impl.obtenerBanqueoProgreso
 
