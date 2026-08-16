@@ -37,7 +37,7 @@ export default function Inicio() {
       .sort((a, b) => a.fecha.localeCompare(b.fecha))
       .slice(0, 3)
     return { ciclos, anuncios, proximas }
-  }, sesion.id_usuario)
+  }, sesion.id_usuario, `est-inicio:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando tu inicio…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>

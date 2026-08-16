@@ -21,7 +21,7 @@ export default function Inicio() {
       obtenerAnuncios(sesion),
     ])
     return { pagos, asistencias, anuncios }
-  }, sesion.id_usuario)
+  }, sesion.id_usuario, `aux-inicio:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando tu inicio…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>

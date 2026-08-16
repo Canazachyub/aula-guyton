@@ -20,7 +20,7 @@ export default function Cursos() {
     return Promise.all(
       cursos.map(async (c) => ({ curso: c, horario: await obtenerHorario(sesion, c.id_ciclo_curso) })),
     )
-  }, sesion.id_usuario)
+  }, sesion.id_usuario, `doc-cursos:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando tus cursos…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>

@@ -31,10 +31,11 @@ export default function PasarLista() {
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
-  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
+  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario, `pasar-lista-cursos:${sesion.id_usuario}`)
   const clases = useDatos(
     () => (idCicloCurso ? obtenerClases(sesion, idCicloCurso) : Promise.resolve([])),
     idCicloCurso,
+    `pasar-lista-clases:${idCicloCurso}:${sesion.id_usuario}`,
   )
   const roster = useDatos(
     async () => {
@@ -49,6 +50,7 @@ export default function PasarLista() {
       return filas
     },
     idClase,
+    `pasar-lista-roster:${idClase}:${sesion.id_usuario}`,
   )
 
   const alGuardar = async () => {

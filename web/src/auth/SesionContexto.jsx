@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { cerrarSesion, iniciarSesion, obtenerSesion } from '../api/cliente.js'
+import { invalidarDatosCache } from '../componentes/useDatos.js'
 
 const SesionContexto = createContext(null)
 
@@ -23,12 +24,19 @@ export function ProveedorSesion({ children }) {
 
   const entrar = async (dni, clave) => {
     const resultado = await iniciarSesion(dni, clave)
-    if (resultado.ok) setSesion(resultado.usuario)
+    if (resultado.ok) {
+      // Por seguridad se vacia cualquier resto de cache de una sesion previa.
+      invalidarDatosCache()
+      setSesion(resultado.usuario)
+    }
     return resultado
   }
 
   const salir = async () => {
     await cerrarSesion()
+    // Se vacia la cache de datos para que al entrar otro usuario no queden datos
+    // del anterior.
+    invalidarDatosCache()
     setSesion(null)
   }
 

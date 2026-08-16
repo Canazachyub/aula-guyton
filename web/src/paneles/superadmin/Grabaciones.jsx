@@ -29,12 +29,13 @@ export default function Grabaciones() {
 
   // Para el superadmin, obtenerCursosDelUsuario trae TODOS los ciclo_cursos
   // (de todos los ciclos, incluidos los finalizados), ya resueltos con nombres.
-  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
+  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario, `sa-grabaciones-cursos:${sesion.id_usuario}`)
   const seleccionado = idElegido || cursos.datos?.[0]?.id_ciclo_curso || ''
 
   const materiales = useDatos(
     () => (seleccionado ? obtenerMateriales(sesion, seleccionado) : Promise.resolve([])),
     seleccionado,
+    `sa-grabaciones-materiales:${seleccionado}:${sesion.id_usuario}`,
   )
 
   const grabaciones = (materiales.datos ?? []).filter((m) => m.tipo === 'video_grabado')

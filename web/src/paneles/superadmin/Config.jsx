@@ -12,7 +12,7 @@ import EstadoVacio from '../../componentes/EstadoVacio.jsx'
 
 export default function Config() {
   const { sesion } = useSesion()
-  const { datos, cargando, error } = useDatos(() => obtenerConfig(sesion), sesion.id_usuario)
+  const { datos, cargando, error } = useDatos(() => obtenerConfig(sesion), sesion.id_usuario, `sa-config:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando la configuración…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>

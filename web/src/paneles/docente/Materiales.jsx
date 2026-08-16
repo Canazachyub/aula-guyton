@@ -40,16 +40,18 @@ export default function Materiales() {
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
-  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
+  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario, `doc-materiales-cursos:${sesion.id_usuario}`)
   const seleccionado = idElegido || cursos.datos?.[0]?.id_ciclo_curso || ''
 
   const materiales = useDatos(
     () => (seleccionado ? obtenerMateriales(sesion, seleccionado) : Promise.resolve([])),
     seleccionado,
+    `doc-materiales:${seleccionado}:${sesion.id_usuario}`,
   )
   const clases = useDatos(
     () => (seleccionado ? obtenerClases(sesion, seleccionado) : Promise.resolve([])),
     seleccionado,
+    `doc-materiales-clases:${seleccionado}:${sesion.id_usuario}`,
   )
 
   // Para el selector de "practica que resuelve" se aplanan las practicas raiz.

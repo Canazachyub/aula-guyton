@@ -25,7 +25,7 @@ export default function Ciclos() {
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
-  const ciclos = useDatos(() => obtenerCiclosDelUsuario(sesion), sesion.id_usuario)
+  const ciclos = useDatos(() => obtenerCiclosDelUsuario(sesion), sesion.id_usuario, `sa-ciclos-gestion:${sesion.id_usuario}`)
 
   const cambiarEstado = async (ciclo, estado) => {
     setMensaje(null)

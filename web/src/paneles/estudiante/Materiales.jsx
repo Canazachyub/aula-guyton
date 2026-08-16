@@ -80,13 +80,14 @@ export default function Materiales() {
   // Permite llegar con un curso preseleccionado (desde Mis cursos).
   const [idElegido, setIdElegido] = useState(ubicacion.state?.idCicloCurso ?? '')
 
-  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
+  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario, `est-materiales-cursos:${sesion.id_usuario}`)
   // Por defecto se abre el primer curso: la vista nunca arranca vacia si hay cursos.
   const seleccionado = idElegido || cursos.datos?.[0]?.id_ciclo_curso || ''
 
   const materiales = useDatos(
     () => (seleccionado ? obtenerMateriales(sesion, seleccionado) : Promise.resolve([])),
     seleccionado,
+    `est-materiales:${seleccionado}:${sesion.id_usuario}`,
   )
 
   if (cursos.cargando) return <Cargando texto="Cargando tus cursos…" />

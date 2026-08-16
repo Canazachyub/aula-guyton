@@ -22,10 +22,11 @@ export default function GestionPagos() {
   const [mensaje, setMensaje] = useState(null)
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
 
-  const pagos = useDatos(() => obtenerPagos(sesion), sesion.id_usuario)
+  const pagos = useDatos(() => obtenerPagos(sesion), sesion.id_usuario, `gestion-pagos:pagos:${sesion.id_usuario}`)
   const matriculas = useDatos(
     async () => (await obtenerMatriculas(sesion)).filter((m) => m.estado !== 'retirado'),
     sesion.id_usuario,
+    `gestion-pagos:matriculas:${sesion.id_usuario}`,
   )
 
   const decidir = async (idPago, decision) => {

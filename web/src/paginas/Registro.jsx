@@ -59,6 +59,7 @@ export default function Registro() {
   const { datos: ciclos, cargando: cargandoCiclos, error: errorCiclos } = useDatos(
     () => obtenerCiclosAbiertos(),
     'ciclos-abiertos',
+    'registro:ciclos-abiertos',
   )
 
   const [form, setForm] = useState(FORM_INICIAL)

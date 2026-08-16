@@ -38,7 +38,7 @@ export default function Horario() {
         bloques: await obtenerHorario(sesion, c.id_ciclo_curso),
       })),
     )
-  }, sesion.id_usuario)
+  }, sesion.id_usuario, `est-horario:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando tu horario…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>

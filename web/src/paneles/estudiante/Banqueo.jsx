@@ -94,7 +94,7 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
       obtenerBanqueoProgreso(sesion),
     ])
     return { cursos, progreso }
-  }, `${sesion.id_usuario}-${refresco}`)
+  }, `${sesion.id_usuario}-${refresco}`, `est-banqueo-cursos:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando el banco de preguntas…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>
@@ -186,6 +186,7 @@ function BanqueoTemas({ sesion, curso, onEmpezar, onVolver }) {
   const { datos, cargando, error } = useDatos(
     () => obtenerBanqueoTemas(sesion, { curso }),
     curso,
+    `est-banqueo-temas:${curso}:${sesion.id_usuario}`,
   )
 
   const encabezado = (
@@ -264,6 +265,7 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
   const preguntas = useDatos(
     () => obtenerBanqueoPreguntas(sesion, { curso, tema: tema || undefined, limite: 20 }),
     `${curso}|${tema ?? ''}|${tanda}`,
+    `est-banqueo-preguntas:${curso}|${tema ?? ''}|${tanda}:${sesion.id_usuario}`,
   )
 
   const [indice, setIndice] = useState(0)

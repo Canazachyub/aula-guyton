@@ -41,7 +41,7 @@ export default function Inicio() {
       obtenerUsuarios(sesion),
     ])
     return { ciclos, matriculas, pagos, usuarios }
-  }, sesion.id_usuario)
+  }, sesion.id_usuario, `sa-inicio:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando el panorama…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>

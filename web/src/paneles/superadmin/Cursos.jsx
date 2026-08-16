@@ -18,7 +18,7 @@ export default function Cursos() {
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
-  const cursos = useDatos(() => obtenerCursosCatalogo(sesion), sesion.id_usuario)
+  const cursos = useDatos(() => obtenerCursosCatalogo(sesion), sesion.id_usuario, `sa-cursos:${sesion.id_usuario}`)
 
   const alGuardar = async (evento) => {
     evento.preventDefault()

@@ -35,10 +35,11 @@ export default function Clases() {
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
-  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
+  const cursos = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario, `doc-clases-cursos:${sesion.id_usuario}`)
   const clases = useDatos(
     () => (idCicloCurso ? obtenerClases(sesion, idCicloCurso) : Promise.resolve([])),
     idCicloCurso,
+    `doc-clases:${idCicloCurso}:${sesion.id_usuario}`,
   )
 
   const abrirNuevo = () => {

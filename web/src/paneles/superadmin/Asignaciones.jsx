@@ -26,12 +26,13 @@ export default function Asignaciones() {
   const [mensaje, setMensaje] = useState(null)
   const [guardando, setGuardando] = useState(false)
 
-  const asignaciones = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario)
-  const ciclos = useDatos(() => obtenerCiclosDelUsuario(sesion), sesion.id_usuario)
-  const catalogo = useDatos(() => obtenerCursosCatalogo(sesion), sesion.id_usuario)
+  const asignaciones = useDatos(() => obtenerCursosDelUsuario(sesion), sesion.id_usuario, `sa-asignaciones:${sesion.id_usuario}`)
+  const ciclos = useDatos(() => obtenerCiclosDelUsuario(sesion), sesion.id_usuario, `sa-ciclos:${sesion.id_usuario}`)
+  const catalogo = useDatos(() => obtenerCursosCatalogo(sesion), sesion.id_usuario, `sa-catalogo:${sesion.id_usuario}`)
   const docentes = useDatos(
     async () => (await obtenerUsuarios(sesion)).filter((u) => u.rol === 'docente'),
     sesion.id_usuario,
+    `sa-docentes:${sesion.id_usuario}`,
   )
 
   const asignarDocente = async (cc, idDocente) => {

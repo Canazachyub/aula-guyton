@@ -17,6 +17,7 @@ export default function Asistencia() {
   const { datos, cargando, error } = useDatos(
     () => obtenerAsistencias(sesion),
     sesion.id_usuario,
+    `est-asistencia:${sesion.id_usuario}`,
   )
 
   if (cargando) return <Cargando texto="Cargando tu asistencia…" />

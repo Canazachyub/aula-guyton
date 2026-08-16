@@ -16,12 +16,12 @@ import { conceptoPago, fechaCorta, medioPago, soles } from '../../componentes/fo
 export default function Pagos() {
   const { sesion } = useSesion()
 
-  const pagos = useDatos(() => obtenerPagos(sesion), sesion.id_usuario)
+  const pagos = useDatos(() => obtenerPagos(sesion), sesion.id_usuario, `est-pagos:${sesion.id_usuario}`)
   const matriculas = useDatos(async () => {
     const filas = await obtenerMatriculas(sesion)
     // Solo desde una matricula no retirada se puede reportar.
     return filas.filter((m) => m.estado !== 'retirado')
-  }, sesion.id_usuario)
+  }, sesion.id_usuario, `est-matriculas:${sesion.id_usuario}`)
 
   if (pagos.cargando || matriculas.cargando) return <Cargando texto="Cargando tus pagos…" />
   if (pagos.error) return <p className="gy-alerta gy-alerta--error">{pagos.error}</p>

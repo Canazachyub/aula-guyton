@@ -17,6 +17,7 @@ export default function Cursos() {
   const { datos, cargando, error } = useDatos(
     () => obtenerCursosDelUsuario(sesion),
     sesion.id_usuario,
+    `est-cursos:${sesion.id_usuario}`,
   )
 
   if (cargando) return <Cargando texto="Cargando tus cursos…" />

@@ -14,6 +14,7 @@ export default function Anuncios() {
   const { datos, cargando, error } = useDatos(
     () => obtenerAnuncios(sesion),
     sesion.id_usuario,
+    `est-anuncios:${sesion.id_usuario}`,
   )
 
   if (cargando) return <Cargando texto="Cargando anuncios…" />

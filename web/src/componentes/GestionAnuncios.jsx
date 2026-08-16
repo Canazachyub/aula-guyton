@@ -14,8 +14,8 @@ import { fechaCorta } from './formatos.js'
 
 export default function GestionAnuncios({ permiteGlobal = false }) {
   const { sesion } = useSesion()
-  const anuncios = useDatos(() => obtenerAnuncios(sesion), sesion.id_usuario)
-  const ciclos = useDatos(() => obtenerCiclosDelUsuario(sesion), sesion.id_usuario)
+  const anuncios = useDatos(() => obtenerAnuncios(sesion), sesion.id_usuario, `gestion-anuncios:anuncios:${sesion.id_usuario}`)
+  const ciclos = useDatos(() => obtenerCiclosDelUsuario(sesion), sesion.id_usuario, `gestion-anuncios:ciclos:${sesion.id_usuario}`)
 
   if (anuncios.cargando || ciclos.cargando) return <Cargando texto="Cargando anuncios…" />
   if (anuncios.error) return <p className="gy-alerta gy-alerta--error">{anuncios.error}</p>

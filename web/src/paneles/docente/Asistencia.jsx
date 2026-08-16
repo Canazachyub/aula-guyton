@@ -14,7 +14,7 @@ import { fechaCorta } from '../../componentes/formatos.js'
 
 export default function Asistencia() {
   const { sesion } = useSesion()
-  const historial = useDatos(() => obtenerAsistencias(sesion), sesion.id_usuario)
+  const historial = useDatos(() => obtenerAsistencias(sesion), sesion.id_usuario, `doc-asistencia:${sesion.id_usuario}`)
 
   const columnas = [
     { clave: 'clase_fecha', titulo: 'Fecha', render: (a) => fechaCorta(a.clase_fecha) },

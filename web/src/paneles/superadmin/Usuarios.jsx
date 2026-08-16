@@ -82,7 +82,7 @@ function FilaUsuario({ usuario, esPropio, onGuardar }) {
 
 export default function Usuarios() {
   const { sesion } = useSesion()
-  const usuarios = useDatos(() => obtenerUsuarios(sesion), sesion.id_usuario)
+  const usuarios = useDatos(() => obtenerUsuarios(sesion), sesion.id_usuario, `sa-usuarios:${sesion.id_usuario}`)
 
   if (usuarios.cargando) return <Cargando texto="Cargando el padrón…" />
   if (usuarios.error) return <p className="gy-alerta gy-alerta--error">{usuarios.error}</p>
