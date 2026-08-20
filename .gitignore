@@ -19,3 +19,7 @@ PROMPTS_BANQUEO.txt
 # Imagenes fuente (ChatGPT, sin optimizar) — las usadas ya estan optimizadas en web/public
 imagenes/
 ~$*.xlsx
+
+# Helper de datos del prospecto (se pega a la hoja simulacro_config)
+simulacro_config.csv
+IMPORTAR_SIMULACROS.xlsx
