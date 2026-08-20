@@ -2225,3 +2225,20 @@ a:hover {
     flex: 1;
   }
 }
+
+/* Imagen de portada en las tarjetas de curso del banqueo (con degradado de
+   marca como respaldo si la imagen aún no existe: el <img> se oculta onError). */
+.gy-banqueo-curso-imagen {
+  height: 130px;
+  border-radius: 14px;
+  margin-bottom: 0.9rem;
+  background: var(--gy-gradiente);
+  overflow: hidden;
+  display: flex;
+}
+.gy-banqueo-curso-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

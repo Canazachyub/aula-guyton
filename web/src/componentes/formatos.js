@@ -84,3 +84,16 @@ export function idYouTube(url) {
   }
   return ''
 }
+
+// Slug estable de un nombre de curso -> nombre de archivo de su imagen de
+// portada en public/cursos/<slug>.png (sin tildes, minúsculas, con guiones).
+// Ej.: "Biología y Anatomía" -> "biologia-y-anatomia".
+export function slugCurso(nombre) {
+  return String(nombre ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}

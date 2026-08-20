@@ -23,6 +23,7 @@ import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Boton from '../../componentes/Boton.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
+import { slugCurso } from '../../componentes/formatos.js'
 
 // El asset vive en public/. Se referencia con BASE_URL para que funcione en
 // cualquier subruta de hosting (GitHub Pages) sin conocer el nombre del repo.
@@ -142,6 +143,14 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
             const tono = TONOS_RELLENO[i % TONOS_RELLENO.length]
             return (
               <Tarjeta key={c.curso} className="gy-banqueo-curso">
+                <div className="gy-banqueo-curso-imagen">
+                  <img
+                    src={`${import.meta.env.BASE_URL}cursos/${slugCurso(c.curso)}.png`}
+                    alt={c.curso}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                  />
+                </div>
                 <div className="gy-banqueo-curso-cabecera">
                   <div>
                     <h3 className="gy-tarjeta-titulo">{c.curso}</h3>
