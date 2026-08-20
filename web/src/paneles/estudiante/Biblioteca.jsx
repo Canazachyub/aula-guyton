@@ -6,7 +6,7 @@ export default function Biblioteca() {
     <div className="gy-biblioteca">
       <iframe
         className="gy-biblioteca-marco"
-        src={`${import.meta.env.BASE_URL}biblioteca/`}
+        src={`${import.meta.env.BASE_URL}biblioteca/index.html`}
         title="Biblioteca Guyton"
       />
     </div>
