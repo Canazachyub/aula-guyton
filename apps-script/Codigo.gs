@@ -119,15 +119,9 @@ var ESQUEMAS = {
       enlace_en_vivo: 'texto', estado: 'texto',
     },
   },
-  materiales: {
-    hoja: 'materiales', id: 'id_material', prefijo: 'mtl',
-    columnas: {
-      id_material: 'texto', id_ciclo_curso: 'texto', id_clase: 'texto',
-      tipo: 'texto', titulo: 'texto', semana: 'numero', url_drive: 'texto',
-      id_material_padre: 'texto', fecha_publicacion: 'fecha', id_autor: 'texto',
-      estado: 'texto',
-    },
-  },
+  // NOTA: 'materiales' NO está aquí a propósito — con cientos/miles de videos
+  // haría lenta CADA petición y reventaría el límite de 100KB de la cache. Se
+  // carga bajo demanda (asegurarMateriales) solo en las acciones que la usan.
   asistencias: {
     hoja: 'asistencias', id: 'id_asistencia', prefijo: 'asi',
     columnas: {
@@ -449,6 +443,52 @@ function invalidarBdCache() {
 }
 
 // ---------------------------------------------------------------------------
+// Materiales: CARGA DIFERIDA. La hoja puede tener miles de videos, así que NO
+// entra en cargarBd (haría lento todo y saturaría la cache). Se lee solo cuando
+// una accion la necesita, y se adjunta a bd.t/bd.d.materiales igual que el resto
+// (asi buscarFila/agregarFila/actualizarFila/siguienteId siguen funcionando).
+// ---------------------------------------------------------------------------
+
+var MATERIALES_ESQUEMA = {
+  hoja: 'materiales', id: 'id_material', prefijo: 'mtl',
+  columnas: {
+    id_material: 'texto', id_ciclo_curso: 'texto', id_clase: 'texto',
+    tipo: 'texto', titulo: 'texto', semana: 'numero', url_drive: 'texto',
+    id_material_padre: 'texto', fecha_publicacion: 'fecha', id_autor: 'texto',
+    estado: 'texto',
+  },
+};
+
+/** Se asegura de que bd.t.materiales / bd.d.materiales estén cargados (los lee
+ *  de la hoja la primera vez). Idempotente dentro de una misma ejecucion. */
+function asegurarMateriales(bd) {
+  if (bd.t.materiales) return;
+  var esquema = MATERIALES_ESQUEMA;
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var hoja = ss.getSheetByName(esquema.hoja);
+  if (!hoja) throw new Error('No existe la hoja "' + esquema.hoja + '" en el spreadsheet.');
+  var valores = hoja.getDataRange().getValues();
+  var headers = valores.length ? valores[0].map(function (h) { return String(h).trim(); }) : [];
+  var col = {};
+  headers.forEach(function (h, i) { col[h] = i; });
+  Object.keys(esquema.columnas).forEach(function (c) {
+    if (!(c in col)) throw new Error('La hoja "' + esquema.hoja + '" no tiene la columna "' + c + '".');
+  });
+  var tabla = { hoja: hoja, headers: headers, col: col, filas: [], porId: {}, esquema: esquema };
+  for (var i = 1; i < valores.length; i++) {
+    var fc = valores[i];
+    if (fc.every(function (v) { return v === '' || v === null; })) continue;
+    var datos = {};
+    headers.forEach(function (h, j) { datos[h] = normalizar(fc[j], esquema.columnas[h] || 'texto', bd.tz); });
+    var ref = { datos: datos, rowNum: i + 1 };
+    tabla.filas.push(ref);
+    if (datos[esquema.id] !== '') tabla.porId[datos[esquema.id]] = ref;
+  }
+  bd.t.materiales = tabla;
+  bd.d.materiales = tabla.filas.map(function (f) { return f.datos; });
+}
+
+// ---------------------------------------------------------------------------
 // Utilidades de negocio (espejo de las de cliente.js)
 // ---------------------------------------------------------------------------
 
@@ -738,6 +778,7 @@ function accObtenerClases(bd, sesion, params) {
 function accObtenerMateriales(bd, sesion, params) {
   var idCicloCurso = params.idCicloCurso;
   if (!puedeVerCicloCurso(bd, sesion, idCicloCurso)) return [];
+  asegurarMateriales(bd); // carga la hoja de materiales solo aqui
 
   // Estudiante y auxiliar solo ven lo publicado (patron "fila publica"):
   // un material en borrador NO les aparece jamas.
@@ -1065,6 +1106,7 @@ function accGuardarMaterial(bd, sesion, params) {
   if (sesion.rol === 'docente' && !puedeVerCicloCurso(bd, sesion, datos.id_ciclo_curso)) {
     return { ok: false, error: 'Solo puedes gestionar materiales de tus propios cursos.' };
   }
+  asegurarMateriales(bd); // carga la hoja de materiales para poder leer/escribir
   var tiposValidos = ['video_grabado', 'pdf_teoria', 'pdf_practica', 'pdf_resolucion', 'enlace'];
   if (tiposValidos.indexOf(datos.tipo) === -1) {
     return { ok: false, error: 'Tipo de material inválido.' };
