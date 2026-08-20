@@ -2249,19 +2249,21 @@ a:hover {
 .gy-biblioteca { width: 100%; }
 .gy-biblioteca-marco {
   position: fixed;
-  top: 62px;            /* justo debajo de la cabecera sticky */
+  top: 62px;                     /* justo debajo de la cabecera sticky */
   left: 0;
-  right: 0;
   bottom: 0;
-  width: auto;
-  height: auto;
+  width: 100vw;                  /* iframe = elemento reemplazado: necesita ancho/alto explicitos */
+  height: calc(100vh - 62px);
   border: 0;
   background: var(--gy-blanco);
-  z-index: 5;           /* debajo de la cabecera (20) y la barra (40) */
+  z-index: 5;                    /* debajo de la cabecera (20) y la barra (40) */
 }
 
 @media (min-width: 900px) {
-  .gy-biblioteca-marco { left: 272px; } /* deja libre la barra lateral */
+  .gy-biblioteca-marco {
+    left: 272px;                 /* deja libre la barra lateral */
+    width: calc(100vw - 272px);
+  }
 }
 
 /* Materiales: selector de curso (reemplaza las pastillas) */
