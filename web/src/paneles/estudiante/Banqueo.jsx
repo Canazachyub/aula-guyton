@@ -96,7 +96,9 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
     const [cursos, progreso, ranking] = await Promise.all([
       obtenerBanqueoCursos(sesion),
       obtenerBanqueoProgreso(sesion),
-      obtenerBanqueoRanking(sesion),
+      // El ranking es un extra: si el backend aún no tiene la acción (antes de
+      // redesplegar), no debe tumbar toda la página — degrada a vacío.
+      obtenerBanqueoRanking(sesion).catch(() => ({ ranking: [], yo: null, total: 0 })),
     ])
     return { cursos, progreso, ranking }
   }, `${sesion.id_usuario}-${refresco}`, `est-banqueo-cursos:${sesion.id_usuario}`)
