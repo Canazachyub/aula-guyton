@@ -988,3 +988,151 @@ export async function guardarUsuario(sesion, datos) {
   const { clave_acceso: _omitida, ...publico } = usuario
   return { ok: true, usuario: publico }
 }
+
+/** Crea un usuario a mano (mock). Solo superadmin; DNI único; clave = DNI si no se da. */
+export async function crearUsuario(sesion, datos) {
+  await esperar()
+  if (sesion?.rol !== 'superadmin') return sinPermiso('crear usuarios')
+  const dni = String(datos.dni ?? '').trim()
+  const nombres = String(datos.nombres ?? '').trim()
+  const rolesValidos = ['superadmin', 'docente', 'auxiliar', 'estudiante']
+  if (!dni) return { ok: false, error: 'El usuario necesita un DNI.' }
+  if (!nombres) return { ok: false, error: 'El usuario necesita al menos un nombre.' }
+  if (!rolesValidos.includes(datos.rol)) return { ok: false, error: 'Rol inválido.' }
+  if (db.usuarios.some((u) => String(u.dni).trim() === dni)) {
+    return { ok: false, error: `Ya existe un usuario con el DNI ${dni}.` }
+  }
+  const clave = String(datos.clave_acceso ?? '').trim() || dni
+  const nuevo = {
+    id_usuario: siguienteIdDemo(db.usuarios, 'id_usuario', 'usr'),
+    dni, nombres, apellidos: String(datos.apellidos ?? '').trim(),
+    celular: String(datos.celular ?? '').trim(), email: String(datos.email ?? '').trim(),
+    rol: datos.rol, clave_acceso: clave, foto_url: '', estado: 'activo', fecha_registro: hoy(),
+  }
+  db.usuarios.push(nuevo)
+  const { clave_acceso: _o, ...publico } = nuevo
+  return { ok: true, usuario: publico, clave_inicial: clave }
+}
+
+/** Asigna en bloque una lista de cursos a un ciclo (mock). */
+export async function asignarCursosACiclo(sesion, datos) {
+  await esperar()
+  if (sesion?.rol !== 'superadmin') return sinPermiso('gestionar asignaciones')
+  if (!buscarCiclo(datos.id_ciclo)) return { ok: false, error: 'El ciclo indicado no existe.' }
+  const ids = Array.isArray(datos.id_cursos) ? datos.id_cursos : []
+  const yaEnCiclo = new Set(db.ciclo_cursos.filter((x) => x.id_ciclo === datos.id_ciclo).map((x) => x.id_curso))
+  let orden = db.ciclo_cursos.filter((x) => x.id_ciclo === datos.id_ciclo).length
+  let creados = 0
+  for (const idCurso of ids) {
+    if (yaEnCiclo.has(idCurso) || !buscarCurso(idCurso)) continue
+    orden += 1
+    db.ciclo_cursos.push({
+      id_ciclo_curso: siguienteIdDemo(db.ciclo_cursos, 'id_ciclo_curso', 'cco'),
+      id_ciclo: datos.id_ciclo, id_curso: idCurso, id_docente: '', orden,
+    })
+    yaEnCiclo.add(idCurso)
+    creados += 1
+  }
+  return { ok: true, creados }
+}
+
+/** Ranking del banqueo (mock): agrega banqueo_progreso de todos los usuarios. */
+export async function obtenerBanqueoRanking(sesion) {
+  await esperar()
+  if (!sesion) return { ranking: [], yo: null, total: 0 }
+  const porUsuario = {}
+  for (const p of db.banqueo_progreso ?? []) {
+    const id = p.id_usuario
+    if (!porUsuario[id]) porUsuario[id] = { id_usuario: id, respondidas: 0, correctas: 0 }
+    porUsuario[id].respondidas += p.respondidas
+    porUsuario[id].correctas += p.correctas
+  }
+  const corto = (u) => {
+    if (!u) return 'Estudiante'
+    const n = String(u.nombres ?? '').trim().split(/\s+/)[0] || 'Estudiante'
+    const a = String(u.apellidos ?? '').trim()
+    return a ? `${n} ${a.charAt(0).toUpperCase()}.` : n
+  }
+  const lista = Object.values(porUsuario).map((r) => ({
+    id_usuario: r.id_usuario, nombre: corto(buscarUsuario(r.id_usuario)),
+    respondidas: r.respondidas, correctas: r.correctas,
+    porcentaje: r.respondidas ? Math.round((r.correctas / r.respondidas) * 100) : 0,
+  }))
+  lista.sort((a, b) => b.correctas - a.correctas || b.porcentaje - a.porcentaje)
+  lista.forEach((x, i) => { x.puesto = i + 1 })
+  const yo = lista.find((x) => x.id_usuario === sesion.id_usuario) || null
+  return { ranking: lista.slice(0, 20), yo, total: lista.length }
+}
+
+// --- Simulacros (mock) ------------------------------------------------------
+
+let simulacroInfo = { pdf_url: '', titulo: '', fecha: '' }
+
+export async function obtenerSimulacros(sesion) {
+  await esperar()
+  if (!sesion) return { info: simulacroInfo, areas: [], config: {}, mis: [], ranking: [], yo: null, total: 0 }
+  const cfg = db.simulacro_config ?? []
+  const porArea = {}
+  for (const r of cfg) {
+    const area = String(r.area).trim()
+    if (!area) continue
+    ;(porArea[area] ||= []).push({
+      curso: String(r.curso).trim(), preguntas: Number(r.preguntas) || 0,
+      puntos_pregunta: Number(r.puntos_pregunta) || 0, ponderacion: Number(r.ponderacion) || 0,
+    })
+  }
+  const sims = db.simulacros ?? []
+  const mis = sims.filter((s) => s.id_usuario === sesion.id_usuario)
+  const mejor = {}
+  for (const s of sims) {
+    const id = s.id_usuario || s.dni
+    if (!mejor[id] || Number(s.puntaje) > Number(mejor[id].puntaje)) {
+      mejor[id] = { id_usuario: s.id_usuario, dni: s.dni, nombre: s.nombre, area: s.area, puntaje: Number(s.puntaje) || 0, porcentaje: Number(s.porcentaje) || 0 }
+    }
+  }
+  const ranking = Object.values(mejor).sort((a, b) => b.puntaje - a.puntaje)
+  ranking.forEach((x, i) => { x.puesto = i + 1 })
+  return {
+    info: simulacroInfo, areas: Object.keys(porArea).sort(), config: porArea, mis,
+    ranking: ranking.slice(0, 20), yo: ranking.find((x) => x.id_usuario === sesion.id_usuario) || null, total: ranking.length,
+  }
+}
+
+export async function registrarSimulacro(sesion, datos) {
+  await esperar()
+  if (!sesion) return sinPermiso('registrar un simulacro')
+  const area = String(datos.area ?? '').trim()
+  if (!area) return { ok: false, error: 'Elige tu área.' }
+  const pesos = (db.simulacro_config ?? []).filter((r) => String(r.area).trim() === area)
+  if (pesos.length === 0) return { ok: false, error: `El área "${area}" no está configurada en el prospecto.` }
+  const reportado = {}
+  for (const r of datos.respuestas ?? []) reportado[String(r.curso).trim()] = Number(r.aciertos) || 0
+  let puntaje = 0, puntajeMax = 0, correctas = 0, total = 0
+  const detalle = pesos.map((p) => {
+    const curso = String(p.curso).trim()
+    const preguntas = Number(p.preguntas) || 0, puntos = Number(p.puntos_pregunta) || 0, pond = Number(p.ponderacion) || 0
+    const ac = Math.max(0, Math.min(reportado[curso] || 0, preguntas))
+    const pMax = preguntas * puntos * pond, pObt = ac * puntos * pond
+    puntaje += pObt; puntajeMax += pMax; correctas += ac; total += preguntas
+    return { curso, aciertos: ac, preguntas, puntaje: Math.round(pObt * 100) / 100, puntaje_max: Math.round(pMax * 100) / 100 }
+  })
+  puntaje = Math.round(puntaje * 100) / 100; puntajeMax = Math.round(puntajeMax * 100) / 100
+  const porcentaje = puntajeMax > 0 ? Math.round((puntaje / puntajeMax) * 100) : 0
+  const fila = {
+    id_simulacro: siguienteIdDemo(db.simulacros ?? [], 'id_simulacro', 'sim'),
+    id_usuario: sesion.id_usuario, dni: String(datos.dni ?? sesion.dni ?? '').trim(),
+    nombre: String(datos.nombre ?? nombreCompleto(sesion)).trim(), area, fecha: hoy(),
+    puntaje, puntaje_max: puntajeMax, correctas, total, porcentaje, detalle: JSON.stringify(detalle),
+  }
+  ;(db.simulacros ||= []).push(fila)
+  return { ok: true, resultado: { ...fila, detalle } }
+}
+
+export async function guardarSimulacroPdf(sesion, datos) {
+  await esperar()
+  if (sesion?.rol !== 'superadmin') return sinPermiso('publicar el simulacro')
+  const url = String(datos.pdf_url ?? '').trim() || (datos.pdf_base64 ? 'demo://pdf-subido' : '')
+  if (!url) return { ok: false, error: 'Sube un PDF o pega el enlace del PDF del simulacro.' }
+  simulacroInfo = { pdf_url: url, titulo: String(datos.titulo ?? '').trim() || 'Simulacro', fecha: hoy() }
+  return { ok: true, ...simulacroInfo }
+}

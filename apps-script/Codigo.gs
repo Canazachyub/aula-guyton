@@ -174,13 +174,20 @@ var ACCIONES = {
   guardarCiclo: { fn: accGuardarCiclo, escritura: true },
   guardarCurso: { fn: accGuardarCurso, escritura: true },
   guardarAsignacion: { fn: accGuardarAsignacion, escritura: true },
+  asignarCursosACiclo: { fn: accAsignarCursosACiclo, escritura: true },
   guardarUsuario: { fn: accGuardarUsuario, escritura: true },
+  crearUsuario: { fn: accCrearUsuario, escritura: true },
   // Banqueo (banco de preguntas de practica; hojas de CARGA DIFERIDA, ver seccion Banqueo)
   obtenerBanqueoCursos: { fn: accObtenerBanqueoCursos },
   obtenerBanqueoTemas: { fn: accObtenerBanqueoTemas },
   obtenerBanqueoPreguntas: { fn: accObtenerBanqueoPreguntas },
   obtenerBanqueoProgreso: { fn: accObtenerBanqueoProgreso },
+  obtenerBanqueoRanking: { fn: accObtenerBanqueoRanking },
   registrarRespuestaBanqueo: { fn: accRegistrarRespuestaBanqueo, escritura: true },
+  // Simulacros (ficha optica de calificacion; hojas de CARGA DIFERIDA)
+  obtenerSimulacros: { fn: accObtenerSimulacros },
+  registrarSimulacro: { fn: accRegistrarSimulacro, escritura: true },
+  guardarSimulacroPdf: { fn: accGuardarSimulacroPdf, escritura: true },
 };
 
 function doGet(e) {
@@ -486,6 +493,75 @@ function asegurarMateriales(bd) {
   }
   bd.t.materiales = tabla;
   bd.d.materiales = tabla.filas.map(function (f) { return f.datos; });
+}
+
+// ---------------------------------------------------------------------------
+// Simulacros (ficha optica de calificacion): CARGA DIFERIDA, igual que
+// materiales. Dos hojas:
+//   - simulacro_config: pesos del prospecto (area/curso/preguntas/ponderacion).
+//     La edita el superadmin A MANO cuando cambia el prospecto.
+//   - simulacros: una fila por ficha calificada de un estudiante (el ranking).
+// ---------------------------------------------------------------------------
+
+var SIMULACRO_CONFIG_ESQUEMA = {
+  hoja: 'simulacro_config', // sin id: es una tabla de parametros como `config`
+  columnas: {
+    area: 'texto', curso: 'texto', preguntas: 'numero',
+    puntos_pregunta: 'numero', ponderacion: 'numero',
+  },
+};
+
+var SIMULACROS_ESQUEMA = {
+  hoja: 'simulacros', id: 'id_simulacro', prefijo: 'sim',
+  columnas: {
+    id_simulacro: 'texto', id_usuario: 'texto', dni: 'texto', nombre: 'texto',
+    area: 'texto', fecha: 'fecha', puntaje: 'numero', puntaje_max: 'numero',
+    correctas: 'numero', total: 'numero', porcentaje: 'numero', detalle: 'texto',
+  },
+};
+
+/** Carga una hoja "extra" (fuera de ESQUEMAS) bajo demanda y la adjunta a
+ *  bd.t/bd.d[nombre], igual que asegurarMateriales pero generico. Si `tolerante`
+ *  y la hoja aún no existe, deja la tabla VACÍA (no rompe): sirve para features
+ *  cuyas hojas el admin todavía no creó. */
+function asegurarHojaExtra(bd, nombre, esquema, tolerante) {
+  if (bd.t[nombre]) return;
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var hoja = ss.getSheetByName(esquema.hoja);
+  if (!hoja) {
+    if (tolerante) {
+      bd.t[nombre] = { hoja: null, headers: [], col: {}, filas: [], porId: {}, esquema: esquema };
+      bd.d[nombre] = [];
+      return;
+    }
+    throw new Error('No existe la hoja "' + esquema.hoja + '" en el spreadsheet.');
+  }
+  var valores = hoja.getDataRange().getValues();
+  var headers = valores.length ? valores[0].map(function (h) { return String(h).trim(); }) : [];
+  var col = {};
+  headers.forEach(function (h, i) { col[h] = i; });
+  Object.keys(esquema.columnas).forEach(function (c) {
+    if (!(c in col)) throw new Error('La hoja "' + esquema.hoja + '" no tiene la columna "' + c + '".');
+  });
+  var tabla = { hoja: hoja, headers: headers, col: col, filas: [], porId: {}, esquema: esquema };
+  for (var i = 1; i < valores.length; i++) {
+    var fc = valores[i];
+    if (fc.every(function (v) { return v === '' || v === null; })) continue;
+    var datos = {};
+    headers.forEach(function (h, j) { datos[h] = normalizar(fc[j], esquema.columnas[h] || 'texto', bd.tz); });
+    var ref = { datos: datos, rowNum: i + 1 };
+    tabla.filas.push(ref);
+    if (esquema.id && datos[esquema.id] !== '') tabla.porId[datos[esquema.id]] = ref;
+  }
+  bd.t[nombre] = tabla;
+  bd.d[nombre] = tabla.filas.map(function (f) { return f.datos; });
+}
+
+/** Se asegura de que las dos hojas de simulacros esten cargadas. Tolerante: si
+ *  aún no existen, quedan vacías (la UI mostrará "sin simulacro" en vez de error). */
+function asegurarSimulacros(bd) {
+  asegurarHojaExtra(bd, 'simulacro_config', SIMULACRO_CONFIG_ESQUEMA, true);
+  asegurarHojaExtra(bd, 'simulacros', SIMULACROS_ESQUEMA, true);
 }
 
 // ---------------------------------------------------------------------------
@@ -1265,11 +1341,19 @@ function accGuardarCiclo(bd, sesion, params) {
   if (datos.id_ciclo) {
     var existente = buscarCiclo(bd, datos.id_ciclo);
     if (!existente) return { ok: false, error: 'No se encontró el ciclo.' };
+    // Los precios/cuotas solo se pisan si vienen en la petición (undefined =
+    // conservar lo que ya había). Así "cambiar estado" no borra los precios.
+    var conservarNum = function (valor, previo) {
+      return valor === undefined || valor === null || valor === '' ? previo : Number(valor) || 0;
+    };
     var ciclo = actualizarFila(bd, 'ciclos', datos.id_ciclo, {
       nombre: String(datos.nombre).trim(),
       fecha_inicio: datos.fecha_inicio || existente.fecha_inicio,
       fecha_fin: datos.fecha_fin || existente.fecha_fin,
       estado: datos.estado,
+      precio_matricula: conservarNum(datos.precio_matricula, existente.precio_matricula),
+      precio_mensualidad: conservarNum(datos.precio_mensualidad, existente.precio_mensualidad),
+      n_mensualidades: conservarNum(datos.n_mensualidades, existente.n_mensualidades),
     });
     return { ok: true, ciclo: ciclo };
   }
@@ -1385,6 +1469,297 @@ function accGuardarUsuario(bd, sesion, params) {
     estado: datos.estado,
   });
   return { ok: true, usuario: sinClave(actualizado) };
+}
+
+/** Crea un usuario A MANO (docente, auxiliar, estudiante o superadmin). Solo
+ *  superadmin. El DNI es unico y, si no se da clave, la clave inicial ES el DNI
+ *  (el usuario entra con DNI+DNI y luego la cambia). */
+function accCrearUsuario(bd, sesion, params) {
+  var datos = params.datos || {};
+  if (!sesion || sesion.rol !== 'superadmin') return sinPermiso('crear usuarios');
+
+  var dni = String(datos.dni != null ? datos.dni : '').trim();
+  var nombres = String(datos.nombres != null ? datos.nombres : '').trim();
+  var apellidos = String(datos.apellidos != null ? datos.apellidos : '').trim();
+  var rol = String(datos.rol != null ? datos.rol : '').trim();
+  var rolesValidos = ['superadmin', 'docente', 'auxiliar', 'estudiante'];
+  if (!dni) return { ok: false, error: 'El usuario necesita un DNI.' };
+  if (!nombres) return { ok: false, error: 'El usuario necesita al menos un nombre.' };
+  if (rolesValidos.indexOf(rol) === -1) return { ok: false, error: 'Rol inválido.' };
+
+  var duplicado = bd.d.usuarios.filter(function (u) { return String(u.dni).trim() === dni; })[0];
+  if (duplicado) return { ok: false, error: 'Ya existe un usuario con el DNI ' + dni + '.' };
+
+  var clave = String(datos.clave_acceso != null ? datos.clave_acceso : '').trim() || dni;
+  var nuevo = {
+    id_usuario: siguienteId(bd, 'usuarios'),
+    dni: dni,
+    nombres: nombres,
+    apellidos: apellidos,
+    celular: String(datos.celular != null ? datos.celular : '').trim(),
+    email: String(datos.email != null ? datos.email : '').trim(),
+    rol: rol,
+    clave_acceso: clave,
+    foto_url: '',
+    estado: 'activo',
+    fecha_registro: hoy(bd),
+  };
+  agregarFila(bd, 'usuarios', nuevo);
+  return { ok: true, usuario: sinClave(nuevo), clave_inicial: clave };
+}
+
+/** Asigna en bloque una lista de cursos a un ciclo (crea los ciclo_cursos que
+ *  falten, sin docente). Sirve para el "asignar los 18 cursos de golpe" del
+ *  panel de asignaciones sin disparar 18 peticiones. Solo superadmin. */
+function accAsignarCursosACiclo(bd, sesion, params) {
+  var datos = params.datos || {};
+  if (!sesion || sesion.rol !== 'superadmin') return sinPermiso('gestionar asignaciones');
+  if (!buscarCiclo(bd, datos.id_ciclo)) return { ok: false, error: 'El ciclo indicado no existe.' };
+  var ids = Array.isArray(datos.id_cursos) ? datos.id_cursos : [];
+  if (ids.length === 0) return { ok: false, error: 'No se indicó ningún curso.' };
+
+  var yaEnCiclo = {};
+  bd.d.ciclo_cursos.forEach(function (x) {
+    if (x.id_ciclo === datos.id_ciclo) yaEnCiclo[x.id_curso] = true;
+  });
+  var orden = bd.d.ciclo_cursos.filter(function (x) { return x.id_ciclo === datos.id_ciclo; }).length;
+  var creados = [];
+  for (var i = 0; i < ids.length; i++) {
+    var idCurso = ids[i];
+    if (yaEnCiclo[idCurso]) continue;
+    if (!buscarCurso(bd, idCurso)) continue;
+    orden += 1;
+    var cc = {
+      id_ciclo_curso: siguienteId(bd, 'ciclo_cursos'),
+      id_ciclo: datos.id_ciclo,
+      id_curso: idCurso,
+      id_docente: '',
+      orden: orden,
+    };
+    agregarFila(bd, 'ciclo_cursos', cc);
+    yaEnCiclo[idCurso] = true;
+    creados.push(cc);
+  }
+  return { ok: true, creados: creados.length };
+}
+
+// --- Banqueo: ranking entre usuarios -----------------------------------------
+
+/** Nombre corto para el ranking (privacidad): "Nombre A." */
+function nombreCortoRanking(u) {
+  if (!u) return 'Estudiante';
+  var n = String(u.nombres || '').trim().split(/\s+/)[0] || 'Estudiante';
+  var a = String(u.apellidos || '').trim();
+  return a ? n + ' ' + a.charAt(0).toUpperCase() + '.' : n;
+}
+
+/** Ranking del banqueo: agrega el progreso de TODOS los usuarios (suma de
+ *  correctas y respondidas de todos sus cursos), ordena por correctas y
+ *  devuelve el top 20 + la posicion del propio usuario aunque quede fuera. */
+function accObtenerBanqueoRanking(bd, sesion) {
+  var h = leerHojaBanqueo(BANQUEO_HOJA_PROGRESO);
+  if (!h || h.col['id_usuario'] === undefined) return { ranking: [], yo: null, total: 0 };
+
+  var porUsuario = {};
+  h.filas.forEach(function (f) {
+    var id = String(celdaBanqueo(h, f.cruda, 'id_usuario')).trim();
+    if (!id) return;
+    if (!porUsuario[id]) porUsuario[id] = { id_usuario: id, respondidas: 0, correctas: 0 };
+    porUsuario[id].respondidas += Number(celdaBanqueo(h, f.cruda, 'respondidas')) || 0;
+    porUsuario[id].correctas += Number(celdaBanqueo(h, f.cruda, 'correctas')) || 0;
+  });
+
+  var lista = Object.keys(porUsuario).map(function (id) {
+    var r = porUsuario[id];
+    var u = buscarUsuario(bd, id);
+    return {
+      id_usuario: id,
+      nombre: nombreCortoRanking(u),
+      respondidas: r.respondidas,
+      correctas: r.correctas,
+      porcentaje: r.respondidas > 0 ? Math.round((r.correctas / r.respondidas) * 100) : 0,
+    };
+  });
+  lista.sort(function (a, b) { return b.correctas - a.correctas || b.porcentaje - a.porcentaje; });
+  lista.forEach(function (x, i) { x.puesto = i + 1; });
+
+  var yo = null;
+  for (var i = 0; i < lista.length; i++) {
+    if (lista[i].id_usuario === sesion.id_usuario) { yo = lista[i]; break; }
+  }
+  return { ranking: lista.slice(0, 20), yo: yo, total: lista.length };
+}
+
+// --- Simulacros: ficha optica de calificacion --------------------------------
+
+/** Lee un valor del sheet `config` (tabla clave/valor). '' si no existe. */
+function leerConfig(bd, clave) {
+  var fila = (bd.d.config || []).filter(function (c) { return String(c.clave).trim() === clave; })[0];
+  return fila ? String(fila.valor != null ? fila.valor : '').trim() : '';
+}
+
+/** Escribe (crea o actualiza) una clave del sheet `config`. Requiere bd de
+ *  escritura (bd.t.config.hoja disponible). */
+function escribirConfig(bd, clave, valor) {
+  var t = bd.t.config;
+  for (var i = 0; i < t.filas.length; i++) {
+    if (String(t.filas[i].datos.clave).trim() === clave) {
+      t.hoja.getRange(t.filas[i].rowNum, t.col['valor'] + 1).setValue(valor);
+      t.filas[i].datos.valor = valor;
+      return;
+    }
+  }
+  agregarFila(bd, 'config', { clave: clave, valor: valor, descripcion: '' });
+}
+
+/** Guarda el PDF del simulacro vigente (subida base64 -> Drive, o enlace
+ *  directo) y su titulo en el sheet config. Solo superadmin. */
+function accGuardarSimulacroPdf(bd, sesion, params) {
+  var datos = params.datos || {};
+  if (!sesion || sesion.rol !== 'superadmin') return sinPermiso('publicar el simulacro');
+  var titulo = String(datos.titulo != null ? datos.titulo : '').trim() || 'Simulacro';
+  var url = String(datos.pdf_url != null ? datos.pdf_url : '').trim();
+  if (datos.pdf_base64) {
+    url = guardarPdfSimulacroEnDrive(datos.pdf_base64, datos.pdf_mime, 'simulacro') || url;
+  }
+  if (!url) return { ok: false, error: 'Sube un PDF o pega el enlace del PDF del simulacro.' };
+  escribirConfig(bd, 'simulacro_pdf_url', url);
+  escribirConfig(bd, 'simulacro_titulo', titulo);
+  escribirConfig(bd, 'simulacro_fecha', hoy(bd));
+  return { ok: true, pdf_url: url, titulo: titulo };
+}
+
+/** Sube el PDF del simulacro a <raiz>/Simulacros y devuelve su URL publica. */
+function guardarPdfSimulacroEnDrive(base64, mime, nombreBase) {
+  try {
+    var raiz = DriveApp.getFolderById(DRIVE_ROOT_ID);
+    var carpeta = obtenerOCrearCarpeta(raiz, 'Simulacros');
+    var bytes = Utilities.base64Decode(base64);
+    var blob = Utilities.newBlob(bytes, mime || 'application/pdf', nombreBase + '_' + new Date().getTime() + '.pdf');
+    var archivo = carpeta.createFile(blob);
+    archivo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return archivo.getUrl();
+  } catch (err) {
+    Logger.log('No se pudo guardar el PDF del simulacro en Drive: %s', err);
+    return '';
+  }
+}
+
+/** Lectura del alumno/superadmin: PDF vigente + pesos del prospecto (agrupados
+ *  por area) + mis fichas + ranking (mejor puntaje por usuario). */
+function accObtenerSimulacros(bd, sesion) {
+  asegurarSimulacros(bd);
+
+  var info = {
+    pdf_url: leerConfig(bd, 'simulacro_pdf_url'),
+    titulo: leerConfig(bd, 'simulacro_titulo'),
+    fecha: leerConfig(bd, 'simulacro_fecha'),
+  };
+
+  // Pesos agrupados por area (para que el formulario muestre los cursos de esa area).
+  var porArea = {};
+  (bd.d.simulacro_config || []).forEach(function (r) {
+    var area = String(r.area).trim();
+    if (!area) return;
+    if (!porArea[area]) porArea[area] = [];
+    porArea[area].push({
+      curso: String(r.curso).trim(),
+      preguntas: Number(r.preguntas) || 0,
+      puntos_pregunta: Number(r.puntos_pregunta) || 0,
+      ponderacion: Number(r.ponderacion) || 0,
+    });
+  });
+  var areas = Object.keys(porArea).sort();
+
+  var mis = (bd.d.simulacros || [])
+    .filter(function (s) { return s.id_usuario === sesion.id_usuario; })
+    .sort(function (a, b) { return String(b.fecha).localeCompare(String(a.fecha)); });
+
+  // Ranking: mejor puntaje por usuario (el simulacro se puede repetir).
+  var mejor = {};
+  (bd.d.simulacros || []).forEach(function (s) {
+    var id = String(s.id_usuario).trim() || String(s.dni).trim();
+    if (!id) return;
+    if (!mejor[id] || Number(s.puntaje) > Number(mejor[id].puntaje)) {
+      mejor[id] = { id_usuario: s.id_usuario, dni: s.dni, nombre: s.nombre, area: s.area, puntaje: Number(s.puntaje) || 0, porcentaje: Number(s.porcentaje) || 0 };
+    }
+  });
+  var ranking = Object.keys(mejor).map(function (k) { return mejor[k]; });
+  ranking.sort(function (a, b) { return b.puntaje - a.puntaje; });
+  ranking.forEach(function (x, i) { x.puesto = i + 1; });
+  var yo = ranking.filter(function (x) { return x.id_usuario === sesion.id_usuario; })[0] || null;
+
+  return {
+    info: info,
+    areas: areas,
+    config: porArea,
+    mis: mis,
+    ranking: ranking.slice(0, 20),
+    yo: yo,
+    total: ranking.length,
+  };
+}
+
+/** Califica y guarda una ficha optica. datos: { area, dni, nombre,
+ *  respuestas:[{curso, aciertos}] }. El puntaje sale de los pesos del prospecto
+ *  (simulacro_config) del area elegida. */
+function accRegistrarSimulacro(bd, sesion, params) {
+  var datos = params.datos || {};
+  asegurarSimulacros(bd);
+  if (!bd.t.simulacros.hoja) {
+    return { ok: false, error: 'La hoja "simulacros" aún no existe. Pide al administrador que la cree.' };
+  }
+
+  var area = String(datos.area != null ? datos.area : '').trim();
+  if (!area) return { ok: false, error: 'Elige tu área.' };
+
+  var pesos = (bd.d.simulacro_config || []).filter(function (r) { return String(r.area).trim() === area; });
+  if (pesos.length === 0) return { ok: false, error: 'El área "' + area + '" no está configurada en el prospecto.' };
+
+  var reportado = {};
+  (Array.isArray(datos.respuestas) ? datos.respuestas : []).forEach(function (r) {
+    reportado[String(r.curso).trim()] = Number(r.aciertos) || 0;
+  });
+
+  var puntaje = 0, puntajeMax = 0, correctas = 0, total = 0;
+  var detalle = pesos.map(function (p) {
+    var curso = String(p.curso).trim();
+    var preguntas = Number(p.preguntas) || 0;
+    var puntos = Number(p.puntos_pregunta) || 0;
+    var pond = Number(p.ponderacion) || 0;
+    var ac = Math.max(0, Math.min(reportado[curso] || 0, preguntas)); // se acota a [0, preguntas]
+    var pMax = preguntas * puntos * pond;
+    var pObt = ac * puntos * pond;
+    puntaje += pObt; puntajeMax += pMax; correctas += ac; total += preguntas;
+    return { curso: curso, aciertos: ac, preguntas: preguntas, puntaje: Math.round(pObt * 100) / 100, puntaje_max: Math.round(pMax * 100) / 100 };
+  });
+
+  puntaje = Math.round(puntaje * 100) / 100;
+  puntajeMax = Math.round(puntajeMax * 100) / 100;
+  var porcentaje = puntajeMax > 0 ? Math.round((puntaje / puntajeMax) * 100) : 0;
+
+  var fila = {
+    id_simulacro: siguienteId(bd, 'simulacros'),
+    id_usuario: sesion.id_usuario,
+    dni: String(datos.dni != null ? datos.dni : sesion.dni || '').trim(),
+    nombre: String(datos.nombre != null ? datos.nombre : nombreCompleto(sesion)).trim(),
+    area: area,
+    fecha: hoy(bd),
+    puntaje: puntaje,
+    puntaje_max: puntajeMax,
+    correctas: correctas,
+    total: total,
+    porcentaje: porcentaje,
+    detalle: JSON.stringify(detalle),
+  };
+  agregarFila(bd, 'simulacros', fila);
+  return {
+    ok: true,
+    resultado: {
+      id_simulacro: fila.id_simulacro, area: area, puntaje: puntaje, puntaje_max: puntajeMax,
+      correctas: correctas, total: total, porcentaje: porcentaje, detalle: detalle,
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------

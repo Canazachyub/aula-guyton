@@ -37,15 +37,39 @@ export default function Ciclos() {
     }
   }
 
+  const editar = (ciclo) => {
+    setMensaje(null)
+    setFormulario({
+      id_ciclo: ciclo.id_ciclo,
+      estado: ciclo.estado,
+      nombre: ciclo.nombre,
+      anio: ciclo.anio ?? '',
+      fecha_inicio: ciclo.fecha_inicio ?? '',
+      fecha_fin: ciclo.fecha_fin ?? '',
+      precio_matricula: ciclo.precio_matricula ?? '',
+      precio_mensualidad: ciclo.precio_mensualidad ?? '',
+      n_mensualidades: ciclo.n_mensualidades ?? '',
+      descripcion: ciclo.descripcion ?? '',
+    })
+  }
+
   const alGuardar = async (evento) => {
     evento.preventDefault()
     setMensaje(null)
     setGuardando(true)
-    const resultado = await guardarCiclo(sesion, { ...formulario, estado: 'planificado' })
+    const editando = Boolean(formulario.id_ciclo)
+    // En edición se conserva el estado actual (el estado se cambia desde la tarjeta).
+    const carga = editando ? formulario : { ...formulario, estado: 'planificado' }
+    const resultado = await guardarCiclo(sesion, carga)
     setGuardando(false)
     if (resultado.ok) {
       setFormulario(null)
-      setMensaje({ tipo: 'exito', texto: `Ciclo ${resultado.ciclo.nombre} creado. Ahora asígnale cursos en la sección Asignaciones.` })
+      setMensaje({
+        tipo: 'exito',
+        texto: editando
+          ? `Ciclo ${resultado.ciclo.nombre} actualizado (precio y cuotas guardados).`
+          : `Ciclo ${resultado.ciclo.nombre} creado. Ahora asígnale cursos en la sección Asignaciones.`,
+      })
       ciclos.recargar()
     } else {
       setMensaje({ tipo: 'error', texto: resultado.error })
@@ -99,18 +123,23 @@ export default function Ciclos() {
                   </li>
                 )}
               </ul>
-              <div className="gy-material-pie">
-                <label className="gy-ayuda-campo" htmlFor={`estado-${c.id_ciclo}`}>Estado del ciclo</label>
-                <select
-                  id={`estado-${c.id_ciclo}`}
-                  className="gy-select gy-select--auto"
-                  value={c.estado}
-                  onChange={(e) => cambiarEstado(c, e.target.value)}
-                >
-                  {ESTADOS_CICLO.map((e) => (
-                    <option key={e} value={e}>{e.replaceAll('_', ' ')}</option>
-                  ))}
-                </select>
+              <div className="gy-material-pie" style={{ alignItems: 'flex-end', gap: '0.75rem' }}>
+                <div style={{ flex: 1 }}>
+                  <label className="gy-ayuda-campo" htmlFor={`estado-${c.id_ciclo}`}>Estado del ciclo</label>
+                  <select
+                    id={`estado-${c.id_ciclo}`}
+                    className="gy-select gy-select--auto"
+                    value={c.estado}
+                    onChange={(e) => cambiarEstado(c, e.target.value)}
+                  >
+                    {ESTADOS_CICLO.map((e) => (
+                      <option key={e} value={e}>{e.replaceAll('_', ' ')}</option>
+                    ))}
+                  </select>
+                </div>
+                <Boton variante="secundario" chico onClick={() => editar(c)}>
+                  Editar precio y cuotas
+                </Boton>
               </div>
             </Tarjeta>
           ))}
@@ -118,7 +147,7 @@ export default function Ciclos() {
       )}
 
       {formulario && (
-        <Tarjeta titulo="Nuevo ciclo" icono="mas" tonoIcono="acento">
+        <Tarjeta titulo={formulario.id_ciclo ? `Editar ciclo ${formulario.nombre}` : 'Nuevo ciclo'} icono="mas" tonoIcono="acento">
           <form onSubmit={alGuardar} noValidate>
             <div className="gy-grilla gy-grilla--2">
               <div className="gy-campo">
@@ -213,13 +242,15 @@ export default function Ciclos() {
                 onChange={(e) => setFormulario((f) => ({ ...f, descripcion: e.target.value }))}
               />
             </div>
-            <p className="gy-ayuda-campo" style={{ marginBottom: '1rem' }}>
-              El ciclo nuevo nace en estado planificado. Cuando esté listo, cambia su estado a
-              inscripciones abiertas desde su tarjeta.
-            </p>
+            {!formulario.id_ciclo && (
+              <p className="gy-ayuda-campo" style={{ marginBottom: '1rem' }}>
+                El ciclo nuevo nace en estado planificado. Cuando esté listo, cambia su estado a
+                inscripciones abiertas desde su tarjeta.
+              </p>
+            )}
             <div className="gy-acciones-fila">
               <Boton type="submit" variante="acento" disabled={guardando}>
-                {guardando ? 'Guardando…' : 'Crear ciclo'}
+                {guardando ? 'Guardando…' : formulario.id_ciclo ? 'Guardar cambios' : 'Crear ciclo'}
               </Boton>
               <Boton variante="secundario" onClick={() => setFormulario(null)} disabled={guardando}>
                 Cancelar

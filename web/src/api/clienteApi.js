@@ -185,6 +185,16 @@ export async function obtenerBanqueoProgreso(sesion) {
   return leer('obtenerBanqueoProgreso', { sesion })
 }
 
+export async function obtenerBanqueoRanking(sesion) {
+  return leer('obtenerBanqueoRanking', { sesion })
+}
+
+// --- Simulacros (ficha optica de calificacion) ------------------------------
+
+export async function obtenerSimulacros(sesion) {
+  return leer('obtenerSimulacros', { sesion })
+}
+
 // ---------------------------------------------------------------------------
 // Escrituras (POST) — mismas firmas y formas de respuesta que el mock
 // ---------------------------------------------------------------------------
@@ -228,6 +238,22 @@ export async function guardarAsignacion(sesion, datos) {
 
 export async function guardarUsuario(sesion, datos) {
   return escribir('guardarUsuario', { sesion, datos })
+}
+
+export async function crearUsuario(sesion, datos) {
+  return escribir('crearUsuario', { sesion, datos })
+}
+
+export async function asignarCursosACiclo(sesion, datos) {
+  return escribir('asignarCursosACiclo', { sesion, datos })
+}
+
+export async function registrarSimulacro(sesion, datos) {
+  return escribir('registrarSimulacro', { sesion, datos })
+}
+
+export async function guardarSimulacroPdf(sesion, datos) {
+  return escribir('guardarSimulacroPdf', { sesion, datos })
 }
 
 /** Registra una respuesta del banqueo (escritura POST, patron `escribir`). */

@@ -9,7 +9,7 @@ import Cursos from './Cursos.jsx'
 import Materiales from './Materiales.jsx'
 import Banqueo from './Banqueo.jsx'
 import Biblioteca from './Biblioteca.jsx'
-import Asistencia from './Asistencia.jsx'
+import Simulacros from './Simulacros.jsx'
 import Pagos from './Pagos.jsx'
 import Anuncios from './Anuncios.jsx'
 
@@ -20,7 +20,7 @@ const MENU = [
   { ruta: '/panel/estudiante/materiales', etiqueta: 'Materiales', icono: 'carpeta' },
   { ruta: '/panel/estudiante/banqueo', etiqueta: 'Banqueo Guyton', icono: 'repasos' },
   { ruta: '/panel/estudiante/biblioteca', etiqueta: 'Biblioteca', icono: 'libro' },
-  { ruta: '/panel/estudiante/asistencia', etiqueta: 'Asistencia', icono: 'lista' },
+  { ruta: '/panel/estudiante/simulacros', etiqueta: 'Simulacros', icono: 'documento' },
   { ruta: '/panel/estudiante/pagos', etiqueta: 'Pagos', icono: 'dinero' },
   { ruta: '/panel/estudiante/anuncios', etiqueta: 'Anuncios', icono: 'megafono' },
 ]
@@ -35,7 +35,7 @@ export default function PanelEstudiante() {
         <Route path="materiales" element={<Materiales />} />
         <Route path="banqueo" element={<Banqueo />} />
         <Route path="biblioteca" element={<Biblioteca />} />
-        <Route path="asistencia" element={<Asistencia />} />
+        <Route path="simulacros" element={<Simulacros />} />
         <Route path="pagos" element={<Pagos />} />
         <Route path="anuncios" element={<Anuncios />} />
         <Route path="*" element={<Navigate to="/panel/estudiante" replace />} />

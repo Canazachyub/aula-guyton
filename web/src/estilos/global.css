@@ -2144,6 +2144,317 @@ a:hover {
   color: var(--gy-azul-real);
 }
 
+/* Reloj temporizador por pregunta (2:30) ------------------------------------- */
+
+.gy-banqueo-reloj {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--gy-radio-pildora, 999px);
+  font-family: var(--gy-fuente-titulos);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 0.95rem;
+  line-height: 1;
+  border: 1.5px solid transparent;
+}
+
+.gy-banqueo-reloj--ok {
+  background: var(--gy-azul-electrico-suave);
+  color: var(--gy-azul-real);
+  border-color: var(--gy-azul-electrico-suave);
+}
+
+.gy-banqueo-reloj--alerta {
+  background: var(--gy-alerta-suave);
+  color: var(--gy-alerta);
+  border-color: var(--gy-alerta);
+}
+
+.gy-banqueo-reloj--critico {
+  background: var(--gy-error-suave);
+  color: var(--gy-error);
+  border-color: var(--gy-error);
+  animation: gy-latido 1s ease-in-out infinite;
+}
+
+@keyframes gy-latido {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* Cabecera de la pregunta: tema a la izquierda, FUENTE llamativa a la derecha. */
+
+.gy-banqueo-pregunta-cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.2rem;
+}
+
+.gy-banqueo-fuente-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  max-width: 55%;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--gy-radio-pildora, 999px);
+  background: var(--gy-gradiente);
+  color: var(--gy-blanco);
+  font-family: var(--gy-fuente-titulos);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: var(--gy-sombra-azul);
+}
+
+.gy-banqueo-fuente-badge-txt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.gy-banqueo-feedback--alerta {
+  background: var(--gy-alerta-suave);
+  border-color: var(--gy-alerta);
+}
+
+.gy-banqueo-feedback--alerta .gy-banqueo-feedback-titulo {
+  color: var(--gy-alerta);
+}
+
+/* Resumen de tanda: anillo de dominio + marcador correctas/incorrectas -------- */
+
+.gy-banqueo-anillo {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.gy-banqueo-anillo svg {
+  transform: rotate(-90deg);
+}
+
+.gy-anillo-fondo {
+  fill: none;
+  stroke: var(--gy-superficie);
+  stroke-width: 12;
+}
+
+.gy-anillo-valor {
+  fill: none;
+  stroke: var(--gy-naranja);
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dasharray 700ms ease;
+}
+
+.gy-banqueo-anillo-centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.gy-banqueo-anillo-num {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  font-size: 1.9rem;
+  color: var(--gy-azul-noche);
+  line-height: 1;
+}
+
+.gy-banqueo-anillo-txt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gy-texto-suave);
+}
+
+.gy-banqueo-marcador {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 0.6rem 0 0.2rem;
+}
+
+.gy-banqueo-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 92px;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--gy-radio-m);
+  border: 1.5px solid var(--gy-borde);
+}
+
+.gy-banqueo-stat-num {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.gy-banqueo-stat-txt {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--gy-texto-suave);
+}
+
+.gy-banqueo-stat--exito {
+  background: var(--gy-exito-suave);
+  border-color: var(--gy-exito);
+}
+
+.gy-banqueo-stat--exito .gy-banqueo-stat-num { color: var(--gy-exito); }
+
+.gy-banqueo-stat--error {
+  background: var(--gy-error-suave);
+  border-color: var(--gy-error);
+}
+
+.gy-banqueo-stat--error .gy-banqueo-stat-num { color: var(--gy-error); }
+
+.gy-banqueo-stat--neutro {
+  background: var(--gy-superficie);
+}
+
+.gy-banqueo-stat--neutro .gy-banqueo-stat-num { color: var(--gy-texto-suave); }
+
+/* Ranking del banqueo / simulacros ------------------------------------------- */
+
+.gy-ranking { margin-top: 1.4rem; }
+
+.gy-ranking-cabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+.gy-ranking-tuposicion {
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--gy-radio-m);
+  background: var(--gy-azul-electrico-suave);
+  color: var(--gy-azul-real);
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+.gy-ranking-lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.gy-ranking-item {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--gy-radio-m);
+  border: 1.5px solid transparent;
+  font-size: 0.92rem;
+}
+
+.gy-ranking-item:nth-child(odd) { background: var(--gy-superficie); }
+
+.gy-ranking-item--yo {
+  background: var(--gy-naranja-suave);
+  border-color: var(--gy-naranja);
+  font-weight: 700;
+}
+
+.gy-ranking-item--fuera { margin-top: 0.5rem; }
+
+.gy-ranking-puesto {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  text-align: center;
+  color: var(--gy-azul-real);
+}
+
+.gy-ranking-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gy-ranking-correctas {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  color: var(--gy-texto);
+}
+
+.gy-ranking-porc {
+  min-width: 3rem;
+  text-align: right;
+  color: var(--gy-texto-suave);
+  font-weight: 600;
+}
+
+/* Simulacros: ficha óptica (aciertos por curso) ------------------------------ */
+
+.gy-simulacro-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.gy-simulacro-curso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border: 1.5px solid var(--gy-borde);
+  border-radius: var(--gy-radio-m);
+  background: var(--gy-blanco);
+}
+
+.gy-simulacro-curso-nombre {
+  font-weight: 600;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gy-simulacro-curso-campo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.gy-simulacro-input {
+  width: 4.2rem;
+  text-align: center;
+  padding: 0.35rem 0.4rem;
+}
+
+.gy-simulacro-de {
+  color: var(--gy-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .gy-banqueo-puntos {
   display: flex;
   flex-wrap: wrap;

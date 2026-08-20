@@ -8,7 +8,7 @@
 // inmediato, la justificación y la FUENTE de cada pregunta. El progreso vive EN
 // MEMORIA (modo DEMO): se reinicia al recargar, y el aviso lo deja claro.
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import {
   MODO_DEMO,
@@ -16,6 +16,7 @@ import {
   obtenerBanqueoTemas,
   obtenerBanqueoPreguntas,
   obtenerBanqueoProgreso,
+  obtenerBanqueoRanking,
   registrarRespuestaBanqueo,
 } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
@@ -23,6 +24,7 @@ import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Boton from '../../componentes/Boton.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
+import Icono from '../../componentes/Icono.jsx'
 import { slugCurso } from '../../componentes/formatos.js'
 
 // El asset vive en public/. Se referencia con BASE_URL para que funcione en
@@ -91,17 +93,18 @@ export default function Banqueo() {
 
 function BanqueoCursos({ sesion, refresco, onElegir }) {
   const { datos, cargando, error } = useDatos(async () => {
-    const [cursos, progreso] = await Promise.all([
+    const [cursos, progreso, ranking] = await Promise.all([
       obtenerBanqueoCursos(sesion),
       obtenerBanqueoProgreso(sesion),
+      obtenerBanqueoRanking(sesion),
     ])
-    return { cursos, progreso }
+    return { cursos, progreso, ranking }
   }, `${sesion.id_usuario}-${refresco}`, `est-banqueo-cursos:${sesion.id_usuario}`)
 
   if (cargando) return <Cargando texto="Cargando el banco de preguntas…" />
   if (error) return <p className="gy-alerta gy-alerta--error">{error}</p>
 
-  const { cursos, progreso } = datos
+  const { cursos, progreso, ranking } = datos
   const progresoPorCurso = new Map(progreso.map((p) => [p.curso, p]))
 
   return (
@@ -184,7 +187,53 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
           })}
         </div>
       )}
+
+      <BanqueoRanking ranking={ranking} idUsuario={sesion.id_usuario} />
     </div>
+  )
+}
+
+// Ranking del banqueo: cómo va el alumno frente a la competencia. Muestra el
+// top y resalta la fila propia; si el alumno está fuera del top, lo añade al pie.
+function BanqueoRanking({ ranking, idUsuario }) {
+  const lista = ranking?.ranking ?? []
+  const yo = ranking?.yo ?? null
+  const total = ranking?.total ?? 0
+  if (lista.length === 0) return null
+
+  const yoEnTop = lista.some((r) => r.id_usuario === idUsuario)
+  const medalla = (puesto) => (puesto === 1 ? '🥇' : puesto === 2 ? '🥈' : puesto === 3 ? '🥉' : puesto)
+
+  return (
+    <Tarjeta className="gy-ranking">
+      <div className="gy-ranking-cabecera">
+        <h3 className="gy-tarjeta-titulo">🏆 Ranking del banqueo</h3>
+        <span className="gy-tarjeta-subtitulo">{total} {total === 1 ? 'estudiante' : 'estudiantes'} compitiendo</span>
+      </div>
+      {yo && (
+        <p className="gy-ranking-tuposicion">
+          Tu posición: <strong>#{yo.puesto}</strong> · {yo.correctas} correctas ({yo.porcentaje}% de acierto)
+        </p>
+      )}
+      <ol className="gy-ranking-lista">
+        {lista.map((r) => (
+          <li key={r.id_usuario} className={`gy-ranking-item${r.id_usuario === idUsuario ? ' gy-ranking-item--yo' : ''}`}>
+            <span className="gy-ranking-puesto">{medalla(r.puesto)}</span>
+            <span className="gy-ranking-nombre">{r.nombre}{r.id_usuario === idUsuario ? ' (tú)' : ''}</span>
+            <span className="gy-ranking-correctas">{r.correctas}</span>
+            <span className="gy-ranking-porc">{r.porcentaje}%</span>
+          </li>
+        ))}
+        {yo && !yoEnTop && (
+          <li className="gy-ranking-item gy-ranking-item--yo gy-ranking-item--fuera">
+            <span className="gy-ranking-puesto">{yo.puesto}</span>
+            <span className="gy-ranking-nombre">{yo.nombre} (tú)</span>
+            <span className="gy-ranking-correctas">{yo.correctas}</span>
+            <span className="gy-ranking-porc">{yo.porcentaje}%</span>
+          </li>
+        )}
+      </ol>
+    </Tarjeta>
   )
 }
 
@@ -267,6 +316,16 @@ function BanqueoTemas({ sesion, curso, onEmpezar, onVolver }) {
 // Paso 3: práctica con NAVEGACIÓN libre (ir y volver) y feedback inmediato.
 // ---------------------------------------------------------------------------
 
+// Duración del temporizador por pregunta (2:30 = 150 s), estilo ficha óptica.
+const DURACION_PREGUNTA = 150
+
+function formatoReloj(segundos) {
+  const s = Math.max(0, segundos)
+  const m = Math.floor(s / 60)
+  const r = s % 60
+  return `${m}:${String(r).padStart(2, '0')}`
+}
+
 function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
   // Contador de tanda: al pedir "Nueva tanda" cambia la clave de carga y trae
   // otra selección barajada del banco.
@@ -283,14 +342,38 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
   const [respuestas, setRespuestas] = useState({})
   // Índices ya contabilizados en el progreso (evita el doble conteo al navegar).
   const [registrados, setRegistrados] = useState(() => new Set())
-  const [registrando, setRegistrando] = useState(false)
+  // Índices donde se agotó el tiempo sin responder (se revelan, no cuentan).
+  const [tiempoAgotado, setTiempoAgotado] = useState(() => new Set())
   const [finalizado, setFinalizado] = useState(false)
+  const [segundos, setSegundos] = useState(DURACION_PREGUNTA)
+
+  // Al cambiar de pregunta (o de tanda) el reloj se reinicia a 2:30.
+  useEffect(() => {
+    setSegundos(DURACION_PREGUNTA)
+  }, [indice, tanda])
+
+  // Cuenta atrás: solo corre en una pregunta viva (sin responder, sin tiempo
+  // agotado, y no en la pantalla de resumen). Al llegar a 0 la marca como
+  // "tiempo agotado" (se revela la correcta pero no suma acierto).
+  useEffect(() => {
+    const listaLocal = preguntas.datos ?? []
+    const yaResuelta = respuestas[indice] != null || tiempoAgotado.has(indice)
+    if (finalizado || listaLocal.length === 0 || yaResuelta) return
+    if (segundos <= 0) {
+      setTiempoAgotado((prev) => new Set(prev).add(indice))
+      return
+    }
+    const id = setTimeout(() => setSegundos((s) => s - 1), 1000)
+    return () => clearTimeout(id)
+  }, [segundos, respuestas, indice, tiempoAgotado, finalizado, preguntas.datos])
 
   const reiniciarEstado = () => {
     setIndice(0)
     setRespuestas({})
     setRegistrados(new Set())
+    setTiempoAgotado(new Set())
     setFinalizado(false)
+    setSegundos(DURACION_PREGUNTA)
   }
 
   const nuevaTanda = () => {
@@ -338,7 +421,13 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
 
   // Resumen final (opcional): se llega con el botón "Finalizar y ver resumen".
   if (finalizado) {
+    const fallos = respondidas - aciertos
+    const sinResponder = lista.length - respondidas
     const porcentaje = respondidas ? Math.round((aciertos / respondidas) * 100) : 0
+    // Anillo de puntaje (SVG): circunferencia 2·π·r con r=52.
+    const RADIO = 52
+    const CIRC = 2 * Math.PI * RADIO
+    const trazo = (porcentaje / 100) * CIRC
     return (
       <div>
         {encabezado}
@@ -351,10 +440,39 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
             height="110"
           />
           <h3 className="gy-banqueo-hero-titulo">¡Terminaste esta tanda de {curso}!</h3>
-          <p className="gy-banqueo-hero-texto">
-            Respondiste <strong>{respondidas}</strong> de <strong>{lista.length}</strong> preguntas
-            {' '}y acertaste <strong>{aciertos}</strong> ({porcentaje}% de dominio en esta tanda).
-          </p>
+
+          <div className="gy-banqueo-anillo">
+            <svg viewBox="0 0 120 120" width="140" height="140" aria-hidden="true">
+              <circle className="gy-anillo-fondo" cx="60" cy="60" r={RADIO} />
+              <circle
+                className="gy-anillo-valor"
+                cx="60"
+                cy="60"
+                r={RADIO}
+                strokeDasharray={`${trazo} ${CIRC}`}
+              />
+            </svg>
+            <div className="gy-banqueo-anillo-centro">
+              <span className="gy-banqueo-anillo-num">{porcentaje}%</span>
+              <span className="gy-banqueo-anillo-txt">dominio</span>
+            </div>
+          </div>
+
+          <div className="gy-banqueo-marcador">
+            <div className="gy-banqueo-stat gy-banqueo-stat--exito">
+              <span className="gy-banqueo-stat-num">{aciertos}</span>
+              <span className="gy-banqueo-stat-txt">Correctas</span>
+            </div>
+            <div className="gy-banqueo-stat gy-banqueo-stat--error">
+              <span className="gy-banqueo-stat-num">{fallos}</span>
+              <span className="gy-banqueo-stat-txt">Incorrectas</span>
+            </div>
+            <div className="gy-banqueo-stat gy-banqueo-stat--neutro">
+              <span className="gy-banqueo-stat-num">{sinResponder}</span>
+              <span className="gy-banqueo-stat-txt">Sin responder</span>
+            </div>
+          </div>
+
           <div className="gy-acciones-fila">
             <Boton variante="acento" onClick={nuevaTanda}>
               Nueva tanda
@@ -373,19 +491,21 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
 
   const pregunta = lista[indice]
   const seleccion = respuestas[indice] ?? null
-  const respondida = seleccion != null
-  const acerto = respondida && seleccion === pregunta.correcta
+  const seAgotoElTiempo = tiempoAgotado.has(indice) && seleccion == null
+  const respondida = seleccion != null || seAgotoElTiempo
+  const acerto = seleccion != null && seleccion === pregunta.correcta
+  // Alerta visual del reloj: naranja bajo 30 s, rojo bajo 10 s.
+  const relojEstado = seAgotoElTiempo || segundos <= 10 ? 'critico' : segundos <= 30 ? 'alerta' : 'ok'
 
-  const elegir = async (numero) => {
-    if (respondida || registrando) return
+  // Marcar es OPTIMISTA: la UI responde al instante y el registro de progreso
+  // se dispara en segundo plano (sin await, sin bloquear el siguiente clic).
+  const elegir = (numero) => {
+    if (respondida) return
     setRespuestas((prev) => ({ ...prev, [indice]: numero }))
     // Registro sin duplicar: solo la primera vez que se responde CADA pregunta.
-    // Navegar hacia atrás/adelante nunca vuelve a contar (queda respondida).
     if (!registrados.has(indice)) {
       setRegistrados((prev) => new Set(prev).add(indice))
-      setRegistrando(true)
-      await registrarRespuestaBanqueo(sesion, { curso, correcta_bool: numero === pregunta.correcta })
-      setRegistrando(false)
+      registrarRespuestaBanqueo(sesion, { curso, correcta_bool: numero === pregunta.correcta }).catch(() => {})
     }
   }
 
@@ -412,6 +532,14 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
 
       <div className="gy-banqueo-progreso-info">
         <span>Pregunta {indice + 1} de {lista.length}</span>
+        <span
+          className={`gy-banqueo-reloj gy-banqueo-reloj--${relojEstado}`}
+          role="timer"
+          aria-label="Tiempo restante de la pregunta"
+        >
+          <Icono nombre="reloj" tamano={16} />
+          {seAgotoElTiempo ? '¡Tiempo!' : formatoReloj(segundos)}
+        </span>
         <span>Aciertos: {aciertos} · Respondidas: {respondidas}</span>
       </div>
 
@@ -432,9 +560,17 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
       </div>
 
       <Tarjeta className="gy-banqueo-pregunta">
-        <p className="gy-micro gy-seccion-micro">
-          {pregunta.tema}{pregunta.subtema ? ` · ${pregunta.subtema}` : ''}
-        </p>
+        <div className="gy-banqueo-pregunta-cab">
+          <p className="gy-micro gy-seccion-micro">
+            {pregunta.tema}{pregunta.subtema ? ` · ${pregunta.subtema}` : ''}
+          </p>
+          {pregunta.fuente && (
+            <span className="gy-banqueo-fuente-badge" title={`Fuente: ${pregunta.fuente}`}>
+              <Icono nombre="repasos" tamano={14} />
+              <span className="gy-banqueo-fuente-badge-txt">{pregunta.fuente}</span>
+            </span>
+          )}
+        </div>
         <h3 className="gy-banqueo-enunciado">{pregunta.enunciado}</h3>
 
         {pregunta.imagen_url && (
@@ -463,18 +599,10 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
           })}
         </div>
 
-        {/* La FUENTE (de qué examen sale la pregunta) siempre visible al pie. */}
-        {pregunta.fuente && (
-          <p className="gy-banqueo-fuente">
-            <span className="gy-banqueo-fuente-etiqueta">Fuente</span>
-            {pregunta.fuente}
-          </p>
-        )}
-
         {respondida && (
-          <div className={`gy-banqueo-feedback gy-banqueo-feedback--${acerto ? 'exito' : 'error'}`}>
+          <div className={`gy-banqueo-feedback gy-banqueo-feedback--${acerto ? 'exito' : seAgotoElTiempo ? 'alerta' : 'error'}`}>
             <p className="gy-banqueo-feedback-titulo">
-              {acerto ? '¡Correcto!' : 'Incorrecto'}
+              {acerto ? '¡Correcto!' : seAgotoElTiempo ? '⏱ Tiempo agotado' : 'Incorrecto'}
             </p>
             <p className="gy-banqueo-feedback-texto">{pregunta.justificacion}</p>
           </div>

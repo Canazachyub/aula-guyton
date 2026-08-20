@@ -11,7 +11,7 @@ import Asignaciones from './Asignaciones.jsx'
 import Usuarios from './Usuarios.jsx'
 import Grabaciones from './Grabaciones.jsx'
 import Pagos from './Pagos.jsx'
-import Asistencia from './Asistencia.jsx'
+import Simulacros from './Simulacros.jsx'
 import Anuncios from './Anuncios.jsx'
 import Config from './Config.jsx'
 
@@ -23,7 +23,7 @@ const MENU = [
   { ruta: '/panel/superadmin/usuarios', etiqueta: 'Usuarios', icono: 'usuarios' },
   { ruta: '/panel/superadmin/grabaciones', etiqueta: 'Grabaciones', icono: 'video' },
   { ruta: '/panel/superadmin/pagos', etiqueta: 'Pagos', icono: 'dinero' },
-  { ruta: '/panel/superadmin/asistencia', etiqueta: 'Asistencia', icono: 'lista' },
+  { ruta: '/panel/superadmin/simulacros', etiqueta: 'Simulacros', icono: 'documento' },
   { ruta: '/panel/superadmin/anuncios', etiqueta: 'Anuncios', icono: 'megafono' },
   { ruta: '/panel/superadmin/config', etiqueta: 'Config', icono: 'config' },
 ]
@@ -39,7 +39,7 @@ export default function PanelSuperadmin() {
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="grabaciones" element={<Grabaciones />} />
         <Route path="pagos" element={<Pagos />} />
-        <Route path="asistencia" element={<Asistencia />} />
+        <Route path="simulacros" element={<Simulacros />} />
         <Route path="anuncios" element={<Anuncios />} />
         <Route path="config" element={<Config />} />
         <Route path="*" element={<Navigate to="/panel/superadmin" replace />} />

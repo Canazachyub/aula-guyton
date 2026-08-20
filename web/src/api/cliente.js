@@ -53,6 +53,10 @@ export const obtenerBanqueoCursos = impl.obtenerBanqueoCursos
 export const obtenerBanqueoTemas = impl.obtenerBanqueoTemas
 export const obtenerBanqueoPreguntas = impl.obtenerBanqueoPreguntas
 export const obtenerBanqueoProgreso = impl.obtenerBanqueoProgreso
+export const obtenerBanqueoRanking = impl.obtenerBanqueoRanking
+
+// Simulacros (ficha óptica de calificación)
+export const obtenerSimulacros = impl.obtenerSimulacros
 
 // Escrituras
 export const registrarPago = impl.registrarPago
@@ -64,7 +68,11 @@ export const publicarAnuncio = impl.publicarAnuncio
 export const guardarCiclo = impl.guardarCiclo
 export const guardarCurso = impl.guardarCurso
 export const guardarAsignacion = impl.guardarAsignacion
+export const asignarCursosACiclo = impl.asignarCursosACiclo
 export const guardarUsuario = impl.guardarUsuario
+export const crearUsuario = impl.crearUsuario
+export const registrarSimulacro = impl.registrarSimulacro
+export const guardarSimulacroPdf = impl.guardarSimulacroPdf
 
 // Banqueo Guyton (escritura)
 export const registrarRespuestaBanqueo = impl.registrarRespuestaBanqueo
