@@ -2242,3 +2242,15 @@ a:hover {
   object-fit: cover;
   display: block;
 }
+
+/* Biblioteca embebida (mismo origen, sin enlace externo ni redireccion) */
+.gy-biblioteca { width: 100%; }
+.gy-biblioteca-marco {
+  width: 100%;
+  height: calc(100vh - 130px);
+  min-height: 520px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--gy-blanco);
+  box-shadow: var(--gy-sombra-1);
+}
