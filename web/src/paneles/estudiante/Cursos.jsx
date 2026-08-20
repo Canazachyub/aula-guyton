@@ -9,8 +9,9 @@ import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
 import Icono from '../../componentes/Icono.jsx'
+import { slugCurso } from '../../componentes/formatos.js'
 
-const TONOS = ['azul', 'acento', 'exito', 'alerta']
+const BASE = import.meta.env.BASE_URL
 
 export default function Cursos() {
   const { sesion } = useSesion()
@@ -33,15 +34,18 @@ export default function Cursos() {
 
   return (
     <div className="gy-grilla gy-grilla--2">
-      {datos.map((c, i) => (
-        <Tarjeta
-          key={c.id_ciclo_curso}
-          titulo={c.curso_nombre}
-          subtitulo={`Ciclo ${c.ciclo_nombre}`}
-          icono="libro"
-          tonoIcono={TONOS[i % TONOS.length]}
-          className="gy-tarjeta--clicable"
-        >
+      {datos.map((c) => (
+        <Tarjeta key={c.id_ciclo_curso} className="gy-tarjeta--clicable">
+          <div className="gy-banqueo-curso-imagen">
+            <img
+              src={`${BASE}cursos/${slugCurso(c.curso_nombre)}.webp`}
+              alt={c.curso_nombre}
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.display = 'none' }}
+            />
+          </div>
+          <h3 className="gy-tarjeta-titulo">{c.curso_nombre}</h3>
+          <p className="gy-tarjeta-subtitulo">Ciclo {c.ciclo_nombre}</p>
           <ul className="gy-lista">
             <li className="gy-lista-item">
               <span className="gy-lista-item-detalle">Docente</span>

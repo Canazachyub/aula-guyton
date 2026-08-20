@@ -146,7 +146,7 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
               <Tarjeta key={c.curso} className="gy-banqueo-curso">
                 <div className="gy-banqueo-curso-imagen">
                   <img
-                    src={`${import.meta.env.BASE_URL}cursos/${slugCurso(c.curso)}.png`}
+                    src={`${import.meta.env.BASE_URL}cursos/${slugCurso(c.curso)}.webp`}
                     alt={c.curso}
                     loading="lazy"
                     onError={(e) => { e.currentTarget.style.display = 'none' }}
