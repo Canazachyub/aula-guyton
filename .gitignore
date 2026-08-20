@@ -15,3 +15,7 @@ GRABACIONES_IMPORT.xlsx
 ACCESOS_DEMO.xlsx
 PROMPTS_CURSOS.txt
 PROMPTS_BANQUEO.txt
+
+# Imagenes fuente (ChatGPT, sin optimizar) — las usadas ya estan optimizadas en web/public
+imagenes/
+~$*.xlsx

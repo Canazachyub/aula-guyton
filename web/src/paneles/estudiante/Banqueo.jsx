@@ -27,8 +27,8 @@ import { slugCurso } from '../../componentes/formatos.js'
 
 // El asset vive en public/. Se referencia con BASE_URL para que funcione en
 // cualquier subruta de hosting (GitHub Pages) sin conocer el nombre del repo.
-const MASCOTA_HERO = `${import.meta.env.BASE_URL}mascota/volando.png`
-const MASCOTA_LOGRO = `${import.meta.env.BASE_URL}mascota/heroe.png`
+const MASCOTA_HERO = `${import.meta.env.BASE_URL}mascota/volando.webp`
+const MASCOTA_LOGRO = `${import.meta.env.BASE_URL}mascota/heroe.webp`
 
 const TONOS_RELLENO = ['', '--acento', '--exito']
 

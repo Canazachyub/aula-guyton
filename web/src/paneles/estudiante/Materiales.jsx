@@ -4,7 +4,7 @@
 // practica (no sueltas).
 
 import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useSesion } from '../../auth/SesionContexto.jsx'
 import { obtenerCursosDelUsuario, obtenerMateriales } from '../../api/cliente.js'
 import { useDatos } from '../../componentes/useDatos.js'
@@ -12,13 +12,19 @@ import Tarjeta from '../../componentes/Tarjeta.jsx'
 import Cargando from '../../componentes/Cargando.jsx'
 import EstadoVacio from '../../componentes/EstadoVacio.jsx'
 import Icono from '../../componentes/Icono.jsx'
-import { META_TIPO_MATERIAL, fechaCorta, idYouTube, tipoMaterial } from '../../componentes/formatos.js'
+import { META_TIPO_MATERIAL, fechaCorta, idYouTube, tipoMaterial, urlPdfEmbebido } from '../../componentes/formatos.js'
 
 function TarjetaMaterial({ material }) {
+  const [pdfAbierto, setPdfAbierto] = useState('')
   const meta = META_TIPO_MATERIAL[material.tipo] ?? META_TIPO_MATERIAL.enlace
   // Solo las grabaciones cuyo enlace es de YouTube se embeben como reproductor;
   // cualquier otro enlace (Drive, etc.) mantiene el comportamiento normal.
   const idVideo = material.tipo === 'video_grabado' ? idYouTube(material.url_drive) : ''
+  // Columnas opcionales de la hoja: PDF de practica y de solucionario del tema.
+  const urlPractica = String(material.practica_url ?? '').trim()
+  const urlSolucion = String(material.solucionario_url ?? '').trim()
+  const pdfActual = pdfAbierto === 'practica' ? urlPractica : pdfAbierto === 'solucionario' ? urlSolucion : ''
+  const alternarPdf = (cual) => setPdfAbierto((prev) => (prev === cual ? '' : cual))
   return (
     <Tarjeta className="gy-tarjeta--clicable">
       <div className="gy-tarjeta-cabecera">
@@ -45,6 +51,35 @@ function TarjetaMaterial({ material }) {
         </div>
       )}
 
+      {(urlPractica || urlSolucion) && (
+        <div className="gy-material-recursos">
+          {urlPractica && (
+            <button
+              type="button"
+              className={`gy-recurso-boton${pdfAbierto === 'practica' ? ' gy-recurso-boton--activo' : ''}`}
+              onClick={() => alternarPdf('practica')}
+            >
+              <Icono nombre="carpeta" tamano={16} /> {pdfAbierto === 'practica' ? 'Ocultar práctica' : 'Ver práctica PDF'}
+            </button>
+          )}
+          {urlSolucion && (
+            <button
+              type="button"
+              className={`gy-recurso-boton${pdfAbierto === 'solucionario' ? ' gy-recurso-boton--activo' : ''}`}
+              onClick={() => alternarPdf('solucionario')}
+            >
+              <Icono nombre="lista" tamano={16} /> {pdfAbierto === 'solucionario' ? 'Ocultar solucionario' : 'Ver solucionario'}
+            </button>
+          )}
+        </div>
+      )}
+
+      {pdfActual && (
+        <div className="gy-pdf-visor">
+          <iframe src={urlPdfEmbebido(pdfActual)} title="Vista previa del PDF" loading="lazy" />
+        </div>
+      )}
+
       <div className="gy-material-pie">
         <a
           className="gy-boton gy-boton--secundario gy-boton--chico"
@@ -54,6 +89,9 @@ function TarjetaMaterial({ material }) {
         >
           {idVideo ? 'Ver grabación en YouTube' : 'Abrir material'}
         </a>
+        <Link className="gy-boton gy-boton--acento gy-boton--chico" to="/panel/estudiante/banqueo">
+          <Icono nombre="repasos" tamano={15} /> Ir a Banqueo
+        </Link>
       </div>
 
       {material.resoluciones.map((r) => (
@@ -116,20 +154,19 @@ export default function Materiales() {
 
   return (
     <div>
-      <div className="gy-chips" role="tablist" aria-label="Cursos">
-        {cursos.datos.map((c) => (
-          <button
-            key={c.id_ciclo_curso}
-            type="button"
-            role="tab"
-            aria-selected={seleccionado === c.id_ciclo_curso}
-            className={`gy-chip${seleccionado === c.id_ciclo_curso ? ' gy-chip--activo' : ''}`}
-            onClick={() => setIdElegido(c.id_ciclo_curso)}
-          >
-            {c.curso_nombre}
-          </button>
-        ))}
-      </div>
+      <label className="gy-materiales-selector">
+        <span className="gy-materiales-selector-icono"><Icono nombre="libro" tamano={17} /></span>
+        <select
+          className="gy-materiales-select"
+          value={seleccionado}
+          onChange={(e) => setIdElegido(e.target.value)}
+          aria-label="Elige un curso"
+        >
+          {cursos.datos.map((c) => (
+            <option key={c.id_ciclo_curso} value={c.id_ciclo_curso}>{c.curso_nombre}</option>
+          ))}
+        </select>
+      </label>
 
       {materiales.cargando && <Cargando texto="Cargando materiales…" />}
       {!materiales.cargando && materiales.datos.length === 0 && (

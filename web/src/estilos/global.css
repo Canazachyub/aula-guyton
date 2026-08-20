@@ -2229,7 +2229,8 @@ a:hover {
 /* Imagen de portada en las tarjetas de curso del banqueo (con degradado de
    marca como respaldo si la imagen aún no existe: el <img> se oculta onError). */
 .gy-banqueo-curso-imagen {
-  height: 130px;
+  aspect-ratio: 16 / 9;
+  width: 100%;
   border-radius: 14px;
   margin-bottom: 0.9rem;
   background: var(--gy-gradiente);
@@ -2243,14 +2244,74 @@ a:hover {
   display: block;
 }
 
-/* Biblioteca embebida (mismo origen, sin enlace externo ni redireccion) */
+/* Biblioteca embebida (mismo origen). Ocupa TODA la seccion como una pantalla:
+   fija, desde debajo de la cabecera y a la derecha de la barra lateral. */
 .gy-biblioteca { width: 100%; }
 .gy-biblioteca-marco {
-  width: 100%;
-  height: calc(100vh - 130px);
-  min-height: 520px;
+  position: fixed;
+  top: 62px;            /* justo debajo de la cabecera sticky */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
   border: 0;
-  border-radius: 16px;
   background: var(--gy-blanco);
-  box-shadow: var(--gy-sombra-1);
+  z-index: 5;           /* debajo de la cabecera (20) y la barra (40) */
 }
+
+@media (min-width: 900px) {
+  .gy-biblioteca-marco { left: 272px; } /* deja libre la barra lateral */
+}
+
+/* Materiales: selector de curso (reemplaza las pastillas) */
+.gy-materiales-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gy-blanco);
+  border: 1px solid var(--gy-borde);
+  border-radius: 12px;
+  padding: 0.1rem 0.5rem 0.1rem 0.7rem;
+  margin-bottom: 1.2rem;
+  box-shadow: var(--gy-sombra-1);
+  max-width: 100%;
+}
+.gy-materiales-selector-icono { color: var(--gy-azul-real); display: flex; }
+.gy-materiales-select {
+  border: 0;
+  background: transparent;
+  padding: 0.55rem 0.4rem;
+  font-weight: 600;
+  color: var(--gy-azul-noche);
+  min-width: 12rem;
+  max-width: 22rem;
+  cursor: pointer;
+}
+.gy-materiales-select:focus { outline: none; }
+
+/* Materiales: recursos por leccion (practica/solucionario) + visor PDF */
+.gy-material-recursos { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.gy-recurso-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid var(--gy-borde);
+  background: var(--gy-relleno);
+  color: var(--gy-azul-real);
+  transition: background var(--gy-transicion), border-color var(--gy-transicion);
+}
+.gy-recurso-boton:hover { background: var(--gy-tinte-azul); }
+.gy-recurso-boton--activo { background: var(--gy-azul-real); border-color: var(--gy-azul-real); color: var(--gy-blanco); }
+.gy-pdf-visor {
+  margin-top: 0.8rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--gy-borde);
+  background: var(--gy-relleno);
+}
+.gy-pdf-visor iframe { width: 100%; height: 560px; border: 0; display: block; }

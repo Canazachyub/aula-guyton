@@ -97,3 +97,14 @@ export function slugCurso(nombre) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
+
+// Convierte un enlace de PDF a una URL embebible dentro de un <iframe>. Para
+// Google Drive usa /preview (se ve el PDF sin descargar ni salir de la web);
+// para otros enlaces asume PDF directo y lo devuelve tal cual. '' si no hay url.
+export function urlPdfEmbebido(url) {
+  const u = String(url ?? '').trim()
+  if (!u) return ''
+  const m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || u.match(/[?&]id=([\w-]+)/)
+  if (m) return `https://drive.google.com/file/d/${m[1]}/preview`
+  return u
+}
