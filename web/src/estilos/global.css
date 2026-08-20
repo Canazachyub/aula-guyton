@@ -2455,6 +2455,164 @@ a:hover {
   font-weight: 600;
 }
 
+/* ===========================================================================
+   Visualizadores gráficos (Mi progreso): gauge, radar, bullet, barras
+   =========================================================================== */
+
+.gy-grafico {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gy-grafico-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+}
+
+.gy-grafico-pie {
+  font-size: 0.85rem;
+  color: var(--gy-texto-suave);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Gauge -------------------------------------------------------------------- */
+
+.gy-gauge-fondo {
+  fill: none;
+  stroke: var(--gy-superficie);
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+
+.gy-gauge-valor {
+  fill: none;
+  stroke: var(--gy-naranja);
+  stroke-width: 16;
+  stroke-linecap: round;
+  transition: stroke-dasharray 700ms ease;
+}
+
+.gy-gauge-num {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  font-size: 30px;
+  fill: var(--gy-azul-noche);
+}
+
+/* Radar -------------------------------------------------------------------- */
+
+.gy-radar-grid { fill: none; stroke: var(--gy-borde); stroke-width: 1; }
+.gy-radar-radio { stroke: var(--gy-borde); stroke-width: 1; }
+.gy-radar-area {
+  fill: rgba(20, 92, 255, 0.18);
+  stroke: var(--gy-azul-electrico);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.gy-radar-vertice { fill: var(--gy-azul-electrico); }
+.gy-radar-label {
+  font-family: var(--gy-fuente-ui);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--gy-texto-suave);
+}
+
+/* Bullet ------------------------------------------------------------------- */
+
+.gy-bullet-lista { display: flex; flex-direction: column; gap: 0.8rem; }
+
+.gy-bullet-cab {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  margin-bottom: 0.3rem;
+}
+
+.gy-bullet-label { font-weight: 600; color: var(--gy-texto); }
+.gy-bullet-valor { font-weight: 800; font-family: var(--gy-fuente-titulos); color: var(--gy-azul-real); }
+
+.gy-bullet-track {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--gy-superficie);
+  overflow: hidden;
+}
+
+.gy-bullet-relleno {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--gy-gradiente);
+  transition: width 700ms ease;
+}
+
+/* El marcador de meta sobresale del riel, por eso el track no lo recorta. */
+.gy-bullet-track { overflow: visible; }
+.gy-bullet-meta {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--gy-naranja);
+  transform: translateX(-50%);
+}
+
+/* Barras verticales -------------------------------------------------------- */
+
+.gy-barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 160px;
+  padding-top: 0.5rem;
+  overflow-x: auto;
+}
+
+.gy-barra-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1 0 42px;
+  height: 100%;
+}
+
+.gy-barra-riel {
+  flex: 1;
+  width: 60%;
+  min-width: 14px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.gy-barra-relleno {
+  width: 100%;
+  min-height: 3px;
+  border-radius: var(--gy-radio-s) var(--gy-radio-s) 0 0;
+  background: var(--gy-gradiente);
+  transition: height 700ms ease;
+}
+
+.gy-barra-valor {
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: var(--gy-fuente-titulos);
+  color: var(--gy-texto);
+}
+
+.gy-barra-label {
+  font-size: 0.72rem;
+  color: var(--gy-texto-suave);
+  text-align: center;
+  white-space: nowrap;
+}
+
 .gy-banqueo-puntos {
   display: flex;
   flex-wrap: wrap;

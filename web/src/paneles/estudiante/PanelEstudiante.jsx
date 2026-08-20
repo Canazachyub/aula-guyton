@@ -8,6 +8,7 @@ import Horario from './Horario.jsx'
 import Cursos from './Cursos.jsx'
 import Materiales from './Materiales.jsx'
 import Banqueo from './Banqueo.jsx'
+import Progreso from './Progreso.jsx'
 import Biblioteca from './Biblioteca.jsx'
 import Simulacros from './Simulacros.jsx'
 import Pagos from './Pagos.jsx'
@@ -19,6 +20,7 @@ const MENU = [
   { ruta: '/panel/estudiante/cursos', etiqueta: 'Mis cursos', icono: 'libro' },
   { ruta: '/panel/estudiante/materiales', etiqueta: 'Materiales', icono: 'carpeta' },
   { ruta: '/panel/estudiante/banqueo', etiqueta: 'Banqueo Guyton', icono: 'repasos' },
+  { ruta: '/panel/estudiante/progreso', etiqueta: 'Mi progreso', icono: 'ciclos' },
   { ruta: '/panel/estudiante/biblioteca', etiqueta: 'Biblioteca', icono: 'libro' },
   { ruta: '/panel/estudiante/simulacros', etiqueta: 'Simulacros', icono: 'documento' },
   { ruta: '/panel/estudiante/pagos', etiqueta: 'Pagos', icono: 'dinero' },
@@ -34,6 +36,7 @@ export default function PanelEstudiante() {
         <Route path="cursos" element={<Cursos />} />
         <Route path="materiales" element={<Materiales />} />
         <Route path="banqueo" element={<Banqueo />} />
+        <Route path="progreso" element={<Progreso />} />
         <Route path="biblioteca" element={<Biblioteca />} />
         <Route path="simulacros" element={<Simulacros />} />
         <Route path="pagos" element={<Pagos />} />
