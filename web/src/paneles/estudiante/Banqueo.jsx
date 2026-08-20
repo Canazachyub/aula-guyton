@@ -27,7 +27,8 @@ import { slugCurso } from '../../componentes/formatos.js'
 
 // El asset vive en public/. Se referencia con BASE_URL para que funcione en
 // cualquier subruta de hosting (GitHub Pages) sin conocer el nombre del repo.
-const MASCOTA = `${import.meta.env.BASE_URL}mascota-fenix.png`
+const MASCOTA_HERO = `${import.meta.env.BASE_URL}mascota/volando.png`
+const MASCOTA_LOGRO = `${import.meta.env.BASE_URL}mascota/heroe.png`
 
 const TONOS_RELLENO = ['', '--acento', '--exito']
 
@@ -108,10 +109,10 @@ function BanqueoCursos({ sesion, refresco, onElegir }) {
       <section className="gy-banqueo-hero">
         <img
           className="gy-banqueo-hero-mascota"
-          src={MASCOTA}
+          src={MASCOTA_HERO}
           alt="Fénix, la mascota de la Academia Guyton"
           width="120"
-          height="106"
+          height="120"
         />
         <div>
           <span className="gy-repasos-etiqueta">Banqueo Guyton UNA Puno</span>
@@ -344,10 +345,10 @@ function BanqueoPractica({ sesion, curso, tema, onCambiarTema, onVolver }) {
         <Tarjeta className="gy-banqueo-resumen">
           <img
             className="gy-banqueo-resumen-mascota"
-            src={MASCOTA}
+            src={MASCOTA_LOGRO}
             alt="Fénix, la mascota de la Academia Guyton"
             width="110"
-            height="97"
+            height="110"
           />
           <h3 className="gy-banqueo-hero-titulo">¡Terminaste esta tanda de {curso}!</h3>
           <p className="gy-banqueo-hero-texto">
