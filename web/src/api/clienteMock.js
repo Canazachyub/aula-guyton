@@ -1105,13 +1105,19 @@ export async function registrarSimulacro(sesion, datos) {
   if (!area) return { ok: false, error: 'Elige tu área.' }
   const pesos = (db.simulacro_config ?? []).filter((r) => String(r.area).trim() === area)
   if (pesos.length === 0) return { ok: false, error: `El área "${area}" no está configurada en el prospecto.` }
-  const reportado = {}
-  for (const r of datos.respuestas ?? []) reportado[String(r.curso).trim()] = Number(r.aciertos) || 0
+  const marcadasPorCurso = {}
+  for (const r of datos.respuestas ?? []) marcadasPorCurso[String(r.curso).trim()] = Array.isArray(r.marcadas) ? r.marcadas : []
   let puntaje = 0, puntajeMax = 0, correctas = 0, total = 0
   const detalle = pesos.map((p) => {
     const curso = String(p.curso).trim()
     const preguntas = Number(p.preguntas) || 0, puntos = Number(p.puntos_pregunta) || 0, pond = Number(p.ponderacion) || 0
-    const ac = Math.max(0, Math.min(reportado[curso] || 0, preguntas))
+    const clave = String(p.clave ?? '').trim().toUpperCase().split(/[\s,;]+/).filter(Boolean)
+    const marcadas = marcadasPorCurso[curso] || []
+    let ac = 0
+    for (let i = 0; i < preguntas; i++) {
+      const m = String(marcadas[i] ?? '').trim().toUpperCase()
+      if (m && clave[i] && m === clave[i]) ac++
+    }
     const pMax = preguntas * puntos * pond, pObt = ac * puntos * pond
     puntaje += pObt; puntajeMax += pMax; correctas += ac; total += preguntas
     return { curso, aciertos: ac, preguntas, puntaje: Math.round(pObt * 100) / 100, puntaje_max: Math.round(pMax * 100) / 100 }

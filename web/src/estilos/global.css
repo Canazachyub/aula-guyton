@@ -2455,6 +2455,82 @@ a:hover {
   font-weight: 600;
 }
 
+/* Ficha óptica: burbujas A–E por pregunta ------------------------------------ */
+
+.gy-ficha-avance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.6rem 0 0.4rem;
+}
+
+.gy-ficha-avance-num {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--gy-azul-real);
+}
+
+.gy-ficha-curso { margin-bottom: 1rem; }
+
+.gy-ficha-curso-nombre {
+  font-family: var(--gy-fuente-titulos);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--gy-texto);
+  padding: 0.3rem 0;
+  border-bottom: 1.5px solid var(--gy-borde);
+  margin-bottom: 0.5rem;
+}
+
+.gy-ficha-preguntas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+  gap: 0.35rem 1rem;
+}
+
+.gy-ficha-fila {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gy-ficha-num {
+  width: 1.8rem;
+  text-align: right;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--gy-texto-suave);
+}
+
+.gy-ficha-burbujas { display: flex; gap: 0.3rem; }
+
+.gy-ficha-burbuja {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--gy-borde);
+  background: var(--gy-blanco);
+  color: var(--gy-texto-suave);
+  font-family: var(--gy-fuente-titulos);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: background-color var(--gy-transicion), border-color var(--gy-transicion), color var(--gy-transicion);
+}
+
+.gy-ficha-burbuja:hover { border-color: var(--gy-azul-electrico); color: var(--gy-azul-real); }
+
+.gy-ficha-burbuja--sel {
+  background: var(--gy-naranja);
+  border-color: var(--gy-naranja);
+  color: var(--gy-blanco);
+}
+
 /* ===========================================================================
    Visualizadores gráficos (Mi progreso): gauge, radar, bullet, barras
    =========================================================================== */

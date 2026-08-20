@@ -14,6 +14,8 @@ import EstadoVacio from '../../componentes/EstadoVacio.jsx'
 import Icono from '../../componentes/Icono.jsx'
 import { urlPdfEmbebido } from '../../componentes/formatos.js'
 
+const LETRAS = ['A', 'B', 'C', 'D', 'E']
+
 function AnilloPuntaje({ porcentaje }) {
   const RADIO = 52
   const CIRC = 2 * Math.PI * RADIO
@@ -41,7 +43,8 @@ export default function Simulacros() {
   )
 
   const [area, setArea] = useState('')
-  const [aciertos, setAciertos] = useState({})
+  // marcas[curso] = array de letras marcadas por pregunta (índice = nº pregunta).
+  const [marcas, setMarcas] = useState({})
   const [dni, setDni] = useState(sesion.dni ?? '')
   const [nombre, setNombre] = useState(`${sesion.nombres ?? ''} ${sesion.apellidos ?? ''}`.trim())
   const [enviando, setEnviando] = useState(false)
@@ -59,20 +62,38 @@ export default function Simulacros() {
 
   const cambiarArea = (nuevaArea) => {
     setArea(nuevaArea)
-    setAciertos({})
+    setMarcas({})
     setResultado(null)
     setMensaje(null)
   }
+
+  const marcar = (curso, indice, letra) => {
+    setMarcas((prev) => {
+      const arr = [...(prev[curso] ?? [])]
+      arr[indice] = arr[indice] === letra ? '' : letra // volver a tocar la misma la desmarca
+      return { ...prev, [curso]: arr }
+    })
+  }
+
+  // Cuántas preguntas marcó / total, para la barra de avance.
+  const totalPreguntas = cursosArea.reduce((s, c) => s + c.preguntas, 0)
+  const marcadasCount = cursosArea.reduce(
+    (s, c) => s + (marcas[c.curso] ?? []).filter((x) => x).length, 0,
+  )
 
   const enviar = async (evento) => {
     evento.preventDefault()
     setMensaje(null)
     setEnviando(true)
-    const respuestas = cursosArea.map((c) => ({ curso: c.curso, aciertos: Number(aciertos[c.curso]) || 0 }))
+    const respuestas = cursosArea.map((c) => ({
+      curso: c.curso,
+      marcadas: Array.from({ length: c.preguntas }, (_, i) => (marcas[c.curso]?.[i]) || ''),
+    }))
     const r = await registrarSimulacro(sesion, { area, dni: dni.trim(), nombre: nombre.trim(), respuestas })
     setEnviando(false)
     if (r.ok) {
       setResultado(r.resultado)
+      if (r.aviso) setMensaje({ tipo: 'info', texto: r.aviso })
       recargar()
     } else {
       setMensaje({ tipo: 'error', texto: r.error })
@@ -134,26 +155,50 @@ export default function Simulacros() {
 
             {area && cursosArea.length > 0 && (
               <>
-                <p className="gy-micro gy-seccion-micro" style={{ marginTop: '0.6rem' }}>Aciertos por curso</p>
-                <div className="gy-simulacro-grilla">
-                  {cursosArea.map((c) => (
-                    <label key={c.curso} className="gy-simulacro-curso">
-                      <span className="gy-simulacro-curso-nombre">{c.curso}</span>
-                      <span className="gy-simulacro-curso-campo">
-                        <input
-                          className="gy-input gy-simulacro-input"
-                          type="number"
-                          min="0"
-                          max={c.preguntas}
-                          placeholder="0"
-                          value={aciertos[c.curso] ?? ''}
-                          onChange={(e) => setAciertos((a) => ({ ...a, [c.curso]: e.target.value }))}
-                        />
-                        <span className="gy-simulacro-de">/ {c.preguntas}</span>
-                      </span>
-                    </label>
-                  ))}
+                <div className="gy-ficha-avance">
+                  <p className="gy-micro gy-seccion-micro" style={{ margin: 0 }}>Marca una opción por pregunta</p>
+                  <span className="gy-ficha-avance-num">{marcadasCount} / {totalPreguntas} marcadas</span>
                 </div>
+
+                {(() => {
+                  let numero = 0 // numeración continua a lo largo de toda la ficha
+                  return cursosArea.map((c) => {
+                    const base = numero
+                    numero += c.preguntas
+                    return (
+                      <div key={c.curso} className="gy-ficha-curso">
+                        <p className="gy-ficha-curso-nombre">
+                          {c.curso} <span className="gy-ayuda-campo">· {c.preguntas} preg.</span>
+                        </p>
+                        <div className="gy-ficha-preguntas">
+                          {Array.from({ length: c.preguntas }).map((_, qi) => (
+                            <div key={qi} className="gy-ficha-fila">
+                              <span className="gy-ficha-num">{base + qi + 1}</span>
+                              <div className="gy-ficha-burbujas">
+                                {LETRAS.map((L) => {
+                                  const sel = marcas[c.curso]?.[qi] === L
+                                  return (
+                                    <button
+                                      key={L}
+                                      type="button"
+                                      className={`gy-ficha-burbuja${sel ? ' gy-ficha-burbuja--sel' : ''}`}
+                                      onClick={() => marcar(c.curso, qi, L)}
+                                      aria-label={`Pregunta ${base + qi + 1}, opción ${L}`}
+                                      aria-pressed={sel}
+                                    >
+                                      {L}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })
+                })()}
+
                 <div className="gy-acciones-fila" style={{ marginTop: '1rem' }}>
                   <Boton type="submit" variante="acento" disabled={enviando || !dni.trim() || !nombre.trim()}>
                     {enviando ? 'Calificando…' : 'Calificar mi ficha'}

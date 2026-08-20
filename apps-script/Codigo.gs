@@ -1716,18 +1716,30 @@ function accRegistrarSimulacro(bd, sesion, params) {
   var pesos = (bd.d.simulacro_config || []).filter(function (r) { return String(r.area).trim() === area; });
   if (pesos.length === 0) return { ok: false, error: 'El área "' + area + '" no está configurada en el prospecto.' };
 
-  var reportado = {};
+  // El alumno marca A/B/C/D/E por pregunta (ficha óptica). Llega
+  // respuestas:[{curso, marcadas:["A","","C",...]}]. Se corrige CONTRA la clave
+  // (columna `clave` de simulacro_config, oculta al alumno) en el SERVIDOR.
+  var marcadasPorCurso = {};
   (Array.isArray(datos.respuestas) ? datos.respuestas : []).forEach(function (r) {
-    reportado[String(r.curso).trim()] = Number(r.aciertos) || 0;
+    marcadasPorCurso[String(r.curso).trim()] = Array.isArray(r.marcadas) ? r.marcadas : [];
   });
 
+  var sinClaveCursos = [];
   var puntaje = 0, puntajeMax = 0, correctas = 0, total = 0;
   var detalle = pesos.map(function (p) {
     var curso = String(p.curso).trim();
     var preguntas = Number(p.preguntas) || 0;
     var puntos = Number(p.puntos_pregunta) || 0;
     var pond = Number(p.ponderacion) || 0;
-    var ac = Math.max(0, Math.min(reportado[curso] || 0, preguntas)); // se acota a [0, preguntas]
+    // La clave: letras separadas por coma/espacio, en el orden de las preguntas.
+    var clave = String(p.clave != null ? p.clave : '').trim().toUpperCase().split(/[\s,;]+/).filter(Boolean);
+    var marcadas = marcadasPorCurso[curso] || [];
+    if (clave.length === 0) sinClaveCursos.push(curso);
+    var ac = 0;
+    for (var i = 0; i < preguntas; i++) {
+      var m = String(marcadas[i] != null ? marcadas[i] : '').trim().toUpperCase();
+      if (m && clave[i] && m === clave[i]) ac++;
+    }
     var pMax = preguntas * puntos * pond;
     var pObt = ac * puntos * pond;
     puntaje += pObt; puntajeMax += pMax; correctas += ac; total += preguntas;
@@ -1755,6 +1767,9 @@ function accRegistrarSimulacro(bd, sesion, params) {
   agregarFila(bd, 'simulacros', fila);
   return {
     ok: true,
+    // Si faltan claves, la calificación de esos cursos sale 0: se avisa para que
+    // el admin complete la columna `clave` de simulacro_config.
+    aviso: sinClaveCursos.length ? 'Faltan las respuestas correctas (columna "clave") de: ' + sinClaveCursos.join(', ') + '.' : '',
     resultado: {
       id_simulacro: fila.id_simulacro, area: area, puntaje: puntaje, puntaje_max: puntajeMax,
       correctas: correctas, total: total, porcentaje: porcentaje, detalle: detalle,
